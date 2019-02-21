@@ -1,28 +1,10 @@
 import { createNewElement, append } from '../lib/U'
 import flattenList from './flattenList'
+import State from './State'
+
 // Still have to implement nullable grammer rules
 const _private = new WeakMap()
-let I = 0
-class State {
-  constructor({ lhs, left, right, dot, from, action }) {
-    this.lhs = lhs
-    this.left = left
-    this.right = right
-    this.dot = dot
-    this.from = from
-    this.id = (State.prototype.id || 0) + 1
-    this.previous = []
-    this.action = action
-    State.prototype.id = this.id
-  }
-  get complete() {
-    return !this.right.length
-  }
-  expectNonTerminal(grammer) {
-    const rhs = this.right[0]
-    return rhs && grammer.some(rule => rule.lhs === rhs)
-  }
-}
+
 const createIndent = index => {
   let cur = 0
   let str = ''
@@ -61,6 +43,7 @@ const createParseTree = (state, index = 0, parentNode = null, tree = []) => {
     ) */
   return tree
 }
+
 // Le useless
 const mapNode = node => {
   const action = node ? node.action : null
@@ -106,6 +89,7 @@ const createAST = (parseTree, ast = []) => {
   parseTree.forEach(node => ast.unshift(mapNode(node)))
   return ast
 }
+
 class Parser {
   constructor(lexer) {
     const self = this
@@ -317,12 +301,14 @@ class Parser {
   resumeParse() {
     return _private.get(this).resumeParse(this)
   }
+
   // This is a buggy implementation because it does not take into account multiple trees produced by ambiguitiy
   // Three types of node for the parse tree, there should be four
   // 1. Symbol node i.e. completed grammer rule
   // 2. Intermediate node i.e. completed production rule
   // 3. Terminal node i.e. a leaf
   // 4. Nodes i.e. represent the ambiguitiy - not implemented at the moment
+
   parse(cb) {
     const self = this
     const { resumeParse } = _private.get(self)
@@ -369,105 +355,105 @@ class Parser {
       }
     })
   }
-  logChart(completed = false) {
-    const { chart } = _private.get(this)
-    chart.forEach((stateSet, i) => {
-      console.log(`==== ${i} ====`)
-      stateSet.forEach(state => {
-        if (!completed || (completed && state.complete)) {
-          console.log(
-            `${state.lhs} -> ${state.left.join(' ')} • ${state.right.join(
-              ' '
-            )} \t\t from (${state.from})`
-          )
-        }
-      })
-    })
-  }
-  printChart(target = document.body, completed = false) {
-    const { chart } = _private.get(this)
-    const table = createNewElement('div', ['class=table'])
-    const tableHeader = createNewElement('div', ['class=table-header flex'])
-    const tableBody = createNewElement('div', ['class=body flex'])
-    const docFrag = createNewElement('documentFragment')
-    chart.forEach((stateSet, i) => {
-      append(tableHeader, createNewElement('div', ['class=header', `content=${i}`]))
-      const col = createNewElement('div', ['class=col'])
-      append(tableBody, col)
-      stateSet.forEach(state => {
-        const row = createNewElement('div', ['class=row'])
-        append(col, row)
-        if (!completed || (completed && state.complete)) {
-          row.innerHTML = `${state.lhs} → ${state.left.join(
-            ' '
-          )} <span class='dot'>•</span> ${state.right.join(' ')} \t\t from (${
-            state.from
-          })`
-        }
-      })
-    })
-    append(target, append(docFrag, append(table, tableHeader, tableBody)))
-  }
-  printParseTree(target = document.body) {
-    const self = this
-    const parseTree = self.parseTree
-    const docFrag = createNewElement('documentFragment')
-    const root = createNewElement('div', ['class=tree flex hcenter'])
-    const createTree = tree => {
-      const docFrag = createNewElement('documentFragment')
-      tree.forEach(node => {
-        const el = createNewElement('div', [
-          'class=node flex flexcolumn',
-          `innerHTML=<span class='name'>${node.value}</span>`
-        ])
-        append(docFrag, el)
-        if (node.children) {
-          append(
-            el,
-            append(
-              createNewElement('div', ['class=children flex']),
-              createTree(node.children)
-            )
-          )
-        }
-      })
-      return docFrag
-    }
-    append(target, append(docFrag, append(root, createTree(parseTree))))
-  }
-  printAST(target = document.body) {
-    const self = this
-    const AST = self.AST
-    const root = createNewElement('div', ['class=tree ast flex hcenter'])
-    const docFrag = createNewElement('documentFragment')
-    const createTree = tree => {
-      const docFrag = createNewElement('documentFragment')
-      tree.forEach(node => {
-        const isList =
-          Array.isArray(node) &&
-          (node.length > 1 || (node.length === 1 && typeof node[0] === 'object'))
-        const el = createNewElement('div', ['class=node flex flexcolumn'])
-        const value = isList
-          ? node.type
-          : node
-          ? node.type === 'undefined'
-            ? 'undefined'
-            : node[0] || node
-          : node
-        if (value) {
-          append(el, createNewElement('span', ['class=name', `content=${value}`]))
-        }
-        append(docFrag, el)
-        if (isList) {
-          append(
-            el,
-            append(createNewElement('div', ['class=children flex']), createTree(node))
-          )
-        }
-      })
-      return docFrag
-    }
-    append(target, append(docFrag, append(root, createTree(AST))))
-  }
+  // logChart(completed = false) {
+  //   const { chart } = _private.get(this)
+  //   chart.forEach((stateSet, i) => {
+  //     console.log(`==== ${i} ====`)
+  //     stateSet.forEach(state => {
+  //       if (!completed || (completed && state.complete)) {
+  //         console.log(
+  //           `${state.lhs} -> ${state.left.join(' ')} • ${state.right.join(
+  //             ' '
+  //           )} \t\t from (${state.from})`
+  //         )
+  //       }
+  //     })
+  //   })
+  // }
+  // printChart(target = document.body, completed = false) {
+  //   const { chart } = _private.get(this)
+  //   const table = createNewElement('div', ['class=table'])
+  //   const tableHeader = createNewElement('div', ['class=table-header flex'])
+  //   const tableBody = createNewElement('div', ['class=body flex'])
+  //   const docFrag = createNewElement('documentFragment')
+  //   chart.forEach((stateSet, i) => {
+  //     append(tableHeader, createNewElement('div', ['class=header', `content=${i}`]))
+  //     const col = createNewElement('div', ['class=col'])
+  //     append(tableBody, col)
+  //     stateSet.forEach(state => {
+  //       const row = createNewElement('div', ['class=row'])
+  //       append(col, row)
+  //       if (!completed || (completed && state.complete)) {
+  //         row.innerHTML = `${state.lhs} → ${state.left.join(
+  //           ' '
+  //         )} <span class='dot'>•</span> ${state.right.join(' ')} \t\t from (${
+  //           state.from
+  //         })`
+  //       }
+  //     })
+  //   })
+  //   append(target, append(docFrag, append(table, tableHeader, tableBody)))
+  // }
+  // printParseTree(target = document.body) {
+  //   const self = this
+  //   const parseTree = self.parseTree
+  //   const docFrag = createNewElement('documentFragment')
+  //   const root = createNewElement('div', ['class=tree flex hcenter'])
+  //   const createTree = tree => {
+  //     const docFrag = createNewElement('documentFragment')
+  //     tree.forEach(node => {
+  //       const el = createNewElement('div', [
+  //         'class=node flex flexcolumn',
+  //         `innerHTML=<span class='name'>${node.value}</span>`
+  //       ])
+  //       append(docFrag, el)
+  //       if (node.children) {
+  //         append(
+  //           el,
+  //           append(
+  //             createNewElement('div', ['class=children flex']),
+  //             createTree(node.children)
+  //           )
+  //         )
+  //       }
+  //     })
+  //     return docFrag
+  //   }
+  //   append(target, append(docFrag, append(root, createTree(parseTree))))
+  // }
+  // printAST(target = document.body) {
+  //   const self = this
+  //   const AST = self.AST
+  //   const root = createNewElement('div', ['class=tree ast flex hcenter'])
+  //   const docFrag = createNewElement('documentFragment')
+  //   const createTree = tree => {
+  //     const docFrag = createNewElement('documentFragment')
+  //     tree.forEach(node => {
+  //       const isList =
+  //         Array.isArray(node) &&
+  //         (node.length > 1 || (node.length === 1 && typeof node[0] === 'object'))
+  //       const el = createNewElement('div', ['class=node flex flexcolumn'])
+  //       const value = isList
+  //         ? node.type
+  //         : node
+  //         ? node.type === 'undefined'
+  //           ? 'undefined'
+  //           : node[0] || node
+  //         : node
+  //       if (value) {
+  //         append(el, createNewElement('span', ['class=name', `content=${value}`]))
+  //       }
+  //       append(docFrag, el)
+  //       if (isList) {
+  //         append(
+  //           el,
+  //           append(createNewElement('div', ['class=children flex']), createTree(node))
+  //         )
+  //       }
+  //     })
+  //     return docFrag
+  //   }
+  //   append(target, append(docFrag, append(root, createTree(AST))))
+  // }
 }
 export default Parser

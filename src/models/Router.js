@@ -1,6 +1,5 @@
 import Emitter from './Emitter'
 import { createNewElement } from '../lib/U'
-import App from './App'
 
 const _private = new WeakMap()
 const getCurrentUri = self =>

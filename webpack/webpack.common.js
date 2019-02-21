@@ -1,5 +1,3 @@
-const path = require('path')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const webpack = require('webpack')
 
@@ -10,13 +8,7 @@ const config = {
   resolve: {
     extensions: ['.js', '.ts']
   },
-  plugins: [
-    new BundleAnalyzerPlugin(),
-    new webpack.NamedModulesPlugin(),
-    new CleanWebpackPlugin(['dist'], {
-      root: path.resolve(__dirname, '..')
-    })
-  ],
+  plugins: [new BundleAnalyzerPlugin(), new webpack.NamedModulesPlugin()],
   module: {
     rules: [
       {

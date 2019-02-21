@@ -1,6 +1,7 @@
 import App from '../lib/App'
 import Router from './models/Router'
 import { html } from 'lit-html'
+import Store from './lib/store'
 
 class Person {
   constructor() {
@@ -92,83 +93,91 @@ router.set(
     }
   }
 )
-const blogPost = {
-  props: ['post'],
-  template: html`
-    <div class="blog-post">
-      <h3>{{ post.title }}</h3>
-      <button on:click="emit('enlarge-text')">Enlarge text</button>
-      <button on:click="emit('shrink-text')">Shrink text</button>
-      <div html="post.content"></div>
-    </div>
-  `
-}
-const componentB = {
-  data() {
-    return {}
-  },
-  template: html`
-    <div><h2>Child of A</h2></div>
-  `
-}
-const componentA = {
-  props: ['item'],
-  data() {
-    return {
-      prop: 'Some data'
+// const blogPost = {
+//   props: ['post'],
+//   template: html`
+//     <div class="blog-post">
+//       <h3>{{ post.title }}</h3>
+//       <button on:click="emit('enlarge-text')">Enlarge text</button>
+//       <button on:click="emit('shrink-text')">Shrink text</button>
+//       <div html="post.content"></div>
+//     </div>
+//   `
+// }
+// const componentB = {
+//   data() {
+//     return {}
+//   },
+//   template: html`
+//     <div><h2>Child of A</h2></div>
+//   `
+// }
+// const componentA = {
+//   props: ['item'],
+//   data() {
+//     return {
+//       prop: 'Some data'
+//     }
+//   },
+//   methods: {
+//     clickMe() {
+//       this.prop = this.prop === 'foo' ? 'bar' : 'foo'
+//     }
+//   },
+//   components: {
+//     componentB
+//   },
+//   template: html`
+//     <div>
+//       <h1>My component A</h1>
+//       <h2>{{ item.title }}</h2>
+//       <slot></slot> <button on:click="clickMe">Click me</button> {{prop}}
+//       <component-b></component-b>
+//     </div>
+//   `
+// }
+// const todoItem = {
+//   props: ['todo'],
+//   data() {
+//     return {}
+//   },
+//   template: html`
+//     <label>
+//       <input type="checkbox" on:change="toggle(todo)" bind:checked="todo.done" />
+//       <del if="todo.done"> {{ todo.text }} </del> <span else> {{ todo.text }} </span>
+//       <span> not me </span>
+//     </label>
+//   `
+// }
+
+const actions = {}
+const mutations = {}
+const state = {
+  user: {
+    person: {
+      gender: '',
+      firstname: '',
+      lastname: '',
+      age: ''
+    },
+    address: {
+      zipcode: '',
+      street: '',
+      housenumber: ''
     }
-  },
-  methods: {
-    clickMe() {
-      this.prop = this.prop === 'foo' ? 'bar' : 'foo'
-    }
-  },
-  components: {
-    componentB
-  },
-  template: html`
-    <div>
-      <h1>My component A</h1>
-      <h2>{{ item.title }}</h2>
-      <slot></slot> <button on:click="clickMe">Click me</button> {{prop}}
-      <component-b></component-b>
-    </div>
-  `
+  }
 }
-const todoItem = {
-  props: ['todo'],
-  data() {
-    return {}
-  },
-  template: html`
-    <label>
-      <input type="checkbox" on:change="toggle(todo)" bind:checked="todo.done" />
-      <del if="todo.done"> {{ todo.text }} </del> <span else> {{ todo.text }} </span>
-      <span> not me </span>
-    </label>
-  `
-}
+
+const store = new Store({ actions, mutations, state })
+
 const app = new App({
   el: '#form',
-  data: {
-    user: {
-      person: {
-        gender: '',
-        firstname: '',
-        lastname: '',
-        age: ''
-      },
-      address: {
-        zipcode: '',
-        street: '',
-        housenumber: ''
-      }
-    }
-  },
+  data: state,
   listeners: {
     ready() {}
   }
 })
+
 console.log(app)
 /* new App({
   el: '#todos',

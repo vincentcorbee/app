@@ -5,6 +5,7 @@ const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 const pkg = require('../package.json')
 
 const dependencies = pkg.dependencies
@@ -26,7 +27,7 @@ module.exports = merge(common, {
   mode: 'development',
   entry,
   output: {
-    filename: '[name].bundle.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, '..', 'dist')
   },
   mode: 'development',
@@ -38,6 +39,9 @@ module.exports = merge(common, {
     historyApiFallback: true
   },
   plugins: [
+    new CleanWebpackPlugin(['dist'], {
+      root: path.resolve(__dirname, '..')
+    }),
     new webpack.HotModuleReplacementPlugin(),
     new MiniCssExtractPlugin({
       filename: '[name].bundle.css'

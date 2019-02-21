@@ -2,14 +2,19 @@ const merge = require('webpack-merge')
 const common = require('./webpack.common')
 const MinifyPlugin = require('babel-minify-webpack-plugin')
 const path = require('path')
-
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 const library = 'App'
 const entry = {
-  app: path.resolve(__dirname, path.join('..', 'src', 'models', 'App.js'))
+  App: path.resolve(__dirname, path.join('..', 'src', 'models', 'App.js'))
 }
 
 module.exports = merge(common, {
   entry,
+  plugins: [
+    new CleanWebpackPlugin(['lib'], {
+      root: path.resolve(__dirname, '..')
+    })
+  ],
   optimization: {
     // minimize: false,
     minimizer: [

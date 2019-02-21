@@ -17,7 +17,8 @@ export default class App extends Emitter {
   }
   constructor(config) {
     super()
-    let vm = this
+
+    const vm = this
     let _data = config.data
       ? typeof config.data === 'function'
         ? config.data()
@@ -30,6 +31,7 @@ export default class App extends Emitter {
     let _listeners = config.listeners || null
     let _components = config.components || {}
     let _router = config.router || null
+
     // This is the update queue for al the data changes and updates
     // I do find this to cause a lag
     let queue = new Queue()
@@ -89,11 +91,14 @@ export default class App extends Emitter {
       compile(vm, el = null) {
         if (el) {
           let element = new Element(el, vm)
+
           privateData.get(vm).el = element
           privateData.get(vm).node = element.node
+
           // Why is this node property gone
           // Set mutation observer
           let { node } = privateData.get(vm)
+
           if (node && node.parentNode) {
             let mutationObserver = new MutationObserver(mutations =>
               mutations.forEach(mutation => {
@@ -267,9 +272,11 @@ export default class App extends Emitter {
   get $route() {
     let router = privateData.get(this)._router
     let parent = this.parent
+
     if (!router && parent) {
       router = parent.$router
     }
+
     return router.req
   }
   get $router() {

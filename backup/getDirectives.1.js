@@ -1,4 +1,3 @@
-import App from '../src/models/App'
 import Element from '../src/models/Element'
 import { U } from '../src/lib/U'
 import getPlaceholders from '../src/helpers/getPlaceholders'

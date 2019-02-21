@@ -1,15 +1,15 @@
 window.MutationObserver = window.MutationObserver || window.WebKitMutationObserver
-;(function() {
+;(() => {
   let timeouts = []
   let messageName = 'zero-timeout-message'
   // Like setTimeout, but only takes a function argument.  There's
   // no time argument (always zero) and no arguments (you have to
   // use a closure).
-  function setZeroTimeout(fn) {
+  const setZeroTimeout = fn => {
     timeouts.push(fn)
     window.postMessage(messageName, '*')
   }
-  function handleMessage(event) {
+  const handleMessage = event => {
     if (event.source === window && event.data === messageName) {
       event.stopPropagation()
       if (timeouts.length > 0) {
@@ -24,7 +24,7 @@ window.MutationObserver = window.MutationObserver || window.WebKitMutationObserv
   window.setZeroTimeout = setZeroTimeout
 })()
 // Polyfill send as binary -- MDNApp.charts.overview.today
-;(function() {
+;(() => {
   if (!window.XMLHttpRequest.prototype.sendAsBinary) {
     window.XMLHttpRequest.prototype.sendAsBinary = function(sData) {
       let nBytes = sData.length
@@ -40,7 +40,7 @@ window.MutationObserver = window.MutationObserver || window.WebKitMutationObserv
   }
 })()
 // Polyfill CustomEvent -- MDN
-;(function() {
+;(() => {
   if (typeof window.CustomEvent === 'function') {
     return false
   }
@@ -57,7 +57,7 @@ window.MutationObserver = window.MutationObserver || window.WebKitMutationObserv
   CustomEvent.prototype = window.Event.prototype
   window.CustomEvent = CustomEvent
 })()
-;(function() {
+;(() => {
   if (typeof window.Event === 'function') {
     return false
   }
@@ -76,10 +76,12 @@ window.MutationObserver = window.MutationObserver || window.WebKitMutationObserv
 })()
 function AddedListeners(U, config) {
   config = config || {}
+
   let that = this
   let items = []
   let int = config.garbageCollection || 20000
-  ;(function(int) {
+
+  ;(int => {
     let collectGarbage = int => {
       let s = new Date()
       let interval = () => {
@@ -119,7 +121,7 @@ function AddedListeners(U, config) {
                   (o.fn.origin === fn.origin || o.fn.origin === fn)))
           )
         ) {
-          return
+          return false
         }
         items.push({
           eventType: eventType,
@@ -171,7 +173,7 @@ const ajaxRequest = (function() {
   }
   Request.prototype = {
     constructor: Request,
-    send: function(payload) {
+    send(payload) {
       let that = this
       let ajax = new window.XMLHttpRequest()
       let FormData = window.FormData
@@ -259,7 +261,7 @@ const ajaxRequest = (function() {
       })
       ajax.send(data)
     },
-    parseResponse: function(req) {
+    parseResponse(req) {
       let res
       let that = this
       let contentType =
@@ -282,9 +284,10 @@ const ajaxRequest = (function() {
       }
       return res
     },
-    handleResponse: function(e) {
+    handleResponse(e) {
       let that = this
       let req = e.target
+
       if (req.readyState === 4) {
         if ((req.status >= 200 && req.status <= 300) || req.status === 304) {
           if (that.payload.loader) {
@@ -296,7 +299,7 @@ const ajaxRequest = (function() {
         }
       }
     },
-    listeners: function(e) {
+    listeners(e) {
       let that = this
       let type = e.type
       let req = e.target
@@ -332,7 +335,7 @@ const ajaxRequest = (function() {
         table[type](req)
       }
     },
-    setCallback: function(req, event, status, response) {
+    setCallback(req, event, status, response) {
       let that = this
       let events = that.events
       if (req.complete) {
@@ -341,7 +344,7 @@ const ajaxRequest = (function() {
         events[event].call(req, response)
       }
     },
-    computeProgress: function(e) {
+    computeProgress(e) {
       let progress = null
       if (e.lengthComputable) {
         progress = (e.loaded / e.total) * 100

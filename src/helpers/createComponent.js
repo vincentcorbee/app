@@ -1,5 +1,4 @@
 import Base from '../models/Base'
-import App from '../models/App'
 import camelToHyphen from './camelToHyphen'
 import createTemplate from './createTemplate'
 import insertTemplate from './insertTemplate'
