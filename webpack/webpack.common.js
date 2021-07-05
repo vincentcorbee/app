@@ -8,7 +8,10 @@ const config = {
   resolve: {
     extensions: ['.js', '.ts']
   },
-  plugins: [new BundleAnalyzerPlugin(), new webpack.NamedModulesPlugin()],
+  plugins: [
+    new BundleAnalyzerPlugin({ analyzerPort: 9898 }),
+    new webpack.NamedModulesPlugin()
+  ],
   module: {
     rules: [
       {

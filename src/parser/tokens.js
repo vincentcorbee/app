@@ -2,7 +2,7 @@ export default [
   {
     type: 'BEGINCOMMENT',
     reg: /^\/\*/,
-    begin: 'COMMENT'
+    begin: 'COMMENT',
   },
   {
     type: 'NEWLINE',
@@ -10,28 +10,28 @@ export default [
     cb: lex => {
       lex.line += 1
       lex.col = 0
-      // If set to true newlines are tokenized and user for automated semicolon insertion
+      // If set to true newlines are tokenized and used for automated semicolon insertion
       return true
-    }
+    },
   },
   ['SEMI', /^;/],
   ['THIS', /^this/],
   {
     type: 'NULL',
     reg: /^null/,
-    value: v => null
+    value: v => null,
   },
   ['FALSE', /^false/],
   ['TRUE', /^true/],
   {
     type: 'NUMBER',
     reg: /^[0-9]+(?:\.?[0-9]+)*/,
-    value: num => parseFloat(num)
+    value: num => parseFloat(num),
   },
   {
     type: 'STRING',
     reg: /^(?:"(?:[^"\\]|(?:\\.))*")|'(?:[^'\\]|(?:\\.))*'/,
-    value: str => str.slice(1, -1)
+    value: str => str.slice(1, -1),
   },
   ['COMMA', /^,/],
   ['DOT', /^\./],
@@ -39,36 +39,36 @@ export default [
   ['IN', /^in\b/],
   ['OF', /^of\b/],
   ['TYPEOF', /^typeof\b/],
-  ['PLUSIS', /^\+=\b/],
+  ['PLUSIS', /^\+=/],
   ['MULTIPLY', /^\*/],
   ['DIVIDE', /^\//],
-  ['INCREMENT', /^\++\b/],
+  ['INCREMENT', /^\+{2}/],
   ['MODULUS', /^\%/],
   ['PLUS', /^\+/],
-  ['DECREMENT', /^\-\-\b/],
+  ['DECREMENT', /^\-\-/],
   ['MINUS', /^\-/],
-  ['LOGNOT', /^\!/],
   ['TENARY', /^\?/],
+  ['NOTSTRICTEQUAL', /^\!==/],
+  ['STRICTEQUAL', /^===/],
+  ['EQUALEQUAL', /^==/],
   ['NOTEQUAL', /^\!=/],
-  ['NOTSTRICTEQUAL', /^\!==\b/],
-  ['STRICTEQUAL', /^===\b/],
-  ['EQUALEQUAL', /^==\b/],
+  ['LOGNOT', /^\!/],
   ['EQUAL', /^=/],
   ['LT', /^</],
   ['LTEQ', /^<=/],
   ['GT', /^>/],
   ['GTEQ', /^>=/],
-  ['LOGOR', /^\|\|/],
+  ['LOGOR', /^\|{2}/],
   ['XLOGOR', /^\^/],
-  ['LOGAND', /^&&{2}/],
-  ['OR', /^\|/],
+  ['LOGAND', /^&{2}/],
+  ['BINOR', /^\|{1}/],
   ['NOT', /^~/],
-  ['AND', /^&{1}/],
+  ['BINAND', /^&{1}/],
   ['LPAREN', /^\(/],
   ['RPAREN', /^\)/],
   ['LCBRACE', /^\{/],
   ['RCBRACE', /^\}/],
   ['LBRACK', /^\[/],
   ['RBRACK', /^\]/],
-  ['IDENTIFIER', /^[$a-zA-Z]+(?:[a-zA-Z_\-]+)*/]
+  ['IDENTIFIER', /^[$a-zA-Z]+(?:[a-zA-Z_\-]+)*/],
 ]

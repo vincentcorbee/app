@@ -5,26 +5,30 @@ const _private = new WeakMap()
 export default class Queue extends Emitter {
   constructor() {
     super()
-    const self = this
-    _private.set(self, {
-      buffer: []
+
+    _private.set(this, {
+      buffer: [],
     })
   }
+
   push(data, observable) {
-    const self = this
-    const { buffer } = _private.get(self)
-    Array.prototype.push.call(buffer, { data, observable })
-    self.pop()
+    const { buffer } = _private.get(this)
+
+    window.setZeroTimeout(() => buffer.push({ data, observable }))
+
+    this.pop()
   }
+
   pop() {
-    const self = this
-    const { buffer } = _private.get(self)
+    const { buffer } = _private.get(this)
+
     window.setZeroTimeout(() => {
-      let obj = buffer.pop()
+      const obj = buffer.pop()
+
       obj.observable.notify(obj.data)
-      obj = null
+
       if (!buffer.length) {
-        self.emit('flushed')
+        this.emit('flushed')
       }
     })
   }

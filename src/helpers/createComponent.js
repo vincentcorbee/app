@@ -1,138 +1,200 @@
 import Base from '../models/Base'
+import App from '../models/App'
 import camelToHyphen from './camelToHyphen'
 import createTemplate from './createTemplate'
-import insertTemplate from './insertTemplate'
 
-const createComponent = (component, parent = null) => {
-  ;(async () => {
-    const _private = new WeakMap()
-    const template = createTemplate(component.template)
-    const props = component.props || null
-    const components = component.components || {}
-    let __attributes__ = []
-    let attrInstantiated = []
-    let instantiated = false
-    if (Array.isArray(props)) {
-      __attributes__ = props
-    } else if (typeof props === 'object') {
-      for (const key in __attributes__) {
-        if (__attributes__.hasOwnProperty(key)) {
-          key = camelToHyphen(key)
-          __attributes__.push(key)
-        }
-      }
-    }
+const getValue = value => {
+  try {
+    return JSON.parse(value)
+  } catch (err) {
+    return value
+  }
+}
+
+const getAttributes = props =>
+  Array.isArray(props)
+    ? props
+    : props && typeof props === 'object'
+    ? Object.keys(props).map(key => camelToHyphen(key))
+    : []
+
+const createComponent = async (config, _parent = null) => {
+  const { name } = config
+
+  /*
+    Only register the component if it is not already registered
+  */
+
+  if (!document.defaultView.customElements.get(camelToHyphen(name))) {
+    const {
+      props = null,
+      useShadow = true,
+      methods = {},
+      listeners = {},
+      components = {},
+    } = config
+    const __attributes__ = getAttributes(props)
+    const template = createTemplate(
+      typeof config.template === 'object' ? await config.template : config.template
+    )
+
     class Component extends Base {
       static get observedAttributes() {
         return __attributes__
       }
+
+      #name = name
+      #attrInstantiated = []
+      #instantiated = false
+      #useShadow = useShadow
+      #isConnected = false
+      #vm = null
+      #template = template
+
       constructor() {
         super()
-        const self = this
-        const instantiate = self => {
-          let { props, components, parent, attrInstantiated } = _private.get(self)
-          let data = component.data ? component.data() : {}
-          let methods = component.methods || {}
-          let listeners = component.listeners || {}
-          let el = self.shadowRoot.firstElementChild
-          if (props) {
-            if (Array.isArray(props)) {
-              props.forEach(
-                prop =>
-                  (data[prop] = (
-                    attrInstantiated.find(attr => attr.name === prop) || {}
-                  ).value)
-              )
-            }
+
+        this.dispatcher.addEvents()
+
+        this.on('connected', () => (this.#isConnected = true))
+      }
+
+      get isCustomElement() {
+        return true
+      }
+
+      get name() {
+        return this.#name
+      }
+
+      get $vm() {
+        return this.#vm
+      }
+
+      attributeChangedCallback(name, oldVal, value) {
+        // if (oldVal === value) return
+
+        /*
+          Does the attribute needs to be removed?
+          Make sure the attributes are processed before instantiating the component.
+          JSON.parse breaks the reference to the orginal object, inhibiting two way binding.
+        */
+
+        if (this.getAttribute(name)) {
+          const vm = this.$vm
+
+          value = this[name] || getValue(value)
+
+          if (this[name] !== undefined) {
+            this[name] = null
           }
-          // Create new App instance
-          // This keeps overwriting the component vm
-          _private.get(self).vm = new App({
-            el,
-            data,
-            methods,
-            listeners,
-            parent
+
+          if (!this.#instantiated) {
+            this.#attrInstantiated.push({
+              name,
+              value,
+            })
+
+            if (
+              this.#attrInstantiated.length === __attributes__.length &&
+              this.#isConnected
+            ) {
+              this.#instantiate()
+            }
+          } else if (vm) {
+            console.log(vm, value)
+
+            vm[name] = value
+          }
+        }
+      }
+
+      disconnectedCallback() {
+        const vm = this.#vm
+
+        if (vm && !vm.isDestroyed) {
+          vm.$destroy()
+        }
+
+        this.#vm = null
+
+        this.#isConnected = false
+
+        this.emit('disconnected')
+      }
+
+      connectedCallback() {
+        if (!this.#isConnected) {
+          this.#attach()
+
+          if (
+            __attributes__.length === 0 ||
+            this.#attrInstantiated.length === __attributes__.length
+          ) {
+            this.#instantiate()
+          } else {
+            this.#attrInstantiated = []
+          }
+
+          this.emit('connected')
+        }
+      }
+
+      #attach() {
+        if (this.#useShadow) {
+          const root = this.attachShadow({
+            mode: 'open',
           })
 
-          // This still adds a child that has no reference in the DOM from a for directive
-          // I don't think this works very well
-          // Create child components
-          for (const name in components) {
-            components[name].name = components[name].name || name
-            createComponent(components[name], _private.get(self).vm)
-          }
-          _private.get(self).instantiated = true
+          root.appendChild(this.#template.content.cloneNode(true))
+        } else {
+          this.appendChild(document.importNode(this.#template.content, true))
         }
-        self.dispatcher.addEvents()
-        _private.set(self, {
-          name,
-          props,
-          __attributes__,
-          attrInstantiated,
-          instantiated,
-          instantiate,
-          components,
-          parent,
-          vm: null
-        })
       }
-      get name() {
-        return _private.get(this).name
-      }
-      // templateUrl() {
-      //   return ''
-      // }
-      attributeChangedCallback(attrName, oldVal, newVal) {
-        const self = this
-        const { attrInstantiated, __attributes__, instantiate } = _private.get(self)
-        // Does the attribute needs to be removed?
-        // Make sure the attributes are processed before instantiating the component
-        // JSON.stringify breaks the reference to the orginal object,
-        // basically inhibiting two way binding
-        if (self.getAttribute(attrName)) {
-          newVal = self[attrName] || JSON.parse(newVal)
-          if (self[attrName] !== undefined) {
-            self[attrName] = null
-          }
-          if (!_private.get(self).instantiated) {
-            attrInstantiated.push({
-              name: attrName,
-              value: newVal
+
+      #getDataFromProps() {
+        const data = typeof config.data === 'function' ? config.data() : config.data || {}
+        const _attrInstantiated = this.#attrInstantiated
+
+        if (props) {
+          if (Array.isArray(props)) {
+            this.#attrInstantiated = _attrInstantiated.filter(({ name, value }) => {
+              if (props.includes(name)) {
+                data[name] = value
+
+                return false
+              }
+
+              return true
             })
-            if (attrInstantiated.length === __attributes__.length) {
-              instantiate(self)
-            }
-          } else {
-            _private.get(self).vm[attrName] = newVal
           }
         }
+
+        return data
       }
-      disconnectedCallback() {
-        if (_private.get(this).vm) {
-          if (!_private.get(this).vm.isDestroyed) {
-            _private.get(this).vm.$destroy()
-          }
-          _private.get(this).vm = null
-        }
-      }
-      connectedCallback() {
-        let self = this
-        const { instantiate } = _private.get(self)
-        if (self.shadowRoot === null) {
-          const root = self.attachShadow({
-            mode: 'open'
-          })
-          insertTemplate(template, root)
-          if (__attributes__.length === 0) {
-            instantiate(self)
-          } else {
-            _private.get(self).attrInstantiated = []
-          }
-        }
+
+      #instantiate() {
+        const data = this.#getDataFromProps()
+        const parent =
+          (this.$scope && this.$scope.$vm) ||
+          (this.parentNode.$scope && this.parentNode.$scope.$vm) ||
+          _parent
+
+        this.#vm = new App({
+          el: this,
+          components,
+          data,
+          methods,
+          listeners,
+          parent,
+        })
+
+        this.#instantiated = true
       }
     }
-    document.defaultView.customElements.define(camelToHyphen(component.name), Component)
-  })()
+
+    document.defaultView.customElements.define(camelToHyphen(name), Component)
+  }
 }
+
 export default createComponent

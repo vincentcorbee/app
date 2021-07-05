@@ -17,7 +17,7 @@
 	},
   "include": [
     "src"
-],
+, "backup/examples/app.js", "backup/parseObject.js", "backup/Router copy.js"],
   "exclude": [
       "node_modules",
   ]

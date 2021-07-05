@@ -1,14 +1,17 @@
 import Emitter from './Emitter'
-import { createNewElement } from '../lib/U'
+import { createNewElement } from '../helpers/U'
 
 const _private = new WeakMap()
+
 const getCurrentUri = self =>
   window.location.pathname
     .replace(self.baseUrl, '')
     .split('/')
     .filter(path => path)
+
 const getQueryParams = () => {
   let params = {}
+
   window.location.search
     .replace('?', '')
     .split(/&/g)
@@ -19,16 +22,20 @@ const getQueryParams = () => {
     })
   return params
 }
+
 const getViewport = (viewports, name) =>
   viewports.find(viewport => viewport.name === name)
+
 const getRequest = (self, { uri }) => {
   uri = uri.split('/').filter(path => path)
-  let { getCurrentUri, getQueryParams } = _private.get(self)
+
+  const { getCurrentUri, getQueryParams } = _private.get(self)
   let matched = false
   let currentUri = getCurrentUri(self)
   let params = {}
   let queryParams
   let req = null
+
   if (currentUri.length === uri.length) {
     matched = currentUri.every((route, i) => {
       if (uri[i] && (uri[i] === route || /^:/.test(uri[i]))) {
@@ -40,75 +47,113 @@ const getRequest = (self, { uri }) => {
       }
     })
   }
+
   if (matched) {
     queryParams = getQueryParams()
     _private.get(self).err = false
     req = {
       params,
       path: currentUri,
-      queryParams: queryParams
+      queryParams: queryParams,
     }
   } else {
     _private.get(self).err = true
   }
+
   return req
 }
+
 const clearViewport = viewport => (viewport.node.innerHTML = '')
+
 const clearViewports = viewports => viewports.forEach(clearViewport)
-const createComponent = (router, component, name) => {
+
+const createComponent = async (router, component, name) => {
   const { getViewport, viewports } = _private.get(router)
   const viewport = getViewport(viewports, name)
+  const App = Reflect.getPrototypeOf(router.$vm).constructor
+
   component = Object.assign({}, component)
   component.router = router
-  component = new App(component).$mount()
+  component.parent = router.$vm
+  component.instance = await new App(component).$mount()
+
   clearViewports(viewports)
-  viewport.node.appendChild(component.node)
+
+  viewport.node.appendChild(component.instance.node)
+
   return component
 }
+
 const dispatch = self => {
-  let { routes, getRequest, getCurrentUri } = _private.get(self)
-  for (let route of routes) {
-    let req = getRequest(self, route)
+  const { routes, getRequest } = _private.get(self)
+  const { $vm } = self
+
+  for (const route of routes) {
+    const req = getRequest(self, route)
+
     if (req) {
       let component = route.component
-      let components = route.components
-      let cb = route.route
+      const components = route.components
+      const cb = route.route
+
       self.req = req
+
       // This should reuse components not create a new component every time
       if (components) {
-        for (let name in components) {
+        for (const name in components) {
           if (components.hasOwnProperty(name)) {
-            component = createComponent(self, components[name], name)
+            component = createComponent(self, components[name], name, $vm)
+
+            components[name] = component
           }
         }
-      } else if (component && component.template) {
+      }
+
+      if (component && component.template) {
         component = createComponent(self, component, 'default')
       }
+
       if (cb && typeof cb === 'function') {
         cb(req)
       }
+
       self.emit('navigate', {
         type: 'navigate',
         req,
-        component
+        component,
       })
+
       break
     }
   }
+
   if (_private.get(self).err) {
-    let route = routes.find(route => route.err)
-    if (route) {
-      route.err(false, {})
-    } else {
-      console.warn(`${getCurrentUri(self).join('/')} not found`)
-    }
+    handleError(self, new Error(`${self.currentUri} not found`))
   }
+}
+
+const handleError = (self, err) => {
+  const { routes } = _private.get(self)
+  const route = routes.find(route => route.err)
+
+  if (route) {
+    // route.err(false, err)
+  } else {
+    console.warn(`${err.message}`)
+  }
+
+  self.emit('error', {
+    type: 'error',
+    err,
+  })
 }
 
 export default class Router extends Emitter {
   constructor({ baseUrl = '' } = {}) {
     super()
+
     const self = this
+
     _private.set(self, {
       dispatch,
       getViewport,
@@ -124,90 +169,180 @@ export default class Router extends Emitter {
           ? getCurrentUri().pop()
           : baseUrl === '/'
           ? getCurrentUri().join('/')
-          : baseUrl
+          : baseUrl,
     })
+
     // Test with history API
-    let state = window.history.state || {
+    const state = window.history.state || {
       url: '/',
-      title: ''
+      title: '',
     }
-    let viewports = Array.prototype.slice.call(document.getElementsByTagName('r-view'))
-    let rTags = Array.prototype.slice.call(document.getElementsByTagName('r-link'))
+    const viewports = Array.prototype.slice.call(document.getElementsByTagName('r-view'))
+    const rTags = Array.prototype.slice.call(document.getElementsByTagName('r-link'))
 
     const clickListener = e => {
       e.preventDefault()
-      let { currentUri } = _private.get(self)
-      let a = e.target
-      let url = a.getAttribute('href')
-      if (url === currentUri) {
-        return
-      }
-      let ctrlKey = e.ctrlKey
-      let shiftKey = e.shiftKey
-      let title = a.textContent
-      let active = document.querySelector('.r-link-active')
+
+      const url = e.target.getAttribute('href')
+
+      const ctrlKey = e.ctrlKey
+      const shiftKey = e.shiftKey
+
       if (shiftKey || ctrlKey) {
         return true
       }
-      _private.get(self).currentUri = url
+
+      self.navigate(url)
+    }
+
+    _private.get(self).viewports = viewports.map(viewport => {
+      const attributes = Array.prototype.slice
+        .call(viewport.attributes)
+        .map(attr => `${attr.nodeName}=${attr.nodeValue}`)
+      const node = createNewElement('div', attributes)
+      const name = viewport.getAttribute('name') || 'default'
+
+      viewport.parentNode.replaceChild(node, viewport)
+
+      return {
+        node,
+        name,
+      }
+    })
+
+    rTags.forEach(rTag => {
+      const aTag = createNewElement('a', [
+        `href=${rTag.getAttribute('to')}`,
+        `innerHTML=${rTag.innerHTML}`,
+      ])
+
+      rTag.parentNode.replaceChild(aTag, rTag)
+
+      // This should be removed wehen tag is removed
+      aTag.addEventListener('click', clickListener)
+    })
+
+    window.history.replaceState(state, null, '')
+    window.addEventListener('popstate', e => self.navigate(e.state.url, false))
+
+    // console.log(window.history.state, getCurrentUri(self))
+    // end
+  }
+
+  get baseUrl() {
+    return _private.get(this).baseUrl
+  }
+
+  set baseUrl(path) {
+    _private.get(this).baseUrl = path
+  }
+
+  set(...args) {
+    args.forEach(route => _private.get(this).routes.push(route))
+
+    // this.dispatch()
+  }
+
+  navigate(url, pushState = true) {
+    const self = this
+    const { currentUri } = _private.get(self)
+    let title = _private.get(self).title || ''
+    // let { title = '' } = _private.get(self).getRoute(url, _private.get(self).routes) || {}
+
+    _private.get(self).offset = 0
+
+    if (url === currentUri) {
+      return
+    }
+
+    const links = document.querySelectorAll(`a[href$="${url}"][class*="r-link"]`)
+    const active = document.querySelectorAll('[class*="r-link-active"]')
+
+    if (links[0]) {
+      title = links[0].textContent || ''
+    }
+
+    for (const link of active) {
+      link.classList.remove('r-link-active')
+    }
+
+    for (const link of links) {
+      link.classList.add('r-link-active')
+    }
+
+    if (pushState) {
       window.history.pushState(
         {
           url,
-          title
+          title,
         },
         title,
         url
       )
-      if (active) {
-        active.classList.remove('r-link-active')
-      }
-      a.classList.add('r-link-active')
-      _private.get(self).dispatch(self)
     }
-    _private.get(self).viewports = viewports.map(viewport => {
-      let attributes = Array.prototype.slice
-        .call(viewport.attributes)
-        .map(attr => `${attr.nodeName}=${attr.nodeValue}`)
-      let div = createNewElement('div', attributes)
-      viewport.parentNode.replaceChild(div, viewport)
-      return {
-        node: div,
-        name: viewport.getAttribute('name') || 'default'
-      }
-    })
-    rTags.forEach(rTag => {
-      let aTag = createNewElement('a', [
-        `href=${rTag.getAttribute('to')}`,
-        `innerHTML=${rTag.innerHTML}`
-      ])
-      rTag.parentNode.replaceChild(aTag, rTag)
-      aTag.addEventListener('click', clickListener)
-    })
-    window.history.replaceState(state, null, '')
-    window.addEventListener('popstate', e => console.log(e.state))
-    // console.log(window.history.state, getCurrentUri(self))
-    // end
+    _private.get(self).title = title
+    _private.get(self).currentUri = url
+
+    self.dispatch()
   }
-  get baseUrl() {
-    return _private.get(this).baseUrl
+
+  setQueryParams(params = {}) {
+    const { getQueryParams, title = '' } = _private.get(this)
+    const queryParams = { ...getQueryParams(), ...params }
+
+    let queryString = ''
+
+    for (const param in queryParams) {
+      queryString += `${queryString.length ? '&' : ''}${param}=${queryParams[param]}`
+    }
+
+    const url = `${window.location.pathname}${
+      queryString.length ? `?${queryString}` : ''
+    }`
+
+    window.history.pushState(
+      {
+        url,
+        title,
+      },
+      title,
+      url
+    )
   }
-  set baseUrl(path) {
-    _private.get(this).baseUrl = path
-  }
-  set(...args) {
-    args.forEach(route => _private.get(this).routes.push(route))
-    // _private.get(this).dispatch(this)
-  }
+
   addRoute(route) {
-    let self = this
+    const self = this
+
     if (typeof route !== 'object') {
       throw new TypeError(route + ' is not a object')
     }
+
     _private.get(self).routes.push(route)
-    // _private.get(self).dispatch(self)
-    return this
+
+    self.dispatch()
+
+    return self
   }
+
   dispatch() {
     _private.get(this).dispatch(this)
+  }
+
+  next(arg) {
+    if (arg === 'string') {
+      this.navigate(arg)
+    }
+
+    if (arg instanceof Error) {
+      handleError(this, arg)
+    }
+
+    if (arg === undefined) {
+      _private.get(this).dispatch(this)
+    }
+
+    if (arg === false) {
+      return
+    }
   }
 }

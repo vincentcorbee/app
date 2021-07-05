@@ -1,28 +1,41 @@
 import Element from '../models/Element'
-import bindDirectives from './bindDirectives'
+import bindDirectives from '../directives/bindDirectives'
 
 const parseHtml = (element, vm) => {
-  let node = element.node
+  const node = element.node
+  const { nodeType } = node
+  const childNodes = node.shadowRoot
+    ? [...node.shadowRoot.childNodes]
+    : [...node.childNodes]
   const directives = bindDirectives(element, vm)
-  if (
-    node.nodeType === 1 &&
-    (directives.length === 0 || directives.every(directive => directive.name !== 'for'))
-  ) {
-    if (node.childNodes) {
-      // Create copy
-      let childNodes = Array.prototype.slice.call(node.childNodes)
 
-      for (const child of childNodes) {
-        const childElement = new Element(child, vm, element)
-        // Work around. Prevent elements that are not in the DOM to be added to the Children
-        if (element.node.contains(childElement.node)) {
-          element.addChild(childElement)
-        }
+  // console.log(node, element)
+
+  if (element.toBeRemoved || element.isDetached) {
+    return []
+  }
+
+  // console.trace(node, childNodes)
+
+  if (
+    nodeType === 1 &&
+    (directives.length === 0 ||
+      directives.every(({ name }) => name !== 'for' && name !== 'if'))
+  ) {
+    for (const child of childNodes) {
+      if (!child.parentNode || (child.parentNode && !child.parentNode.contains(child))) {
+        continue
       }
-      childNodes = null
+
+      if (child.nodeType === 3 && !/\S+/.test(child.data)) {
+        continue
+      }
+
+      // console.log(child, child.parentNode.innerHTML, child.parentNode.contains(child))
+      new Element(child, vm, element)
     }
   }
-  node = null
+
   return directives
 }
 

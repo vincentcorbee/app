@@ -1,0 +1,29 @@
+<!-- This will add the css to the shadowDom if enabled -->
+<style>
+  :host {
+    display: block;
+    padding: 24px;
+    background-color: white;
+    border-radius: 5px;
+  }
+</style>
+
+<div *if="loading">
+  {{ action }}
+</div>
+{{ test && test.text }}
+<div *if="todos && todos.length !== 0">
+  <span>Todos: {{ todos.length }} </span>
+  <todo-list *bind:todos="todos" @remove-todo="removeTodo"></todo-list>
+  <div>
+    <input type="text" *model="newTodo" />
+    <button @click="addTodo">Add todo</button>
+  </div>
+  <div>
+    <span>{{ newTodo }}</span>
+  </div>
+  <pre>{{ todos }}</pre>
+</div>
+<div *else>
+  <span>Loading</span>
+</div>

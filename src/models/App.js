@@ -2,276 +2,208 @@ import Emitter from './Emitter'
 import Mask from './Mask.js'
 import ArrayMask from './ArrayMask'
 import Element from './Element'
-import { isType, http } from '../lib/U'
+import { isType, http } from '../helpers/U'
 import createComponent from '../helpers/createComponent'
 import Queue from './Queue'
 import createTemplate from '../helpers/createTemplate'
-// import privateData from './helpers/privateData'
 
-const privateData = new WeakMap()
+let __id__ = 0
 
 export default class App extends Emitter {
-  static component(name, component) {
+  static async component(name, component) {
     components.name = component.name || name
-    createComponent(component)
+
+    await createComponent(component)
   }
-  constructor(config) {
+
+  #data = null
+  #methods = {}
+  #parent = null
+  #template = null
+  #el = null
+  #listeners = {}
+  #components = {}
+  #router = null
+  #computed = {}
+  #proxy = null
+  #refs = {}
+  #isDestroyed = false
+  #toBeDestroyed = false
+  #isMounted = false
+  #children = []
+  #queue = new Queue()
+  #handler = {}
+  #node = null
+
+  constructor(config = {}) {
     super()
 
+    const {
+      data = {},
+      methods = {},
+      parent = null,
+      template = null,
+      el = null,
+      listeners = {},
+      components = {},
+      router = null,
+      computed = {},
+    } = config
     const vm = this
-    let _data = config.data
-      ? typeof config.data === 'function'
-        ? config.data()
-        : config.data
-      : {}
-    let _methods = config.methods || {}
-    let _parent = config.parent || null
-    let _template = config.template || null
-    let el = config.el || null
-    let _listeners = config.listeners || null
-    let _components = config.components || {}
-    let _router = config.router || null
 
-    // This is the update queue for al the data changes and updates
-    // I do find this to cause a lag
-    let queue = new Queue()
-    let handler = {
+    this.id = __id__++
+
+    this.#data = data ? (typeof data === 'function' ? data() : data) : {}
+    this.#methods = methods
+    this.#parent = parent
+    this.#template = template
+    this.#node = el
+    this.#listeners = listeners
+    this.#components = components
+    this.#router = router
+    this.#computed = computed
+
+    const getSourceValue = value => {
+      const { constructor } = Object.getPrototypeOf(value)
+
+      if (Array.isArray(value)) {
+        value = value.map(item => {
+          const { constructor } = Object.getPrototypeOf(item)
+
+          if (constructor && constructor.name === 'Mask') {
+            return item.data
+          } else if (constructor && constructor.name === 'ArrayMask') {
+            return getSourceValue(item.data)
+          }
+
+          return item
+        })
+      } else if (constructor && constructor.name === 'Mask') {
+        console.log(value)
+        return value.data
+      }
+
+      return value
+    }
+
+    this.#handler = {
       get(target, prop) {
         const data = target[prop]
+
         if (
-          typeof data === 'object' &&
           data !== null &&
           data !== undefined &&
-          prop !== '__observable__'
+          prop !== '__observable__' &&
+          typeof data === 'object'
         ) {
-          if (Array.isArray(data)) {
-            return new ArrayMask(data, handler, vm, queue)
-          } else {
-            return new Mask(data, handler, vm, queue)
+          const { constructor } = Object.getPrototypeOf(data)
+
+          if (constructor.name !== 'Mask' && constructor.name !== 'ArrayMask') {
+            if (Array.isArray(data)) {
+              return new ArrayMask(data, vm.#handler, vm.#queue)
+            } else {
+              return new Mask(data, vm.#handler, vm.#queue)
+            }
           }
-        } else {
+
           return data
         }
+
+        return data
       },
       set(target, prop, value) {
         if (Reflect.get(target, prop) !== value) {
           const ob = target[prop] ? target[prop].__observable__ : null
+
+          // console.log(target, prop, value, vm)
+
+          value = getSourceValue(value)
+
           if (
             ob &&
             value !== undefined &&
             value !== null &&
             !value.hasOwnProperty('__observable__')
           ) {
+            // Set value to observable
+            ob.value = value
+
             Reflect.defineProperty(value, '__observable__', {
-              value: ob
+              value: ob,
             })
           }
+
           target[prop] = value
+
           return true
         }
-      }
+      },
     }
 
-    const _proxy = new Mask(_data, handler, vm, queue)
+    this.#proxy = new Mask(this.#data, this.#handler, this.#queue)
 
-    privateData.set(vm, {
-      el,
-      _isDestroyed: false,
-      _toBeDestroyed: false,
-      _isMounted: false,
-      _parent,
-      _router,
-      _children: [],
-      _template,
-      data: null,
-      node: null,
-      nextTick() {
-        return new Promise((resolve, reject) => queue.on('flushed', () => resolve()))
-      },
-      compile(vm, el = null) {
-        if (el) {
-          let element = new Element(el, vm)
-
-          privateData.get(vm).el = element
-          privateData.get(vm).node = element.node
-
-          // Why is this node property gone
-          // Set mutation observer
-          let { node } = privateData.get(vm)
-
-          if (node && node.parentNode) {
-            let mutationObserver = new MutationObserver(mutations =>
-              mutations.forEach(mutation => {
-                for (const removed of mutation.removedNodes) {
-                  if (removed === node) {
-                    // destroy(vm)
-                    mutationObserver.disconnect()
-                    mutationObserver = null
-                    node = null
-                    break
-                  }
-                }
-              })
-            )
-            mutationObserver.observe(node.parentNode, {
-              childList: true
-            })
-            // Remove cloak attribute
-            if (node.getAttribute('a-cloak') !== undefined) {
-              node.removeAttribute('a-cloak')
-            }
-          }
-          element = null
-        }
-      },
-      destroy(vm) {
-        privateData.get(vm)._toBeDestroyed = true
-        if (_parent) {
-          _parent.children.splice(_parent.children.indexOf(vm), 1)
-          privateData.get(vm)._parent = null
-        }
-        privateData.get(vm).node = null
-        privateData.get(vm).el = null
-        privateData.get(vm).data = null
-        // Should be disconnected
-        privateData.get(vm)._methods = null
-        // Should be disconnected
-        privateData.get(vm)._listeners = null
-        _proxy.revoke()
-        privateData.get(vm)._proxy = {}
-
-        handler = {}
-
-        // Destroy child vm's if not already destroyed
-        privateData.get(vm)._children.forEach(child => {
-          if (!child.isDestroyed) {
-            child.destroy()
-          }
-        })
-
-        Reflect.ownKeys(vm).forEach(key => (vm[key] = null))
-
-        privateData.get(vm)._isDestroyed = true
-      },
-      init(vm) {
-        // Fire load event
-        vm.emit('load')
-
-        if (_parent && _parent.children.indexOf(vm) === -1) {
-          _parent.children.push(vm)
-        }
-
-        // Create components
-        for (const name in _components) {
-          _components[name].name = _components[name].name || name
-          createComponent(_components[name], vm)
-        }
-
-        // Set listeners
-        for (let listener in _listeners) {
-          vm.on(listener, _listeners[listener].bind(vm))
-        }
-
-        // Mask data and copy properties on instance
-        privateData.get(vm).data = _proxy
-
-        for (let prop in _data) {
-          Reflect.defineProperty(vm, prop, {
-            enumerable: true,
-            get() {
-              if (!_proxy.isRevoked) {
-                return _proxy[prop]
-              } else {
-                return null
-              }
-            },
-            set(value) {
-              if (!_proxy.isRevoked && Reflect.get(_proxy, prop) !== value) {
-                _proxy[prop] = value
-              }
-            }
-          })
-        }
-
-        // Copy methods on instance
-        for (let prop in _methods) {
-          Reflect.defineProperty(vm, prop, {
-            get() {
-              return _methods[prop].bind(vm)
-            }
-          })
-        }
-
-        // compile the template and set mutation observer
-        privateData.get(vm).compile(vm, el)
-
-        // Fire ready event
-        vm.emit('ready')
-      }
-    })
-
-    // If there is a router, dispatch it if it hasn't already
-    if (_router && !_router.$vm) {
-      Reflect.defineProperty(_router, '$vm', {
-        get() {
-          return vm
-        }
-      })
-      _router.dispatch()
-    }
-
-    privateData.get(vm).init(vm)
+    this.#init()
   }
+
   $nextTick() {
-    return privateData.get(this).nextTick()
+    return this.#nextTick()
   }
-  $mount(el = null) {
-    const vm = this
-    let { compile, _template } = privateData.get(vm)
-    let node = el
-      ? isType('String', el)
+
+  async $mount(el = null) {
+    const _template = this.#template
+    const node = el
+      ? isType('string', el)
         ? document.querySelector(el)
-        : isType('Node', el)
+        : isType('node', el)
         ? el
         : null
       : null
-    let template = createTemplate(_template)
+    const template = createTemplate(
+      typeof _template === 'object' ? await _template : _template
+    )
 
-    compile(vm, template.content.firstElementChild)
+    this.#compile(template.content.firstElementChild)
 
-    if (node) {
-      if (node.parentNode) {
-        node.parentNode.replaceChild(vm.node, node)
-      }
+    if (node && node.parentNode) {
+      node.parentNode.replaceChild(this.#node, node)
     }
 
-    node = null
+    this.#isMounted = true
 
-    privateData.get(vm)._isMounted = true
-
-    return vm
+    return this
   }
+
+  get toBeDestroyed() {
+    return this.#toBeDestroyed
+  }
+
   get isDestroyed() {
-    return privateData.get(this)._isDestroyed
+    return this.#isDestroyed
   }
+
   get isMounted() {
-    return privateData.get(this)._isMounted
+    return this.#isMounted
   }
+
   get children() {
-    return privateData.get(this)._children
+    return this.#children
   }
+
   get parent() {
-    return privateData.get(this)._parent
+    return this.#parent
   }
+
   get $destroy() {
-    return () => privateData.get(this).destroy(this)
+    return () => this.#destroy()
   }
+
   get $http() {
     return http
   }
+
   get $route() {
-    let router = privateData.get(this)._router
-    let parent = this.parent
+    let router = this.#router
+    const parent = this.parent
 
     if (!router && parent) {
       router = parent.$router
@@ -279,21 +211,261 @@ export default class App extends Emitter {
 
     return router.req
   }
+
   get $router() {
-    let router = privateData.get(this)._router
-    let parent = this.parent
+    let router = this.#router
+    const parent = this.parent
+
     if (!router && parent) {
       router = parent.$router
     }
+
     return router
   }
+
   get node() {
-    return privateData.get(this).node
+    return (this.#el && this.#el.node) || null
   }
+
   get el() {
-    return privateData.get(this).el
+    return this.#el
   }
+
   get data() {
-    return privateData.get(this).data
+    return this.#proxy
+  }
+
+  get _data() {
+    return this.#data
+  }
+
+  #copyDataToInstance() {
+    const _proxy = this.#proxy
+    const _data = this.#data
+
+    for (const prop of Object.keys(_data)) {
+      Reflect.defineProperty(this, prop, {
+        enumerable: true,
+        get() {
+          if (!_proxy.isRevoked) {
+            return _proxy[prop]
+          } else {
+            return undefined
+          }
+        },
+        set(value) {
+          if (!_proxy.isRevoked && Reflect.get(_proxy, prop) !== value) {
+            _proxy[prop] = value
+          }
+        },
+      })
+    }
+  }
+
+  #setComputedProperties() {
+    const vm = this
+
+    for (const [prop, desc] of Object.entries(vm.#computed)) {
+      let descripter
+
+      if (typeof desc === 'function') {
+        descripter = {
+          get() {
+            return desc.call(vm)
+          },
+        }
+      } else if (typeof desc === 'object') {
+        if (typeof desc.get !== 'function') {
+          throw Error(`A getter is required for a computed property.`)
+        }
+
+        descripter = {
+          get() {
+            return desc.get.call(vm)
+          },
+        }
+
+        if (typeof desc.set === 'function') {
+          descripter.set = () => desc.set.apply(vm, arguments)
+        }
+      }
+
+      descripter.enumerable = true
+
+      Reflect.defineProperty(vm, prop, descripter)
+    }
+  }
+
+  #copyMethodsToInstance() {
+    const vm = this
+
+    for (const [name, method] of Object.entries(vm.#methods)) {
+      Reflect.defineProperty(vm, name, {
+        get() {
+          return method.bind(vm)
+        },
+      })
+    }
+  }
+
+  async #createComponents() {
+    for (const [name, component] of Object.entries(this.#components)) {
+      component.name = component.name || name
+
+      await createComponent(component, this)
+    }
+  }
+
+  #dispatchRouter() {
+    const vm = this
+    const _router = vm.#router
+
+    if (_router && !_router.$vm) {
+      Reflect.defineProperty(_router, '$vm', {
+        get() {
+          return vm
+        },
+      })
+
+      _router.dispatch()
+    }
+  }
+
+  #setRefs() {
+    const vm = this
+
+    Reflect.defineProperty(vm, '$refs', {
+      get() {
+        return vm.#refs
+      },
+      set(refs) {
+        return (vm.#refs = {
+          ...vm.#refs,
+          ...refs,
+        })
+      },
+    })
+  }
+
+  #setListeners() {
+    const vm = this
+
+    for (const [event, listener] of Object.entries(vm.#listeners)) {
+      vm.on(event, listener.bind(vm))
+    }
+  }
+
+  async #init() {
+    const vm = this
+    const _parent = vm.#parent
+
+    // Set listeners
+    vm.#setListeners()
+
+    // Fire load event
+    vm.emit('load')
+
+    if (_parent && _parent.children.includes(vm)) {
+      _parent.children.push(vm)
+    }
+
+    // Set refs
+    vm.#setRefs()
+
+    // Copy data on to instance
+    vm.#copyDataToInstance()
+
+    // Set the computed properties
+    vm.#setComputedProperties()
+
+    // Copy methods on to instance
+    vm.#copyMethodsToInstance()
+
+    // compile the template and set mutation observer
+    vm.#compile(vm.#node)
+
+    // Create components
+    await vm.#createComponents()
+
+    // If there is a router, dispatch it if it hasn't already
+    vm.#dispatchRouter()
+
+    if (vm.#el) {
+      vm.#isMounted = true
+    }
+
+    // Fire ready event
+    vm.emit('ready')
+  }
+
+  #compile(el = null) {
+    if (el) {
+      const element = new Element(el, this)
+      const { node } = element
+
+      element.on('detached', this.#destroy.bind(this), this)
+
+      this.#el = element
+      this.#node = node
+
+      // Set mutation observer
+
+      if (node) {
+        // Remove cloak attribute
+        if (node.getAttribute('a-cloak') !== undefined) {
+          node.removeAttribute('a-cloak')
+        }
+      }
+    }
+  }
+
+  #destroy() {
+    const _el = this.#el
+    const _parent = this.#parent
+    const _listeners = this.#listeners
+
+    this.#toBeDestroyed = true
+
+    this.#proxy.revoke()
+
+    if (_parent) {
+      _parent.children.splice(_parent.children.indexOf(this), 1)
+
+      this.#parent = null
+    }
+
+    this.#node = null
+
+    if (_el) {
+      _el.$destroy()
+
+      this.#el = null
+    }
+
+    this.#methods = null
+
+    for (const listener in _listeners) {
+      this.off(listener, listener.bind(this))
+    }
+
+    this.#listeners = {}
+
+    this.#proxy = null
+
+    this.#handler = {}
+
+    // Destroy child vm's if not already destroyed
+    this.#children.forEach(child => {
+      if (!child.isDestroyed) {
+        child.$destroy()
+      }
+    })
+
+    this.#isDestroyed = true
+    this.#isMounted = false
+  }
+
+  #nextTick() {
+    return new Promise(resolve => this.#queue.on('flushed', resolve))
   }
 }

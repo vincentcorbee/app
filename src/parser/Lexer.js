@@ -10,7 +10,7 @@ class Lexer {
       value,
       line,
       col,
-      index
+      index,
     })
     const setInitialState = self => {
       const { states } = _private.get(self)
@@ -19,7 +19,7 @@ class Lexer {
         tokens: states.length ? states[0].tokens : [],
         error: null,
         start: 0,
-        end: null
+        end: null,
       }
       _private.get(self).state = state
       _private.get(self).states = [state]
@@ -33,7 +33,7 @@ class Lexer {
       line: 1,
       state: null,
       states: [],
-      setInitialState
+      setInitialState,
     })
     setInitialState(self)
   }
@@ -62,7 +62,7 @@ class Lexer {
     const self = this
     const { setInitialState } = _private.get(self)
     setInitialState(self)
-    self.input('')
+    // self.input('')
     self.index = 0
     self.col = 0
     self.line = 1
@@ -78,7 +78,7 @@ class Lexer {
       tokens: [],
       error: null,
       start: self.index,
-      end: null
+      end: null,
     }
     _private.get(self).state = newState
     fn(self)
@@ -95,7 +95,7 @@ class Lexer {
       if (Array.isArray(token)) {
         state.tokens.push({
           type: token[0],
-          reg: token[1]
+          reg: token[1],
         })
       } else {
         state.tokens.push(token)
@@ -105,7 +105,7 @@ class Lexer {
   ignore(reg) {
     _private.get(this).state.tokens.unshift({
       type: 'IGNORE',
-      reg
+      reg,
     })
   }
   skip(num) {
@@ -119,34 +119,49 @@ class Lexer {
     const curCol = self.col
     const curState = _private.get(self).state
     const token = this.readToken()
+
     self.index = curIndex
     self.line = curLine
     self.col = curCol
     _private.get(self).state = curState
+
     return token
   }
   readToken() {
     const self = this
     const { TOKEN, throwError, state, states, input } = _private.get(self)
+
+    if (!input) {
+      return null
+    }
+
     const tokens = state.tokens
     const str = input.substring(self.index)
+
     if (str.length === 0) {
       return null
     }
+
     let token = null
+
     for (const tok of tokens) {
       const reg = tok.reg
       let match = str.match(reg)
+
       if (match) {
         match = match[0]
+
         const curIndex = self.index
         const curCol = self.col
         const curLine = self.line
+
         self.col += match.length
         self.index += match.length
+
         if (tok.type === 'IGNORE') {
           return self.readToken()
         }
+
         if (tok.type === 'NEWLINE') {
           // This token should be handle the what happens here
           if (tok.cb && typeof tok.cb === 'function') {
@@ -156,19 +171,24 @@ class Lexer {
           } else {
             self.line += 1
             self.col = 0
+
             return self.readToken()
           }
         }
         if (tok.begin) {
           const newState = states.find(state => state.name === tok.begin)
+
           newState.start = self.index
           state.end = curIndex
           _private.get(self).state = newState
+
           if (tok.cb && typeof tok.cb === 'function') {
             tok.cb(input.substring(state.start, state.end), self)
           }
+
           return self.readToken()
         }
+
         token = TOKEN(
           tok.type,
           tok.value ? tok.value(match) : match,
@@ -176,11 +196,15 @@ class Lexer {
           curCol,
           curIndex
         )
+
+        // console.log(token)
+
         if (token) {
           return token
         }
       }
     }
+
     if (state.error) {
       return state.error(self)
     } else {

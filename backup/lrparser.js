@@ -66,7 +66,10 @@ const evaluate = (exp, env) => {
       return val
     case 'call':
       const func = evaluate(exp.func, env)
-      return func.apply(null, exp.args.map(arg => evaluate(arg, env)))
+      return func.apply(
+        null,
+        exp.args.map(arg => evaluate(arg, env))
+      )
     default:
       throw new Error("I don't know how to evaluate " + exp.type)
   }
@@ -462,6 +465,7 @@ const parse = input => {
     }
   }
   const parse_expression = () => maybe_call(() => maybe_binary(parse_atom(), 0))
+
   return parse_toplevel()
 }
 export { InputStream, TokenStream, parse, Environment, evaluate }

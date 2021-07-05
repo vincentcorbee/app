@@ -16,8 +16,8 @@ lexer.state('COMMENT', lexer => {
       name: 'ENDCOMMENT',
       reg: /^\*\//,
       begin: 'INITIAL',
-      cb: (substr, lexer) => (lexer.line += (substr.match(/\n/g) || []).length)
-    }
+      cb: (substr, lexer) => (lexer.line += (substr.match(/\n/g) || []).length),
+    },
   ])
   lexer.ignore(/^[ \t\v\r]+/)
   lexer.error(lexer => lexer.skip(1))
@@ -30,15 +30,10 @@ parser.grammer(grammer)
 parser.error = err => ASI(parser, err)
 
 export default (vm, expression, directive) => {
-  let output = ''
   lexer.input(expression)
-  parser.parse(() => {
-    const AST = parser.AST
-    const interpreter = new Interpreter(AST)
-    // Create a new global environment for the interpreter
-    const env = new Environment(null, vm)
-    output = interpreter.interpret(env, directive)
-  })
-  lexer.reset()
-  return output
+  // Create a new global environment for the interpreter
+
+  return parser.parse(() =>
+    new Interpreter(parser.AST).interpret(new Environment(null, vm._data), directive)
+  )
 }

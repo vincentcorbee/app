@@ -1,0 +1,39 @@
+{
+  "todos": [
+    {
+      "id": 1,
+      "text": "Learn JavaScript",
+      "done": false
+    },
+    {
+      "id": 2,
+      "text": "Learn App",
+      "done": false
+    },
+    {
+      "id": 3,
+      "text": "Play around in JSFiddle",
+      "done": true
+    },
+    {
+      "id": 4,
+      "text": "Build something awesome",
+      "done": true
+    },
+    {
+      "id": 5,
+      "text": "hoi",
+      "done": false
+    },
+    {
+      "id": 6,
+      "text": "doei",
+      "done": false
+    },
+    {
+      "id": 7,
+      "text": "Te veel",
+      "done": false
+    }
+  ]
+}

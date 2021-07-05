@@ -1,0 +1,6 @@
+<ul>
+  <li *for="(todo, index) in todos">
+    {{ index + 1 }}
+    <todo-item *bind:todo="todo"></todo-item>
+  </li>
+</ul>

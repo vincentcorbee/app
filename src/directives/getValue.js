@@ -1,8 +1,8 @@
 const getValue = (data, obj) => {
-  let arr = obj.identifiers
-  let placeholder = obj.placeholder
-  let key = arr.shift() || null
-  let value = key ? data[key] : undefined
+  const { identifiers: arr, placeholder } = obj
+  const key = arr.shift() || null
+  const value = key ? data[key] : undefined
+
   if (value && arr.length > 0) {
     obj.identifiers = arr
     return getValue(value, obj)
@@ -11,8 +11,9 @@ const getValue = (data, obj) => {
       value,
       data,
       key,
-      placeholder
+      placeholder,
     }
   }
 }
+
 export default getValue

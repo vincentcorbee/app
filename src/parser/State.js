@@ -8,13 +8,17 @@ export default class State {
     this.id = (State.prototype.id || 0) + 1
     this.previous = []
     this.action = action
+
     State.prototype.id = this.id
   }
+
   get complete() {
     return !this.right.length
   }
+
   expectNonTerminal(grammer) {
     const rhs = this.right[0]
+
     return rhs && grammer.some(rule => rule.lhs === rhs)
   }
 }

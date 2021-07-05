@@ -1,10 +1,12 @@
 const _private = new WeakMap()
 // Global should hold the variables
 class Global {}
+
 export default class Environment {
   constructor(_parent = null, _global = null) {
     const self = this
-    let _this = _parent ? null : _global || new Global()
+    const _this = _parent ? null : _global || new Global()
+
     const _variables = _parent ? {} : _this
     // If Globalcode, this is set to Global object, else this is null and set at function execution
     const _proxy = new Proxy(_variables, {
@@ -25,13 +27,14 @@ export default class Environment {
         } else {
           throw new ReferenceError(`${prop} is not defined`)
         }
-      }
+      },
     })
+
     _private.set(self, {
       _variables,
       _proxy,
       _parent,
-      _this
+      _this,
     })
   }
   get parent() {

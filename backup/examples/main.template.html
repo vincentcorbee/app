@@ -1,0 +1,27 @@
+<div>
+  <h1>Main One {{ 5 + 5 }}</h1>
+  <span>Todos: {{ todos.length }} </span>
+  <ul>
+    <li *for="(todo, index) in todos">
+      {{ index }}
+      <todo-item bind:todo="todo"></todo-item
+      ><button on:click="removeTodo(index, 'hoi', 'doei')">remove</button>
+    </li>
+  </ul>
+  <input type="text" model="newTodo" />Some static content {{ newTodo }} Some
+  static content
+  <button on:click="addTodo">Add todo</button>
+  <pre>{{ todos }}</pre>
+  <div *for="num in numbers">
+    {{ num }}
+  </div>
+  <div class="posts" bind:style='{ fontSize: postFontSize + "em" }'>
+    <blog-post
+      *for="post in posts"
+      bind:key="post.id"
+      bind:post="post"
+      on:enlarge-text="enlargeText"
+      on:shrink-text="shrinkText"
+    ></blog-post>
+  </div>
+</div>
