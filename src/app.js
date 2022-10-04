@@ -54,43 +54,37 @@ router.set(
     uri: '/',
     components: {
       main: {
-        template: html`
-          <div><h1>Main One</h1></div>
-        `
-      }
-    }
+        template: ` <div><h1>Main One</h1></div> `,
+      },
+    },
   },
   {
     uri: '/overview',
     component: {
-      template: html`
-        <div><h1>Overview</h1></div>
-      `
-    }
+      template: ` <div><h1>Overview</h1></div> `,
+    },
   },
   {
     uri: '/user/:id',
     component: {
       data() {
         return {
-          blaat: 'BLAAAAA'
+          blaat: 'BLAAAAA',
         }
       },
-      template: html`
+      template: `
         <div>
           <h1>User page {{ $route.params.id }}</h1>
           <p>{{blaat}}</p>
         </div>
-      `
-    }
+      `,
+    },
   },
   {
     uri: '/users',
     component: {
-      template: html`
-        <div><h1>Users page</h1></div>
-      `
-    }
+      template: ` <div><h1>Users page</h1></div> `,
+    },
   }
 )
 // const blogPost = {
@@ -158,24 +152,25 @@ const state = {
       gender: '',
       firstname: '',
       lastname: '',
-      age: ''
+      age: '',
     },
     address: {
       zipcode: '',
       street: '',
-      housenumber: ''
-    }
-  }
+      housenumber: '',
+    },
+  },
 }
 
 const store = new Store({ actions, mutations, state })
 
 const app = new App({
   el: '#form',
+  router,
   data: state,
   listeners: {
-    ready() {}
-  }
+    ready() {},
+  },
 })
 
 console.log(app)

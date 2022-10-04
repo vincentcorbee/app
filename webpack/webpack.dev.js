@@ -12,10 +12,10 @@ const dependencies = pkg.dependencies
 const index = {
   hash: true,
   template: path.join('src', 'index.html'),
-  chunks: ['app']
+  chunks: ['app'],
 }
 const entry = {
-  app: ['@babel/polyfill', path.resolve(__dirname, path.join('..', 'src', 'app.js'))]
+  app: ['@babel/polyfill', path.resolve(__dirname, path.join('..', 'src', 'app.js'))],
 }
 
 // if (dependencies !== undefined && Object.keys(dependencies).length) {
@@ -28,7 +28,7 @@ module.exports = merge(common, {
   entry,
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, '..', 'dist')
+    path: path.resolve(__dirname, '..', 'dist'),
   },
   mode: 'development',
   devtool: 'inline-source-map',
@@ -36,23 +36,23 @@ module.exports = merge(common, {
     contentBase: path.join(__dirname, './dist/'),
     overlay: true,
     port: 9002,
-    historyApiFallback: true
+    historyApiFallback: true,
   },
   plugins: [
     new CleanWebpackPlugin(['dist'], {
-      root: path.resolve(__dirname, '..')
+      root: path.resolve(__dirname, '..'),
     }),
     new webpack.HotModuleReplacementPlugin(),
     new MiniCssExtractPlugin({
-      filename: '[name].bundle.css'
+      filename: '[name].bundle.css',
     }),
     new HtmlWebpackPlugin(index),
-    new CopyWebpackPlugin([
-      {
-        from: path.resolve(__dirname, '..', path.join('src', 'img')),
-        to: path.resolve(__dirname, '..', path.join('dist', 'img'))
-      }
-    ])
+    // new CopyWebpackPlugin([
+    //   {
+    //     from: path.resolve(__dirname, '..', path.join('src', 'img')),
+    //     to: path.resolve(__dirname, '..', path.join('dist', 'img'))
+    //   }
+    // ])
   ],
   module: {
     rules: [
@@ -64,15 +64,15 @@ module.exports = merge(common, {
           {
             loader: 'postcss-loader',
             options: {
-              plugins: () => [require('autoprefixer')()]
-            }
+              plugins: () => [require('autoprefixer')()],
+            },
           },
-          'sass-loader'
-        ]
+          'sass-loader',
+        ],
       },
       {
         test: /\.html$/,
-        use: ['html-loader']
+        use: ['html-loader'],
       },
       {
         test: /\.(png|jp(e*)g|svg)$/,
@@ -81,11 +81,11 @@ module.exports = merge(common, {
             loader: 'url-loader',
             options: {
               limit: 8000,
-              name: 'img/[hash]-[name].[ext]'
-            }
-          }
-        ]
-      }
-    ]
-  }
+              name: 'img/[hash]-[name].[ext]',
+            },
+          },
+        ],
+      },
+    ],
+  },
 })

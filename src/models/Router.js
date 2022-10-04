@@ -1,12 +1,15 @@
 import Emitter from './Emitter'
 import { createNewElement } from '../lib/U'
+import App from './App'
 
 const _private = new WeakMap()
+
 const getCurrentUri = self =>
   window.location.pathname
     .replace(self.baseUrl, '')
     .split('/')
     .filter(path => path)
+
 const getQueryParams = () => {
   let params = {}
   window.location.search
@@ -19,16 +22,20 @@ const getQueryParams = () => {
     })
   return params
 }
+
 const getViewport = (viewports, name) =>
   viewports.find(viewport => viewport.name === name)
+
 const getRequest = (self, { uri }) => {
   uri = uri.split('/').filter(path => path)
+
   let { getCurrentUri, getQueryParams } = _private.get(self)
   let matched = false
   let currentUri = getCurrentUri(self)
   let params = {}
   let queryParams
   let req = null
+
   if (currentUri.length === uri.length) {
     matched = currentUri.every((route, i) => {
       if (uri[i] && (uri[i] === route || /^:/.test(uri[i]))) {
@@ -40,17 +47,19 @@ const getRequest = (self, { uri }) => {
       }
     })
   }
+
   if (matched) {
     queryParams = getQueryParams()
     _private.get(self).err = false
     req = {
       params,
       path: currentUri,
-      queryParams: queryParams
+      queryParams: queryParams,
     }
   } else {
     _private.get(self).err = true
   }
+
   return req
 }
 const clearViewport = viewport => (viewport.node.innerHTML = '')
@@ -90,7 +99,7 @@ const dispatch = self => {
       self.emit('navigate', {
         type: 'navigate',
         req,
-        component
+        component,
       })
       break
     }
@@ -124,12 +133,12 @@ export default class Router extends Emitter {
           ? getCurrentUri().pop()
           : baseUrl === '/'
           ? getCurrentUri().join('/')
-          : baseUrl
+          : baseUrl,
     })
     // Test with history API
     let state = window.history.state || {
       url: '/',
-      title: ''
+      title: '',
     }
     let viewports = Array.prototype.slice.call(document.getElementsByTagName('r-view'))
     let rTags = Array.prototype.slice.call(document.getElementsByTagName('r-link'))
@@ -153,7 +162,7 @@ export default class Router extends Emitter {
       window.history.pushState(
         {
           url,
-          title
+          title,
         },
         title,
         url
@@ -172,13 +181,13 @@ export default class Router extends Emitter {
       viewport.parentNode.replaceChild(div, viewport)
       return {
         node: div,
-        name: viewport.getAttribute('name') || 'default'
+        name: viewport.getAttribute('name') || 'default',
       }
     })
     rTags.forEach(rTag => {
       let aTag = createNewElement('a', [
         `href=${rTag.getAttribute('to')}`,
-        `innerHTML=${rTag.innerHTML}`
+        `innerHTML=${rTag.innerHTML}`,
       ])
       rTag.parentNode.replaceChild(aTag, rTag)
       aTag.addEventListener('click', clickListener)
