@@ -14,6 +14,9 @@ const config = {
   },
   resolve: {
     extensions: ['.js', '.ts'],
+    alias: {
+      '@App': path.resolve('..', 'src'),
+    },
   },
   plugins: [
     new CleanWebpackPlugin(),

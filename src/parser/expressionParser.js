@@ -1,10 +1,10 @@
-import Parser from '../parser/Parser'
-import Lexer from '../parser/Lexer'
-import Environment from '../parser/Environment'
-import grammer from '../parser/grammer'
-import tokens from '../parser/tokens'
-import Interpreter from '../parser/Interpreter'
-import ASI from '../parser/ASI'
+import Parser from 'early-parser'
+import Lexer from 'early-parser/src/Lexer'
+import Environment from 'early-parser/src/Environment'
+import ASI from 'early-parser/src/ASI'
+import grammer from './grammer'
+import tokens from './tokens'
+import Interpreter from './interpreter/interpreter'
 
 const lexer = new Lexer()
 const parser = new Parser(lexer)
@@ -34,6 +34,6 @@ export default (vm, expression, directive) => {
   // Create a new global environment for the interpreter
 
   return parser.parse(() =>
-    new Interpreter(parser.AST).interpret(new Environment(null, vm._data), directive)
+    new Interpreter(parser.AST).interpret(new Environment(null, vm), directive)
   )
 }

@@ -11,7 +11,7 @@ const getListener = (name, vm) => {
       }
     }
 
-    vm = vm.parent
+    vm = vm.$parent
   }
 
   return {

@@ -8,6 +8,7 @@ export default () => {
   */
   const setZeroTimeout = fn => {
     timeouts.push(fn)
+
     window.postMessage(messageName, '*')
   }
   const handleMessage = event => {

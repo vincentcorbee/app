@@ -1,16 +1,21 @@
 const getPlaceholders = node => {
-  const reg = /(\{{+.*\}})/g // /(\{{+[A-z\s.\[\]\d]+\}})/g
+  const reg = /\{\{[^}]*\}\}/
   const placeholders = []
 
   let matches
+  let cur = node
 
-  while ((matches = reg.exec(node.data)) !== null) {
+  while ((matches = reg.exec(cur.data)) !== null) {
     const value = matches[0]
+    const { index } = matches
+
+    cur = cur.splitText(index).splitText(value.length)
+
+    reg.exec(cur.data)
 
     placeholders.push({
       value,
-      start: matches.index,
-      end: matches.index + value.length,
+      node: cur.previousSibling,
     })
   }
 

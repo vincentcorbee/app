@@ -1,16 +1,22 @@
-const mix = (Mix, ...mixins) => {
-  const copyProperties = (target, source) => {
-    for (const key of Reflect.ownKeys(source)) {
-      if (key !== 'constructor' && key !== 'prototype' && key !== 'name') {
-        const desc = Object.getOwnPropertyDescriptor(source, key)
+const copyProperties = (target, source, excludedProps = []) => {
+  for (const key of Reflect.ownKeys(source)) {
+    if (
+      key !== 'constructor' &&
+      key !== 'prototype' &&
+      key !== 'name' &&
+      !excludedProps.includes(key)
+    ) {
+      const desc = Object.getOwnPropertyDescriptor(source, key)
 
-        Reflect.defineProperty(target, key, desc)
-      }
+      Reflect.defineProperty(target, key, desc)
     }
   }
+}
 
+const mix = (Mix, ...mixins) => {
   for (const mixin of mixins) {
     copyProperties(Mix, mixin)
+
     const { prototype } = Mix
 
     if (prototype) {

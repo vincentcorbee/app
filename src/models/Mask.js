@@ -1,16 +1,9 @@
+import attachObservable from '../helpers/attachObservable'
 import copyProperties from '../helpers/copyProperties'
-import Observable from './Observable'
+import isProxyRevoked from '../helpers/isProxyRevoked'
 
 const _private = new WeakMap()
 
-const isRevoked = proxy => {
-  try {
-    new Proxy(proxy, proxy)
-    return false
-  } catch (err) {
-    return Object(proxy) === proxy
-  }
-}
 export default class Mask {
   constructor(target, handler = {}, queue) {
     if (typeof target !== 'object') {
@@ -26,12 +19,25 @@ export default class Mask {
         // if (value && value.prototype && value.prototype.constructor === 'ArrayMask')
         //   return
 
-        // console.trace(target, prop)
         const isChanged = target[prop] !== value
         const suc = handler.set(target, prop, value)
 
         if (suc && isChanged) {
-          queue.push({ type: 'set', value, prop, target }, target.__observable__)
+          const updates = [
+            {
+              data: { type: 'set', value, prop, target },
+              observable: target.__observable__,
+            },
+          ]
+
+          if (Array.isArray(value) && value.__observable__) {
+            updates.push({
+              data: { type: 'set', value: value.length, prop: 'length', target: value },
+              observable: value.__observable__,
+            })
+          }
+
+          queue.push(updates)
         }
 
         return suc
@@ -43,19 +49,14 @@ export default class Mask {
     })
 
     // Set Observable
-    if (!target.hasOwnProperty('__observable__')) {
-      Reflect.defineProperty(target, '__observable__', {
-        value: new Observable(),
-      })
-
-      target.__observable__.value = target
-    }
+    attachObservable(target)
 
     // Copy properties on Mask instance
     copyProperties(self, target, proxy.proxy)
     // Set revocable
 
     if (!self.hasOwnProperty('revoke')) {
+      // Set revocable
       Reflect.defineProperty(self, 'revoke', {
         get() {
           return proxy.revoke
@@ -66,7 +67,7 @@ export default class Mask {
     if (!self.hasOwnProperty('isRevoked')) {
       Reflect.defineProperty(self, 'isRevoked', {
         get() {
-          return isRevoked(proxy.proxy)
+          return isProxyRevoked(proxy.proxy)
         },
       })
     }

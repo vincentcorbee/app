@@ -1,27 +1,29 @@
 import privateData from '../helpers/privateData'
 
+let __observer_count__ = 0
+
 export default class Observable {
   constructor(...args) {
-    const self = this
-
-    privateData.attach(self, {
+    privateData.attach(this, {
       observers: [],
     })
 
-    Reflect.defineProperty(self, '__observers__', {
-      value: privateData.get(self).observers,
+    Reflect.defineProperty(this, '__observers__', {
+      get() {
+        return privateData.get(this).observers
+      },
     })
 
     while (args.length) {
-      self.subscribe(args.splice(0, 2))
+      this.subscribe(args.splice(0, 2))
     }
   }
   subscribe(observer, prop) {
-    // This does not work, to many observers are being added
     const self = this
     const { observers } = privateData.get(self)
 
     if (
+      !observer.isDestroyed &&
       observers.every(o => {
         if (o[0] === observer && o[1] === prop) {
           return false
@@ -34,29 +36,36 @@ export default class Observable {
 
       observers.push([observer, prop])
 
+      __observer_count__++
+
       return true
     }
+
     return false
   }
-  unsubscribe(observer) {
+  unsubscribe = observer => {
     const self = this
     const { observers } = privateData.get(self)
     const length = observers.length
 
-    privateData.get(self).observers = observers.filter(([ob]) => ob !== observer)
+    privateData.get(self).observers = observers.filter(
+      ([ob]) => ob !== observer && !ob.isDestroyed
+    )
 
-    // console.trace(observer)
+    const isUnsubscribed = privateData.get(self).observers.length < length
 
-    observer.off('unbind', this.unsubscribe)
+    if (isUnsubscribed) {
+      observer.off('unbind', this.unsubscribe)
 
-    // console.trace(getPrivate(self).observers, length)
+      __observer_count__--
+    }
 
-    return privateData.get(self).observers.length < length
+    return isUnsubscribed
   }
 
   notify(data) {
     const { observers } = privateData.get(this)
-    console.log(observers, data.prop)
+
     for (const [directive, prop] of observers) {
       if (!data.prop) {
         directive.update(data)

@@ -15,6 +15,7 @@ const getPrivate = inst => {
 export default class Emitter {
   constructor() {
     const self = this
+
     setPrivate(self)
   }
 

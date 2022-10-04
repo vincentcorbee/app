@@ -21,6 +21,35 @@ const passiveSupported = (() => {
   return isSupported
 })()
 
+const addRemove = {
+  addListener: (...args) => addListener(...args),
+  removeListener: (...args) => removeListener(...args),
+}
+
+const eventListeners = {
+  touch: {
+    mousedown: ({ obj, fn, mod = 'add' }) =>
+      addRemove[`${mod}Listener`](obj, 'touchstart', fn),
+    mousemove: ({ obj, fn, mod = 'add' }) =>
+      addRemove[`${mod}Listener`](obj, 'touchmove', fn),
+    mouseup: ({ obj, fn, mod = 'add' }) =>
+      addRemove[`${mod}Listener`](obj, 'touchend', fn),
+  },
+  pointer: {
+    mousedown: ({ obj, fn, prefix, mod = 'add' }) =>
+      addRemove[`${mod}Listener`](obj, `${pointerPrefix}pointerdown`, fn),
+    mousemove: ({ obj, fn, prefix, mod = 'add' }) =>
+      addRemove[`${mod}Listener`](obj, `${pointerPrefix}pointermove`, fn),
+    mouseup: ({ obj, fn, prefix, mod = 'add' }) =>
+      addRemove[`${mod}Listener`](obj, `${pointerPrefix}pointerup`, fn),
+  },
+}
+
+const addForTouchDevice = ({ type, eventType, fn, obj, pointerPrefix }) =>
+  eventListeners[type][eventType]({ obj, fn, pointerPrefix })
+const removeForTouchDevice = ({ type, eventType, fn, obj, pointerPrefix }) =>
+  eventListeners[type][eventType]({ obj, fn, pointerPrefix, mod: 'remove' })
+
 export const addListener = function (
   obj,
   eventType,
@@ -29,26 +58,16 @@ export const addListener = function (
   options = { passive: false, caputue: false }
 ) {
   if (!obj) {
-    throw new Error('Target element is not suplied. ' + obj)
+    throw new Error(`Target element is not suplied. ${obj}`)
   }
 
   if (eventType.match('mouse') && bool) {
     const pointerPrefix = window.hasOwnProperty('onmspointerdown') ? 'ms' : ''
 
     if (window.hasOwnProperty('ontouchstart')) {
-      const touch = {
-        mousedown: () => addListener(obj, 'touchstart', fn),
-        mousemove: () => addListener(obj, 'touchmove', fn),
-        mouseup: () => addListener(obj, 'touchend', fn),
-      }
-      touch[eventType]()
-    } else if (window.hasOwnProperty('on' + pointerPrefix + 'pointerdown')) {
-      const pointer = {
-        mousedown: () => addListener(obj, pointerPrefix + 'pointerdown', fn),
-        mousemove: () => addListener(obj, pointerPrefix + 'pointermove', fn),
-        mouseup: () => addListener(obj, pointerPrefix + 'pointerup', fn),
-      }
-      pointer[eventType]()
+      addForTouchDevice({ type: 'touch', obj, fn, eventType })
+    } else if (window.hasOwnProperty(`on${pointerPrefix}pointerdown`)) {
+      addForTouchDevice({ type: 'pointer', obj, fn, pointerPrefix, eventType })
     } else {
       manageListeners.add(
         obj,
@@ -76,19 +95,9 @@ export const removeListener = function (obj, eventType, fn, bool, callback) {
     const pointerPrefix = window.hasOwnProperty('onmspointerdown') ? 'ms' : ''
 
     if (window.hasOwnProperty('ontouchstart')) {
-      const touch = {
-        mousedown: () => removeListener(obj, 'touchstart', fn),
-        mousemove: () => removeListener(obj, 'touchmove', fn),
-        mouseup: () => removeListener(obj, 'touchend', fn),
-      }
-      touch[eventType]()
+      removeForTouchDevice({ type: 'pointer', obj, fn, eventType })
     } else if (window.hasOwnProperty('on' + pointerPrefix + 'pointerdown')) {
-      const pointer = {
-        mousedown: () => removeListener(obj, pointerPrefix + 'pointerdown', fn),
-        mousemove: () => removeListener(obj, pointerPrefix + 'pointermove', fn),
-        mouseup: () => removeListener(obj, pointerPrefix + 'pointerup', fn),
-      }
-      pointer[eventType]()
+      removeForTouchDevice({ type: 'pointer', obj, fn, pointerPrefix, eventType })
     } else {
       manageListeners.remove(obj, eventType, fn, callback)
     }

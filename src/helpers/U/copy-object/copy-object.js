@@ -6,6 +6,7 @@ const copyObject = obj => {
     const copied = Object.create(obj || null)
 
     for (const [prop, val] of Object.entries(obj)) {
+      // console.log(prop, val)
       if (isType('Object', val)) {
         copied[prop] = copy(val)
       } else if (isType('Array', val)) {

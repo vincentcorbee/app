@@ -1,8 +1,7 @@
-import './todo.css'
-
-import App from '../../../../src/models/App'
-
+import App from '@App'
 import main from './main/main'
+
+import './todo.css'
 
 const app = new App({
   el: '#app',

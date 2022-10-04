@@ -1,29 +1,28 @@
 import { mix } from '../helpers/U'
-import Observable from './Observable'
+import attachObservable from '../helpers/attachObservable'
 import copyProperties from '../helpers/copyProperties'
 // Modifiers to intercept
 const modifiers = ['pop', 'push', 'reverse', 'shift', 'unshift', 'splice', 'sort']
 
 const _private = new WeakMap()
 
-class ArrayMask extends Array {
+class ArrayMask {
   constructor(target, handler, queue) {
-    super()
+    // super()
 
     // console.trace(target)
 
     if (typeof target !== 'object') {
-      // throw new TypeError('target is not an Object')
-      return
+      throw new TypeError('target is not an Object')
     }
-
-    const self = this
 
     _private.set(this, {
       handler,
       target,
       queue,
     })
+
+    const self = this
 
     // Create proxy
     const proxy = Proxy.revocable(target, {
@@ -47,25 +46,15 @@ class ArrayMask extends Array {
     })
 
     // Set Observable
-    if (!target.hasOwnProperty('__observable__')) {
-      Reflect.defineProperty(target, '__observable__', {
-        value: new Observable(),
-      })
-
-      target.__observable__.value = target
-    }
+    attachObservable(target)
 
     // Copy properties on Mask instance
     copyProperties(self, target, proxy.proxy)
 
     // Set revocable
     Reflect.defineProperty(self, 'revoke', {
-      get() {
-        return proxy.revoke
-      },
+      value: proxy.revoke,
     })
-
-    // mix(ArrayMask, Array)
   }
 
   get data() {
@@ -76,6 +65,8 @@ class ArrayMask extends Array {
     return JSON.stringify(this, null, 2)
   }
 }
+
+mix(ArrayMask, Array)
 
 modifiers.forEach(
   type =>
@@ -89,7 +80,8 @@ modifiers.forEach(
 
         for (const argument of arguments) {
           if (argument.constructor && argument.constructor.name === 'Mask') {
-            arguments[i] = argument.__observable__.value
+            // arguments[i] = argument.__observable__.value
+            arguments[i] = argument.data
           }
 
           i += 1
@@ -98,16 +90,14 @@ modifiers.forEach(
         target[type].apply(target, arguments)
       }
 
-      console.log(type, target.__observable__, target)
-
-      queue.push(
-        {
+      queue.push({
+        data: {
           type,
-          value: arguments,
+          value: [].slice.call(arguments),
           target,
         },
-        target.__observable__
-      )
+        observable: target.__observable__,
+      })
     })
 )
 

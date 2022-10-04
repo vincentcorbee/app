@@ -11,9 +11,7 @@ const todoList = {
   */
   template: import(/* webpackMode: "eager" */ './todo-list.template.html').then(({ default: template }) => template),
   listeners:{
-    ready() {
-      console.log(this)
-    }
+    ready() {}
   },
 }
 

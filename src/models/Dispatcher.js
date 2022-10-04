@@ -51,7 +51,7 @@ export default class Dispatcher extends Emitter {
                   target: self,
                 })
               } else {
-                console.log(err)
+                console.error(err)
               }
             }
           })

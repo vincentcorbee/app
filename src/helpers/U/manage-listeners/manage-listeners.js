@@ -4,10 +4,9 @@ class ManageListeners {
   constructor(config = {}) {
     let items = []
 
-    const that = this
     const int = config.garbageCollection || 20000
 
-    Object.defineProperties(that, {
+    Object.defineProperties(this, {
       listeners: {
         get: () => items.slice(),
       },
@@ -71,7 +70,7 @@ class ManageListeners {
       },
     })
 
-    collectGarbage(that, int)
+    collectGarbage(this, int)
   }
 }
 

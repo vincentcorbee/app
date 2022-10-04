@@ -1,20 +1,20 @@
-import Emitter from '../models/Emitter'
+import Emitter from './Emitter'
 
-const __destroy__ = self => self.unbind()
 const _private = new WeakMap()
 
 class Directive extends Emitter {
   static __count__ = 0
 
-  constructor(name, reg, attr, bind, update) {
+  constructor(name, reg, attr, bind, update, vm) {
     super()
 
-    _private.set(this, {
+    this.id = _private.set(this, {
       name,
       reg,
       bind,
       update,
       attr,
+      vm,
       element: undefined,
       isBound: false,
       isDestroyed: false,
@@ -30,24 +30,50 @@ class Directive extends Emitter {
     })
 
     Directive.__count__++
+
+    this.#setExpressionAndVm(
+      attr.value || attr.placeholder.value.replace(/^{{|}}$/g, '').trim()
+    )
+
+    this.id = Directive.__count__
+  }
+
+  #setExpressionAndVm(expression) {
+    const regParent = /\$parent\.?/
+
+    if (regParent.test(expression)) {
+      expression = expression.replace(regParent, () => {
+        this.vm = this.vm.$parent
+
+        return ''
+      })
+    }
+
+    this.expression = expression
   }
 
   update(data) {
     if (this.isDestroyed || !this.element || (this.element && this.element.isDetached)) {
       if (data.target && data.target.__observable__) {
-        return data.target.__observable__.unsubscribe(this)
+        data.target.__observable__.unsubscribe(this)
       }
+    } else if (!this.vm || this.vm.isDestroyed) {
+      this.$destroy()
+    } else {
+      _private.get(this).update.call(this, data)
     }
-
-    _private.get(this).update.call(this, data)
   }
 
-  bind(element, vm) {
+  bind(element) {
     if (this.isDestroyed) return
 
-    _private.get(this).bind.call(this, element, vm)
+    _private.get(this).bind.call(this, element, this.vm)
 
-    this.isBound = this.isBound || true
+    // element.node &&
+    //   element.node.removeAttribute &&
+    //   element.node.removeAttribute(this.attr.rawName)
+
+    this.isBound = true
   }
 
   unbind() {
@@ -71,6 +97,10 @@ class Directive extends Emitter {
     Directive.__count__--
 
     return false
+  }
+
+  $destroy = () => {
+    this.unbind()
   }
 
   get isDestroyed() {
@@ -167,10 +197,10 @@ class Directive extends Emitter {
     const { element } = this
 
     if (element) {
-      element.off('detached', __destroy__)
+      element.off('detached', this.$destroy)
     }
 
-    newElement.on('detached', __destroy__, this)
+    newElement.on('detached', this.$destroy, this)
 
     return (_private.get(this).element = newElement)
   }

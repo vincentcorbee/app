@@ -19,8 +19,10 @@ const main = {
   */
   data() {
     return {
+      title: 'TITEL',
       loading: false,
-      todos: [],
+      todos: null,
+      arr: [],
       newTodo: '',
       action: '',
       test: {}
@@ -28,13 +30,13 @@ const main = {
   },
   listeners: {
     async ready() {
+      this.arr = [1,2,3,4]
       this.test = {
         text: 'hoi'
       }
       setTimeout(async () => {
         const res = await fetch('http://localhost:3000/todos')
         const todos = await res.json()
-
         this.todos = todos
       } ,1000)
     }
@@ -55,12 +57,11 @@ const main = {
         }
 
         setTimeout(async () => {
-          // await fetch('http://localhost:3000/todos', { method: 'post', body: JSON.stringify(newTodo), headers: { 'content-Type': 'application/json' } })
+          await fetch('http://localhost:3000/todos', { method: 'post', body: JSON.stringify(newTodo), headers: { 'content-Type': 'application/json' } })
 
           this.todos.push(newTodo)
 
-          console.log(this.todos, newTodo)
-
+          this.loading = false
           this.action = ''
           this.newTodo = ''
 
@@ -74,12 +75,13 @@ const main = {
       // const todo = this.todos.find((todo: Todo) => todo.id === id)
 
       setTimeout(async () => {
-        // await fetch(`http://localhost:3000/todos/${todo.id}`, { method: 'delete' })
+        await fetch(`http://localhost:3000/todos/${id}`, { method: 'delete' })
+
         const todos = this.todos.filter((todo: Todo) => todo.id !== id)
-        console.log(todos)
 
         this.todos = todos
         this.action = ''
+        this.loading = false
       }, 500)
     },
   } as any

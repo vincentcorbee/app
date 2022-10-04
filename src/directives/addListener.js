@@ -1,6 +1,7 @@
 import { addListener } from '../helpers/U'
-import expressionParser from '../helpers/expressionParser'
+import expressionParser from '../parser/expressionParser'
 import getListener from './getListener'
+import setValidStateInput from './setValidStateInput'
 
 const hyphenToCamel = (input = '') =>
   input
@@ -10,15 +11,23 @@ const hyphenToCamel = (input = '') =>
       ''
     )
 
-const addEventListener = (element, event, fnName, params = [], vm, directive) => {
+const addEventListener = (
+  element,
+  event,
+  fnName,
+  params = [],
+  vm,
+  directive,
+  modifiers = []
+) => {
   // Bind listner to current vm instance?
   const orgListener = getListener(
-    fnName === 'emit' ? hyphenToCamel(params[0].value) : fnName,
+    fnName == 'emit' ? hyphenToCamel(params[0].value) : fnName,
     vm
   )
 
   if (
-    typeof orgListener.listener !== 'function' ||
+    typeof orgListener.listener != 'function' ||
     element.toBeRemoved ||
     element.isDetached ||
     (element.eventListeners[event] &&
@@ -29,18 +38,33 @@ const addEventListener = (element, event, fnName, params = [], vm, directive) =>
 
   const { node } = element
   const parent = orgListener.vm
+  const preventDefault = modifiers.includes('prevent')
 
   const listener = e => {
+    if (preventDefault) e.preventDefault()
+
     const args = params.map(param =>
       param.isString ? param.value : expressionParser(vm, param.value, directive)
     )
 
-    if (fnName === 'emit') {
+    if (fnName == 'emit') {
       if (e.target === node) {
         parent.emit(...args, e)
       }
     } else {
-      orgListener.listener.apply(vm.parent, args.length ? args : [e])
+      if (event == 'submit' && e.target.$form) {
+        const formElement = e.target
+        const form = formElement.$form
+        const valid = form.validate()
+
+        for (const [name, control] of Object.entries(form.formControls)) {
+          setValidStateInput(control.valid, formElement.elements[name])
+        }
+
+        if (!valid) return
+      }
+
+      orgListener.listener.apply(vm.$parent, args.length ? args : [e])
     }
   }
 

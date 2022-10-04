@@ -20,6 +20,7 @@ const getAttributes = props =>
 
 const createComponent = async (config, _parent = null) => {
   const { name } = config
+  const element = document.createElement(camelToHyphen(name))
 
   /*
     Only register the component if it is not already registered
@@ -32,6 +33,8 @@ const createComponent = async (config, _parent = null) => {
       methods = {},
       listeners = {},
       components = {},
+      router = null,
+      computed = {},
     } = config
     const __attributes__ = getAttributes(props)
     const template = createTemplate(
@@ -71,9 +74,11 @@ const createComponent = async (config, _parent = null) => {
         return this.#vm
       }
 
-      attributeChangedCallback(name, oldVal, value) {
-        // if (oldVal === value) return
+      get isCustomElement() {
+        return true
+      }
 
+      attributeChangedCallback(name, oldVal, value) {
         /*
           Does the attribute needs to be removed?
           Make sure the attributes are processed before instantiating the component.
@@ -84,10 +89,6 @@ const createComponent = async (config, _parent = null) => {
           const vm = this.$vm
 
           value = this[name] || getValue(value)
-
-          if (this[name] !== undefined) {
-            this[name] = null
-          }
 
           if (!this.#instantiated) {
             this.#attrInstantiated.push({
@@ -101,10 +102,8 @@ const createComponent = async (config, _parent = null) => {
             ) {
               this.#instantiate()
             }
-          } else if (vm) {
-            console.log(vm, value)
-
-            vm[name] = value
+          } else if (vm && value.data !== vm[name].data) {
+            vm[name] = value.data
           }
         }
       }
@@ -142,11 +141,13 @@ const createComponent = async (config, _parent = null) => {
 
       #attach() {
         if (this.#useShadow) {
-          const root = this.attachShadow({
-            mode: 'open',
-          })
+          if (this.shadowRoot === null) {
+            const root = this.attachShadow({
+              mode: 'open',
+            })
 
-          root.appendChild(this.#template.content.cloneNode(true))
+            root.appendChild(this.#template.content.cloneNode(true))
+          }
         } else {
           this.appendChild(document.importNode(this.#template.content, true))
         }
@@ -160,7 +161,7 @@ const createComponent = async (config, _parent = null) => {
           if (Array.isArray(props)) {
             this.#attrInstantiated = _attrInstantiated.filter(({ name, value }) => {
               if (props.includes(name)) {
-                data[name] = value
+                data[name] = value.data || value
 
                 return false
               }
@@ -178,7 +179,8 @@ const createComponent = async (config, _parent = null) => {
         const parent =
           (this.$scope && this.$scope.$vm) ||
           (this.parentNode.$scope && this.parentNode.$scope.$vm) ||
-          _parent
+          _parent ||
+          config.parent
 
         this.#vm = new App({
           el: this,
@@ -187,7 +189,15 @@ const createComponent = async (config, _parent = null) => {
           methods,
           listeners,
           parent,
+          router,
+          computed,
         })
+
+        for (const name of Object.keys(methods)) {
+          Reflect.defineProperty(this, name, {
+            value: this.#vm[name],
+          })
+        }
 
         this.#instantiated = true
       }
@@ -195,6 +205,8 @@ const createComponent = async (config, _parent = null) => {
 
     document.defaultView.customElements.define(camelToHyphen(name), Component)
   }
+
+  return element
 }
 
 export default createComponent

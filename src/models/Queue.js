@@ -11,12 +11,16 @@ export default class Queue extends Emitter {
     })
   }
 
-  push(data, observable) {
+  push(args) {
     const { buffer } = _private.get(this)
 
-    window.setZeroTimeout(() => buffer.push({ data, observable }))
+    const observers = Array.isArray(args) ? args : [args]
 
-    this.pop()
+    for (const observer of observers) {
+      window.setZeroTimeout(() => buffer.push(observer))
+
+      this.pop()
+    }
   }
 
   pop() {
@@ -24,6 +28,8 @@ export default class Queue extends Emitter {
 
     window.setZeroTimeout(() => {
       const obj = buffer.pop()
+
+      // console.log(obj)
 
       obj.observable.notify(obj.data)
 

@@ -1,26 +1,26 @@
 const mapToKeys = placeholder => {
-  const identifier = placeholder.replace(/[{{ *}}]/g, '')
-  const keys = identifier
-    .split('.')
-    .map(entry => {
-      let prop = entry.match(/\[[^\]*]\]/)
+  const accessor = placeholder.replace(/[{{ *}}]/g, '')
+  const keys = accessor.split('.').reduce((acc, entry) => {
+    let prop = entry.match(/\[[^\]*]\]/)
 
-      prop = prop !== null ? prop[0] : null
+    prop = prop !== null ? prop[0] : null
 
-      if (prop) {
-        entry = entry.replace(prop, '')
-        prop = prop.replace(/\[|\]/g, '')
+    if (prop) {
+      acc.push(entry.replace(prop, ''), prop.replace(/\[|\]/g, ''))
 
-        return [entry, prop]
-      } else {
-        return entry
-      }
-    })
-    .reduce((acc, val) => acc.concat(val), [])
+      return acc
+    } else {
+      acc.push(entry)
+
+      return acc
+    }
+  }, [])
 
   return {
     keys,
-    identifier,
+    identifier: keys[keys.length - 1],
+    base: keys[0],
+    accessor,
   }
 }
 

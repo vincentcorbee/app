@@ -6,14 +6,17 @@ import { isType, http } from '../helpers/U'
 import createComponent from '../helpers/createComponent'
 import Queue from './Queue'
 import createTemplate from '../helpers/createTemplate'
+import getSourceValue from '../helpers/getSourceValue'
+import isArrayMask from '../helpers/isArrayMask'
+import isMask from '../helpers/isMask'
 
 let __id__ = 0
 
 export default class App extends Emitter {
   static async component(name, component) {
-    components.name = component.name || name
+    component.name = component.name || name
 
-    await createComponent(component)
+    return await createComponent(component)
   }
 
   #data = null
@@ -63,29 +66,6 @@ export default class App extends Emitter {
     this.#router = router
     this.#computed = computed
 
-    const getSourceValue = value => {
-      const { constructor } = Object.getPrototypeOf(value)
-
-      if (Array.isArray(value)) {
-        value = value.map(item => {
-          const { constructor } = Object.getPrototypeOf(item)
-
-          if (constructor && constructor.name === 'Mask') {
-            return item.data
-          } else if (constructor && constructor.name === 'ArrayMask') {
-            return getSourceValue(item.data)
-          }
-
-          return item
-        })
-      } else if (constructor && constructor.name === 'Mask') {
-        console.log(value)
-        return value.data
-      }
-
-      return value
-    }
-
     this.#handler = {
       get(target, prop) {
         const data = target[prop]
@@ -96,9 +76,9 @@ export default class App extends Emitter {
           prop !== '__observable__' &&
           typeof data === 'object'
         ) {
-          const { constructor } = Object.getPrototypeOf(data)
+          const { constructor } = data
 
-          if (constructor.name !== 'Mask' && constructor.name !== 'ArrayMask') {
+          if (!isMask(constructor) && !isArrayMask(constructor)) {
             if (Array.isArray(data)) {
               return new ArrayMask(data, vm.#handler, vm.#queue)
             } else {
@@ -115,23 +95,28 @@ export default class App extends Emitter {
         if (Reflect.get(target, prop) !== value) {
           const ob = target[prop] ? target[prop].__observable__ : null
 
-          // console.log(target, prop, value, vm)
+          value = getSourceValue(value, ob)
 
-          value = getSourceValue(value)
+          // console.log(
+          //   `%c${prop} APP`,
+          //   'background-color: orange; color: black; padding: 5px'
+          // )
 
-          if (
-            ob &&
-            value !== undefined &&
-            value !== null &&
-            !value.hasOwnProperty('__observable__')
-          ) {
-            // Set value to observable
-            ob.value = value
+          // console.log(prop, value)
 
-            Reflect.defineProperty(value, '__observable__', {
-              value: ob,
-            })
-          }
+          // if (
+          //   ob &&
+          //   value !== undefined &&
+          //   value !== null &&
+          //   !value.hasOwnProperty('__observable__')
+          // ) {
+          //   // Set value to observable
+          //   // ob.value = value
+
+          //   Reflect.defineProperty(value, '__observable__', {
+          //     value: ob,
+          //   })
+          // }
 
           target[prop] = value
 
@@ -158,6 +143,11 @@ export default class App extends Emitter {
         ? el
         : null
       : null
+
+    if (_template === null || _template === undefined) {
+      throw Error('A template is not supplied.')
+    }
+
     const template = createTemplate(
       typeof _template === 'object' ? await _template : _template
     )
@@ -189,7 +179,7 @@ export default class App extends Emitter {
     return this.#children
   }
 
-  get parent() {
+  get $parent() {
     return this.#parent
   }
 
@@ -321,13 +311,7 @@ export default class App extends Emitter {
     const _router = vm.#router
 
     if (_router && !_router.$vm) {
-      Reflect.defineProperty(_router, '$vm', {
-        get() {
-          return vm
-        },
-      })
-
-      _router.dispatch()
+      _router.$vm = vm
     }
   }
 
@@ -400,10 +384,10 @@ export default class App extends Emitter {
 
   #compile(el = null) {
     if (el) {
-      const element = new Element(el, this)
+      const element = new Element(el, this, null, [], this.#node && this.#node.shadowRoot)
       const { node } = element
 
-      element.on('detached', this.#destroy.bind(this), this)
+      element.on('detached', this.#destroy, this)
 
       this.#el = element
       this.#node = node
@@ -419,7 +403,7 @@ export default class App extends Emitter {
     }
   }
 
-  #destroy() {
+  #destroy = () => {
     const _el = this.#el
     const _parent = this.#parent
     const _listeners = this.#listeners
@@ -442,10 +426,12 @@ export default class App extends Emitter {
       this.#el = null
     }
 
+    _el.off('detached', this.#destroy)
+
     this.#methods = null
 
-    for (const listener in _listeners) {
-      this.off(listener, listener.bind(this))
+    for (const [listener, fn] of Object.entries(_listeners)) {
+      this.off(listener, fn.bind(this))
     }
 
     this.#listeners = {}

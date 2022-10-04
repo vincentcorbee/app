@@ -1,6 +1,7 @@
 import Environment from './Environment'
 import flattenList from './flattenList'
-import Observable from '../models/Observable'
+import attachObservable from '../helpers/attachObservable'
+import { isType } from '../helpers/U'
 
 const unaryOperations = {
   '+': a => +a,
@@ -65,6 +66,7 @@ const getCaller = (path, env) => {
       throw TypeError(`Cannot read property ${p}`)
     }
   })
+
   return caller
 }
 const mapProps = list => {
@@ -96,69 +98,83 @@ const getPath = arr =>
     []
   )
 const setObservable = (prop, data, directive) => {
-  data = data.this ? data.this.data || data.this : data
+  if (directive && !directive.isDestroyed) {
+    const parentValue = data.this ? data.this._data || data.this : data.data || data
+    const parentObservable = parentValue && parentValue.__observable__
 
-  if (directive) {
-    // console.log(data.__observable__.value, prop, directive)
-    if (data && data.hasOwnProperty(prop) && data.__observable__) {
-      const subscribed = data.__observable__.subscribe(directive, prop)
+    if (parentObservable) {
+      const subscribed = parentObservable.subscribe(directive, prop)
 
-      if (subscribed && directive.observables.indexOf(data.__observable__) === -1) {
-        directive.observables.push(data.__observable__)
+      if (subscribed && !directive.observables.includes(parentObservable)) {
+        directive.observables.push(parentObservable)
       }
+      const childObservable = parentValue[prop] && parentValue[prop].__observable__
+      const childValue = childObservable ? parentValue[prop].data : undefined
 
-      // Dit werkt niet goed
-      const value = data[prop] && data[prop].__observable__ ? data[prop] : undefined
+      if (childValue) {
+        if (isType('array', childValue)) {
+          const subscribed = childObservable.subscribe(directive, prop)
 
-      if (value) {
-        // if (data.constructor.name === 'ArrayMask') {
-        if (Array.isArray(value)) {
-          const subscribed = value.__observable__.subscribe(directive, prop)
-
-          if (subscribed && !directive.observables.includes(value.__observable__)) {
-            directive.observables.push(value.__observable__)
+          if (subscribed && !directive.observables.includes(childObservable)) {
+            directive.observables.push(childObservable)
           }
 
-          value.forEach((entry, i) => {
-            if (Array.isArray(entry)) {
+          childValue.forEach((entry, i) => {
+            if (isType('array', entry)) {
               setObservable(i, entry, directive)
             } else if (typeof entry === 'object') {
               for (const prop of Object.keys(entry)) {
                 setObservable(prop, entry, directive)
               }
             }
-
-            // if (entry.constructor.name === 'Mask') {
-            //   // Own properties
-            //   for (const prop of Object.keys(entry)) {
-            //     setObservable(prop, entry, directive)
-            //   }
-            // }
           })
-        }
-        // else if (data.constructor.name === 'Mask') {
-        else if (typeof value === 'object') {
-          // Own properties
-          for (const prop of Object.keys(value)) {
-            setObservable(prop, value, directive)
+        } else if (isType('object', childValue)) {
+          for (const prop of Object.keys(childValue)) {
+            setObservable(prop, childValue, directive)
+          }
+        } else if (isType('function', childValue)) {
+          // Set observable on parent for the function
+          for (const prop of Object.keys(parentValue)) {
+            setObservable(prop, parentValue, directive)
           }
         }
       } else {
-        const value = data[prop]
+        const childValue = parentValue[prop]
 
-        if (typeof value === 'object') {
-          Reflect.defineProperty(value, '__observable__', {
-            value: new Observable(),
-          })
-          const observable = data.__observable__
+        if (childValue) {
+          if (
+            isType('object', childValue) ||
+            isType('array', childValue) ||
+            isType('function', childValue)
+          ) {
+            attachObservable(childValue)
 
-          for (const [d, p] of observable.__observers__) {
-            value.__observable__.subscribe(d, p)
+            for (const [d, p] of parentObservable.__observers__) {
+              childValue.__observable__.subscribe(d, p)
+            }
+
+            if (isType('array', childValue)) {
+              childValue.forEach((entry, i) => {
+                if (isType('array', entry)) {
+                  setObservable(i, entry, directive)
+                } else if (isType('object', entry)) {
+                  for (const prop of Object.keys(entry)) {
+                    setObservable(prop, entry, directive)
+                  }
+                }
+              })
+            } else if (isType('object', childValue)) {
+              for (const prop of Object.keys(childValue)) {
+                setObservable(prop, childValue, directive)
+              }
+            } else if (isType('function', childValue)) {
+              // Set observable on parent for the function
+              for (const prop of Object.keys(parentValue)) {
+                setObservable(prop, parentValue, directive)
+              }
+            }
           }
-
-          value.__observable__.value = value
         }
-        console.log(data, prop)
       }
     }
   }
@@ -224,16 +240,17 @@ const evalExp = (tree, env = {}, directive = null) =>
       }
       case 'accessor': {
         const path = mapProps(getPath(node))
-        // This is duplicate code, see getCaller()
         const prop = path.shift()
+
         let output =
           prop === '$route'
-            ? env.this[prop]
+            ? env.this[prop].data
             : env.this.data
             ? env.this.data[prop]
-            : env.this[prop] || undefined
+            : env.this[prop]
+            ? env.this[prop].data
+            : undefined
 
-        // This is shit
         if (output && output.__observable__) {
           setObservable(prop, output, directive)
         }
@@ -247,10 +264,7 @@ const evalExp = (tree, env = {}, directive = null) =>
             base =
               output && output.__observable__ ? output : base.__observable__ ? base : null
 
-            // console.log(base)
-
             if (base) {
-              // console.log(base, output, p)
               setObservable(p, base, directive)
             }
           } else {
@@ -285,8 +299,10 @@ const evalExp = (tree, env = {}, directive = null) =>
           let caller = getCaller(path, env)
 
           return accumulateValues(acc, fn.apply(caller, args))
+        } else if (fn === undefined) {
+          throw new ReferenceError(`${fnName[fnName.length - 1][0]} is undefined.`)
         } else {
-          throw new TypeError(`${fnName} is not a function`)
+          throw new TypeError(`${fnName[fnName.length - 1][0]} is not a function.`)
         }
       }
       case 'program': {
@@ -355,7 +371,7 @@ class Interpreter {
   constructor(AST) {
     const self = this
 
-    self.AST = AST
+    self.AST = AST[0]
   }
 
   interpret(env = new Environment(), directive = null) {
@@ -367,8 +383,10 @@ class Interpreter {
 
       setObservable(prop, env, directive)
 
-      val = env.this.data ? env.this.data[prop] : env.this[prop] || undefined
+      val = env.this.data ? env.this.data[prop] : env.this[prop].data || undefined
     }
+
+    console.log(val)
 
     return val === undefined ? '' : val
   }

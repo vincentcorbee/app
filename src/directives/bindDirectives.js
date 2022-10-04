@@ -1,51 +1,56 @@
 import getDirective from './directives'
 import getPlaceholders from '../helpers/getPlaceholders'
-
-// const bind = (directive, element, vm) => () => {
-//   directive.bind(element, vm)
-//   return directive
-// }
+import Element from '../models/Element'
 
 const bindDirectives = (element, vm) => {
-  const node = element.node
-  const { nodeType } = node
+  if (vm.isDestroyed) return []
 
-  // console.log(node)
+  const { node } = element
+  const { nodeType } = node
 
   if (element.isDetached || element.toBeRemoved) {
     return []
   }
 
-  if (nodeType === 1) {
-    // Make copy
+  if (nodeType == 1) {
+    // Make copy of the attributes
     const attributes = [...node.attributes]
     const directives = []
 
     for (const { name, value } of attributes) {
-      const directive = getDirective({ name, value })
+      const directive = getDirective({ name, value }, vm)
 
       if (directive) {
         directive.bind(element, vm)
         directives.push(directive)
-        // directives.push(bind(directive, element, vm))
       }
 
       if (element.toBeRemoved) break
     }
 
     return directives
-  } else if (nodeType === 3) {
-    return getPlaceholders(node).map(placeholder => {
-      const directive = getDirective({
-        name: 'text',
-        placeholder
-      })
+  } else if (nodeType == 3) {
+    return getPlaceholders(node).reduce((acc, placeholder, i) => {
+      const directive = getDirective(
+        {
+          name: 'text',
+          placeholder,
+        },
+        vm
+      )
 
-      directive.bind(element, vm)
+      if (i == 0) {
+        acc.push(directive)
 
-      return directive
-      // return bind(directive, element, vm)
-    })
+        element.node = placeholder.node
+
+        directive.bind(element, vm)
+      } else {
+        directive.bind(new Element(placeholder.node, vm, element.parent, [directive]), vm)
+      }
+
+      return acc
+    }, [])
   }
 
   return []

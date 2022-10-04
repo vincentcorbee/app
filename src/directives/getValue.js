@@ -1,10 +1,11 @@
 const getValue = (data, obj) => {
-  const { identifiers: arr, placeholder } = obj
-  const key = arr.shift() || null
+  const { identifiers, placeholder } = obj
+  const key = identifiers.shift() || null
   const value = key ? data[key] : undefined
 
-  if (value && arr.length > 0) {
-    obj.identifiers = arr
+  if (value && identifiers.length > 0) {
+    obj.identifiers = identifiers
+
     return getValue(value, obj)
   } else {
     return {

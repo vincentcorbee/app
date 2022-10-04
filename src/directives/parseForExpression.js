@@ -1,4 +1,4 @@
-import expressionParser from '../helpers/expressionParser'
+import expressionParser from '../parser/expressionParser'
 
 const parseForExpression = (input, self) => {
   let end = 0
@@ -7,7 +7,7 @@ const parseForExpression = (input, self) => {
 
   const tokens = [
     ['IGNORE', /^[ \t\v\r]+/],
-    ['OP', /^in|of/],
+    ['OP', /^(in|of)/],
     {
       type: 'LHS',
       reg: /^\((?:[a-z, A-Z]+)\)|[a-zA-Z]+/,
@@ -25,14 +25,22 @@ const parseForExpression = (input, self) => {
       type: 'RHS',
       reg: /^([a-zA-Z\-0-9]+(?:\.[a-zA-Z\-0-9]+|\[[a-zA-Z\-0-9]+\])*)|\[.*\]/,
       value: value => {
+        let result
+
         try {
-          return JSON.parse(value)
+          result = JSON.parse(value)
         } catch (e) {
-          return expressionParser(self.vm, value, self)
+          result = expressionParser(self.vm, value, self)
+        } finally {
+          return {
+            result,
+            raw: value,
+          }
         }
       },
     },
   ]
+
   const result = []
   const readToken = () => {
     const curInput = input.substring(end)
@@ -50,8 +58,7 @@ const parseForExpression = (input, self) => {
       }
 
       const start = end
-      const reg = token.reg
-      const type = token.type
+      const { reg, type } = token
       const match = curInput.match(reg)
 
       if (reg && type && match) {
@@ -97,10 +104,10 @@ const parseForExpression = (input, self) => {
     op: null,
     rhs: null,
   }
-
   const ident = result.find(token => token.type === 'RHS') || {}
 
-  if (ident && ident.value) {
+  if (ident && ident.value.result) {
+    const { result: value } = ident.value
     const lhs = result.find(token => token.type === 'LHS')
 
     if (lhs) {
@@ -108,7 +115,7 @@ const parseForExpression = (input, self) => {
       obj.lhs = {}
 
       const type =
-        ident.value.constructor.name === 'ArrayMask' || Array.isArray(ident.value)
+        value.constructor.name === 'ArrayMask' || Array.isArray(value)
           ? 'array'
           : 'object'
       const args = lhs.value

@@ -11,7 +11,17 @@ import setZeroTimeout from './set-zero-timeout/set-zero-timeout'
 
 window.setZeroTimeout = setZeroTimeout()
 
-window.MutationObserver = window.MutationObserver || window.WebKitMutationObserver
+window.log = (msg, color) => {
+  let data
+
+  try {
+    data = JSON.stringify(msg, null, 2)
+  } catch (err) {
+    data = msg
+  }
+
+  console.log(`%c${data}`, `background-color: ${color}; color: white; padding: 5px`)
+}
 
 export {
   append,

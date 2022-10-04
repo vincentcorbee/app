@@ -6,17 +6,30 @@
     background-color: white;
     border-radius: 5px;
   }
+
+  .loader {
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.5)
+  }
+
 </style>
 
-<div *if="loading">
+<div *if="loading" class="loader">
   {{ action }}
 </div>
-{{ test && test.text }}
-<div *if="todos && todos.length !== 0">
+
+<div *if="todos">
   <span>Todos: {{ todos.length }} </span>
   <todo-list *bind:todos="todos" @remove-todo="removeTodo"></todo-list>
   <div>
-    <input type="text" *model="newTodo" />
+    <input type="text" *model="newTodo"/>
     <button @click="addTodo">Add todo</button>
   </div>
   <div>

@@ -27,11 +27,14 @@ const isType = (type, obj) => {
       if (!obj || !obj.nodeType) {
         return false
       }
+
       value = Object.prototype.toString.call(obj).match(/[^\s\]]+(?=])/)[0]
+
       break
     default:
       throw new TypeError(type + ' is not a recognized type')
   }
+
   return Object.prototype.toString.call(obj) === '[object ' + value + ']'
 }
 

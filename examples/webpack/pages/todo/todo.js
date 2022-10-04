@@ -4,8 +4,8 @@ const cwd = process.cwd()
 
 const template = {
   hash: true,
-  template: path.resolve(cwd, 'src', 'pages', 'todo', 'index.html'),
-  inect: 'head',
+  template: path.resolve(cwd, 'src', 'pages', 'todo', 'todo.html'),
+  inject: 'head',
   chunks: ['todo'],
 }
 const entry = [path.resolve(cwd, 'src', 'pages', 'todo', 'todo.ts')]

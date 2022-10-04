@@ -23,8 +23,7 @@ const getQueryParams = () => {
   return params
 }
 
-const getViewport = (viewports, name) =>
-  viewports.find(viewport => viewport.name === name)
+const getViewport = (viewports, name) => viewports.find(viewport => viewport.name == name)
 
 const getRequest = (self, { uri }) => {
   uri = uri.split('/').filter(path => path)
@@ -75,11 +74,16 @@ const createComponent = async (router, component, name) => {
   component = Object.assign({}, component)
   component.router = router
   component.parent = router.$vm
-  component.instance = await new App(component).$mount()
+  // component.instance = await new App(component).$mount()
+
+  const node = await App.component(component.name, component)
 
   clearViewports(viewports)
 
-  viewport.node.appendChild(component.instance.node)
+  // viewport.node.appendChild(component.instance.node)
+  viewport.node.appendChild(node)
+
+  component.instance = node.$vm
 
   return component
 }
@@ -160,6 +164,7 @@ export default class Router extends Emitter {
       getCurrentUri,
       getQueryParams,
       getRequest,
+      $vm: null,
       currentUri: '',
       routes: [],
       viewports: [],
@@ -237,10 +242,18 @@ export default class Router extends Emitter {
     _private.get(this).baseUrl = path
   }
 
+  get $vm() {
+    return _private.get(this).$vm
+  }
+
+  set $vm(vm) {
+    _private.get(this).$vm = vm
+
+    this.dispatch()
+  }
+
   set(...args) {
     args.forEach(route => _private.get(this).routes.push(route))
-
-    // this.dispatch()
   }
 
   navigate(url, pushState = true) {

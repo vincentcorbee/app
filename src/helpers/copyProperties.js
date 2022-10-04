@@ -1,26 +1,27 @@
 const copyProperties = (dest, source, proxy) => {
   const prototype = Object.getPrototypeOf(source)
+  const { constructor } = prototype
 
   if (
-    prototype.constructor.name !== 'Object' &&
-    prototype.constructor.name !== 'Array' &&
-    prototype.constructor.name !== 'Mask' &&
-    prototype.constructor.name !== 'ArrayMask'
+    constructor.name !== 'Object' &&
+    constructor.name !== 'Array' &&
+    constructor.name !== 'Mask' &&
+    constructor.name !== 'ArrayMask'
   ) {
     copyProperties(dest, prototype, proxy)
-  } else {
-    for (const key of Reflect.ownKeys(source)) {
-      if (key !== 'constructor' && key !== 'prototype') {
-        Reflect.defineProperty(dest, key, {
-          enumerable: Reflect.getOwnPropertyDescriptor(source, key).enumerable,
-          get() {
-            return proxy[key]
-          },
-          set(value) {
-            return Reflect.set(proxy, key, value, proxy)
-          }
-        })
-      }
+  }
+
+  for (const key of Reflect.ownKeys(source)) {
+    if (key !== 'constructor' && key !== 'prototype') {
+      Reflect.defineProperty(dest, key, {
+        enumerable: Reflect.getOwnPropertyDescriptor(source, key).enumerable,
+        get() {
+          return typeof source[key] === 'function' ? proxy[key].bind(dest) : proxy[key]
+        },
+        set(value) {
+          return Reflect.set(proxy, key, value, proxy)
+        },
+      })
     }
   }
 }

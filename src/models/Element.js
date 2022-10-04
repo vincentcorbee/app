@@ -1,71 +1,31 @@
 import { isType, removeListener } from '../helpers/U'
 import parseHtml from '../helpers/parseHtml'
 import Emitter from './Emitter'
+import Collector from './Collector'
 
 const _private = new WeakMap()
 let __id__ = 0
-let __count__ = 0
-// const __TREE__ = []
-
-class Collector extends Emitter {
-  constructor() {
-    super()
-    this.count = 0
-    this.isCollecting = false
-  }
-
-  start() {
-    if (this.isCollecting) return
-
-    this.isCollecting = true
-
-    setZeroTimeout(() => {
-      // console.log(this.count)
-      if (this.count !== __count__) {
-        this.count = __count__
-
-        this.emit('collect')
-
-        this.isCollecting = false
-
-        return this.start()
-      }
-
-      this.isCollecting = false
-    })
-  }
-}
 
 const __collector__ = new Collector()
 
 export default class Element extends Emitter {
-  constructor(el, vm, parent = null) {
+  constructor(el, vm, parent = null, directives = [], ce = false) {
     super()
 
     this.id = __id__++
     this.isDetached = false
     this.isCollected = false
 
-    __count__++
+    __collector__.updateCount(1)
 
-    const collectGarbage = el => {
-      if (!el.isCollected && el.isDetached && (!el.children || !el.children.length)) {
-        el.isCollected = true
-
-        __collector__.off('collect', collectGarbage)
-      } else if (el && (!el.node || (el.node && !el.node.parentNode))) {
-        el.$destroy()
-      }
-    }
     const self = this
-    const directives = []
     const node = isType('String', el)
       ? document.querySelector(el)
       : isType('Node', el)
       ? el
       : null
 
-    __collector__.on('collect', collectGarbage, self)
+    __collector__.on('collect', this.#collectGarbage, self)
 
     __collector__.start()
 
@@ -76,20 +36,22 @@ export default class Element extends Emitter {
       directives,
     })
 
-    if (node && node.nodeType !== 3) {
+    if (node && node.nodeType != 3) {
       self.eventListeners = {}
 
       _private.get(self).children = []
 
       Reflect.defineProperty(self, 'children', {
-        value: _private.get(self).children,
+        get() {
+          return _private.get(self).children
+        },
       })
 
       self.children.push = function () {
         const { children } = _private.get(self)
 
         if (!self.isDetached) {
-          Array.prototype.push.apply(children, arguments)
+          ;[].push.apply(children, arguments)
         }
 
         return children.length
@@ -100,28 +62,31 @@ export default class Element extends Emitter {
       parent.addChild(self)
     }
 
-    if (self.node) {
-      // console.dir(node.isCustomElement, node)
-      // console.dir(self.node)
+    if (directives.length) {
+      _private.get(self).directives = directives
+    } else {
+      _private.get(self).directives = directives.concat(parseHtml(self, vm, ce))
     }
-
-    _private.get(self).directives = directives.concat(parseHtml(self, vm))
 
     if (self.children) {
-      self.children.forEach(child => {
-        if (child.toBeRemoved) {
-          self.removeChild(child)
-        }
-      })
+      self.children.forEach(child => child.toBeRemoved && self.removeChild(child))
     }
+  }
 
-    // console.log(__id__)
+  #collectGarbage = el => {
+    if (!el.isCollected && el.isDetached && (!el.children || !el.children.length)) {
+      el.isCollected = true
+
+      __collector__.off('collect', this.#collectGarbage)
+    } else if (el && (!el.node || (el.node && !el.node.parentNode))) {
+      el.$destroy()
+    }
   }
 
   $destroy() {
     const { parent, children } = this
 
-    if (parent && parent.children.indexOf(this) > -1) {
+    if (parent && parent.children.includes(this)) {
       parent.removeChild(this)
     } else {
       this.detach()
@@ -193,8 +158,6 @@ export default class Element extends Emitter {
   detach() {
     if (this.isDetached) return
 
-    // const { directives } = _private.get(this)
-
     // _private.get(this).directives = directives.filter(directive => directive.$destroy())
 
     _private.get(this).directives = []
@@ -210,7 +173,7 @@ export default class Element extends Emitter {
         }
       }
 
-      this.eventListeners = {}
+      this.eventListeners = null
     }
 
     this.node = null
@@ -220,7 +183,7 @@ export default class Element extends Emitter {
 
     this.emit('detached')
 
-    __count__--
+    __collector__.updateCount(-1)
   }
 
   removeChild(child, c = 1) {
@@ -230,8 +193,6 @@ export default class Element extends Emitter {
 
     if (index > -1) {
       const removed = children.splice(index, c)
-
-      // console.log(removed)
 
       for (const el of removed) {
         const { node, children } = el
@@ -290,22 +251,20 @@ export default class Element extends Emitter {
     let { children, node } = this
     const childNode = child.node
 
-    node = node.shadowRoot || node
-
-    // console.log(node)
+    const root = node.shadowRoot || node
 
     if (children.indexOf(child) === -1) {
       child.parent = this
 
       children.push(child)
 
-      if (!node.contains(childNode)) {
+      if (!root.contains(childNode) && !node.contains(childNode)) {
         const docFrag = document.createDocumentFragment()
 
         if (!index) {
-          node.appendChild(docFrag.appendChild(childNode))
+          root.appendChild(docFrag.appendChild(childNode))
         } else {
-          node.insertBefore(docFrag.appendChild(childNode), node.childNodes[index])
+          root.insertBefore(docFrag.appendChild(childNode), root.childNodes[index])
         }
       }
     }
