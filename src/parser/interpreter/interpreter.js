@@ -1,27 +1,26 @@
-import Environment from 'early-parser/src/Environment'
+import Environment from '@digitalbranch/early-parser/src/Environment'
 import evalExp from './evalExp'
 import setObservable from './setObservable'
 
 class Interpreter {
   constructor(AST) {
-    const self = this
+    const [program] = AST
 
-    self.AST = AST[0]
+    this.AST = program.body
   }
 
   interpret(env = new Environment(), directive = null) {
-    const self = this
-    let val = evalExp(self.AST, env, directive)[0].pop()
+    let [result] = evalExp(this.AST, env, directive)
 
-    if (val && val.type && val.type === 'identifier') {
-      const [prop] = val
+    if (result && result.type && result.type === 'Identifier') {
+      const { name } = result
 
-      val = env.this.data ? env.this.data[prop] : env.this[prop].data || undefined
+      result = env.this.data ? env.this.data[name] : env.this[name].data || undefined
 
-      setObservable(prop, env, directive)
+      setObservable(name, env, directive)
     }
 
-    return val === undefined ? '' : val
+    return result === undefined ? '' : result
   }
 }
 export default Interpreter

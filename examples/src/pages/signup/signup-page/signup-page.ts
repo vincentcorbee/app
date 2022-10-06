@@ -1,4 +1,5 @@
 import { AppConfig } from '../signup'
+import { Form, FormControl, requiredValidator } from '@App'
 
 import './signup-page.css'
 
@@ -18,12 +19,19 @@ class User {
   gender = ''
   age: string | number = ''
   details: any
+  password = ''
 
   fullName() {
     return `${this.firstname} ${this.lastname}`
   }
 
-  constructor(firstname?: string, lastname?: string, gender?: string, age?: number) {
+  constructor(
+    firstname?: string,
+    lastname?: string,
+    gender?: string,
+    age?: number,
+    password?: string
+  ) {
     this.firstname = firstname || this.firstname
     this.lastname = lastname || this.lastname
     this.gender = gender || this.gender
@@ -31,77 +39,12 @@ class User {
     this.details = {
       hobbies: 'none',
     }
+    this.password = password || this.password
   }
 }
 
-class FormControl {
-  errors: { [key: string]: boolean }
-  validators: { [key: string]: (input: any) => boolean }
-  value: any | null = null
-  form: Form | null = null
-  valid = true
-
-  constructor({
-    value = null,
-    validators,
-  }: {
-    value?: any
-    validators: { [key: string]: (input: any) => boolean }
-  }) {
-    this.validators = validators
-    this.value = value
-
-    this.errors = Object.keys(validators).reduce((acc, name) => {
-      acc[name] = false
-
-      return acc
-    }, {} as { [key: string]: boolean })
-  }
-
-  validate() {
-    const { validators } = this
-
-    if (validators) {
-      for (const [name, fn] of Object.entries(validators)) {
-        this.errors[name] = !fn(this.value)
-      }
-
-      this.valid = Object.values(this.errors).every(error => !error)
-    } else {
-      this.valid = true
-    }
-
-    return this.valid
-  }
-}
-
-class Form {
-  formControls: { [key: string]: FormControl } = {}
-  valid = true
-
-  constructor(formControls: { [key: string]: FormControl }) {
-    this.formControls = formControls
-
-    for (const control of Object.values(formControls)) {
-      control.form = this
-    }
-  }
-
-  validate() {
-    const states = []
-
-    for (const formControl of Object.values(this.formControls)) {
-      states.push(formControl.validate())
-    }
-
-    this.valid = states.every(state => state)
-
-    return this.valid
-  }
-}
-
-const requiredValidator = {
-  required: (input: string) => !!input,
+const validators = {
+  required: requiredValidator,
 }
 
 const signupPage = {
@@ -116,10 +59,11 @@ const signupPage = {
         { label: 'Female', value: 'female' },
       ],
       signup: new Form({
-        firstname: new FormControl({ value: '', validators: requiredValidator }),
-        lastname: new FormControl({ value: '', validators: requiredValidator }),
-        gender: new FormControl({ value: '', validators: requiredValidator }),
-        age: new FormControl({ value: '', validators: requiredValidator }),
+        firstname: new FormControl({ value: '', validators }),
+        lastname: new FormControl({ value: '', validators }),
+        gender: new FormControl({ value: '', validators }),
+        age: new FormControl({ value: '', validators }),
+        password: new FormControl({ value: '', validators }),
       }),
     }
   },
@@ -131,9 +75,7 @@ const signupPage = {
     ({ default: template }) => template
   ),
   listeners: {
-    ready() {
-      console.log(this.signup)
-    },
+    ready() {},
   },
   methods: {
     onSubmit() {

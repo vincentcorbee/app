@@ -29,6 +29,7 @@ const getRequest = (self, { uri }) => {
   uri = uri.split('/').filter(path => path)
 
   const { getCurrentUri, getQueryParams } = _private.get(self)
+
   let matched = false
   let currentUri = getCurrentUri(self)
   let params = {}
@@ -40,6 +41,7 @@ const getRequest = (self, { uri }) => {
       if (uri[i] && (uri[i] === route || /^:/.test(uri[i]))) {
         if (/^:/.test(uri[i])) {
           let key = uri[i].replace(':', '')
+
           params[key] = route
         }
         return true
@@ -49,7 +51,9 @@ const getRequest = (self, { uri }) => {
 
   if (matched) {
     queryParams = getQueryParams()
+
     _private.get(self).err = false
+
     req = {
       params,
       path: currentUri,
@@ -113,13 +117,10 @@ const dispatch = self => {
         }
       }
 
-      if (component && component.template) {
+      if (component && component.template)
         component = createComponent(self, component, 'default')
-      }
 
-      if (cb && typeof cb === 'function') {
-        cb(req)
-      }
+      if (cb && typeof cb === 'function') cb(req)
 
       self.emit('navigate', {
         type: 'navigate',
@@ -131,9 +132,7 @@ const dispatch = self => {
     }
   }
 
-  if (_private.get(self).err) {
-    handleError(self, new Error(`${self.currentUri} not found`))
-  }
+  if (_private.get(self).err) handleError(self, new Error(`${self.currentUri} not found`))
 }
 
 const handleError = (self, err) => {
@@ -156,9 +155,20 @@ export default class Router extends Emitter {
   constructor({ baseUrl = '' } = {}) {
     super()
 
-    const self = this
+    const clickListener = e => {
+      e.preventDefault()
 
-    _private.set(self, {
+      const url = e.target.getAttribute('href')
+
+      const ctrlKey = e.ctrlKey
+      const shiftKey = e.shiftKey
+
+      if (shiftKey || ctrlKey) return true
+
+      this.navigate(url)
+    }
+
+    _private.set(this, {
       dispatch,
       getViewport,
       getCurrentUri,
@@ -185,22 +195,7 @@ export default class Router extends Emitter {
     const viewports = Array.prototype.slice.call(document.getElementsByTagName('r-view'))
     const rTags = Array.prototype.slice.call(document.getElementsByTagName('r-link'))
 
-    const clickListener = e => {
-      e.preventDefault()
-
-      const url = e.target.getAttribute('href')
-
-      const ctrlKey = e.ctrlKey
-      const shiftKey = e.shiftKey
-
-      if (shiftKey || ctrlKey) {
-        return true
-      }
-
-      self.navigate(url)
-    }
-
-    _private.get(self).viewports = viewports.map(viewport => {
+    _private.get(this).viewports = viewports.map(viewport => {
       const attributes = Array.prototype.slice
         .call(viewport.attributes)
         .map(attr => `${attr.nodeName}=${attr.nodeValue}`)
@@ -216,10 +211,14 @@ export default class Router extends Emitter {
     })
 
     rTags.forEach(rTag => {
-      const aTag = createNewElement('a', [
-        `href=${rTag.getAttribute('to')}`,
-        `innerHTML=${rTag.innerHTML}`,
-      ])
+      const to = rTag.getAttribute('to')
+      const aTag = createNewElement('a', [`href=${to}`, `innerHTML=${rTag.innerHTML}`])
+
+      console.log(to, window.history.state)
+
+      aTag.classList.add('r-link')
+
+      if (state.url === to) aTag.classList.add('r-link-active')
 
       rTag.parentNode.replaceChild(aTag, rTag)
 
@@ -228,7 +227,7 @@ export default class Router extends Emitter {
     })
 
     window.history.replaceState(state, null, '')
-    window.addEventListener('popstate', e => self.navigate(e.state.url, false))
+    window.addEventListener('popstate', e => this.navigate(e.state.url, false))
 
     // console.log(window.history.state, getCurrentUri(self))
     // end
@@ -257,23 +256,19 @@ export default class Router extends Emitter {
   }
 
   navigate(url, pushState = true) {
-    const self = this
-    const { currentUri } = _private.get(self)
-    let title = _private.get(self).title || ''
+    const { currentUri } = _private.get(this)
+
+    let title = _private.get(this).title || ''
     // let { title = '' } = _private.get(self).getRoute(url, _private.get(self).routes) || {}
 
-    _private.get(self).offset = 0
+    _private.get(this).offset = 0
 
-    if (url === currentUri) {
-      return
-    }
+    if (url === currentUri) return
 
     const links = document.querySelectorAll(`a[href$="${url}"][class*="r-link"]`)
     const active = document.querySelectorAll('[class*="r-link-active"]')
 
-    if (links[0]) {
-      title = links[0].textContent || ''
-    }
+    if (links[0]) title = links[0].textContent || ''
 
     for (const link of active) {
       link.classList.remove('r-link-active')
@@ -283,7 +278,7 @@ export default class Router extends Emitter {
       link.classList.add('r-link-active')
     }
 
-    if (pushState) {
+    if (pushState)
       window.history.pushState(
         {
           url,
@@ -292,11 +287,11 @@ export default class Router extends Emitter {
         title,
         url
       )
-    }
-    _private.get(self).title = title
-    _private.get(self).currentUri = url
 
-    self.dispatch()
+    _private.get(this).title = title
+    _private.get(this).currentUri = url
+
+    this.dispatch()
   }
 
   setQueryParams(params = {}) {
@@ -324,17 +319,13 @@ export default class Router extends Emitter {
   }
 
   addRoute(route) {
-    const self = this
+    if (typeof route !== 'object') throw new TypeError(route + ' is not a object')
 
-    if (typeof route !== 'object') {
-      throw new TypeError(route + ' is not a object')
-    }
+    _private.get(this).routes.push(route)
 
-    _private.get(self).routes.push(route)
+    this.dispatch()
 
-    self.dispatch()
-
-    return self
+    return this
   }
 
   dispatch() {
@@ -342,20 +333,12 @@ export default class Router extends Emitter {
   }
 
   next(arg) {
-    if (arg === 'string') {
-      this.navigate(arg)
-    }
+    if (arg === 'string') this.navigate(arg)
 
-    if (arg instanceof Error) {
-      handleError(this, arg)
-    }
+    if (arg instanceof Error) handleError(this, arg)
 
-    if (arg === undefined) {
-      _private.get(this).dispatch(this)
-    }
+    if (arg === undefined) _private.get(this).dispatch(this)
 
-    if (arg === false) {
-      return
-    }
+    if (arg === false) return
   }
 }

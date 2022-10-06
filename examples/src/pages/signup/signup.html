@@ -5,38 +5,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Signup</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      [a-cloak] {
-        display: none;
-      }
-
-      h1 {
-        margin-top: 0;
-      }
-
-      #app {
-        background-color: white;
-        padding: 24px;
-        border-radius: 10px;
-      }
-
-      .row {
-        display: flex;
-      }
-
-      .row:not(:last-child) {
-        margin-bottom: 16px;
-      }
-    </style>
   </head>
   <body>
     <header>
       <h1>My Incredible Website</h1>
     </header>
     <div id="app" a-cloak>
-      <r-link to='/signup'>Signup</r-link>
-      <r-link to='/login'>Login</r-link>
-      <r-view></r-view>
+      <nav>
+        <r-link to="/signup">Signup</r-link>
+        <r-link to="/login">Login</r-link>
+      </nav>
+      <main>
+        <r-view></r-view>
+      </main>
     </div>
   </body>
 </html>

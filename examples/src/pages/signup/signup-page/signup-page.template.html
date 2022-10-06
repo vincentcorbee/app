@@ -2,9 +2,14 @@
   * {
     box-sizing: border-box;
   }
+
   :host {
     --color-error: #f44336;
     --color-blue: #3f51b5;
+  }
+
+  h1 {
+    margin-top: 0;
   }
 
   .row:not(:last-child) {
@@ -130,6 +135,7 @@
     font-size: 0.75rem;
   }
 </style>
+
 <div>
   <h1>{{title}}</h1>
   <form @submit.prevent="onSubmit()" *form="signup">
@@ -204,6 +210,21 @@
         <label for="age">Age</label>
       </div>
       <div class="fc-error" *if="signup.formControls.age.errors.required">
+        This field is required.
+      </div>
+    </div>
+    <div class="row">
+      <div class="fc-field">
+        <input
+          type="password"
+          name="password"
+          id="password"
+          *model="user.password"
+          placeholder=" "
+        />
+        <label for="password">Password</label>
+      </div>
+      <div class="fc-error" *if="signup.formControls.password.errors.required">
         This field is required.
       </div>
     </div>

@@ -5,13 +5,85 @@ import mapProps from './mapProps'
 import getPath from './getPath'
 import getOperation from './operations/getOperation'
 import setObservable from './setObservable'
-import { flattenList } from 'early-parser/src/helpers'
+import { flattenList } from '@digitalbranch/early-parser/src/helpers'
 
 const evalExp = (tree, env = {}, directive = null) =>
   tree.reduce((acc, node) => {
-    const type = node.type
+    const { type } = node
 
     switch (type) {
+      case 'ExpressionStatement':
+        return evalExp([node.expression], env, directive)
+      case 'Identifier': {
+        return accumulateValues(acc, node)
+      }
+      case 'MemberExpression':
+        const { object, property } = node
+
+        let source
+
+        if (object.type === 'MemberExpression') {
+          source = evalExp([object], env, directive)[0]
+        } else {
+          const { name } = object
+          const parent = env.this.data || env.this
+
+          source =
+            name == '$parent'
+              ? env.this.$parent
+              : name == '$route'
+              ? parent[name]
+              : parent
+              ? parent[name]
+              : undefined
+        }
+
+        const { name: prop } = property
+
+        const output =
+          prop == '$parent'
+            ? source.$parent
+            : prop == '$route'
+            ? source[prop]
+            : source
+            ? source[prop]
+            : undefined
+
+        if (output === undefined)
+          throw TypeError(`Cannot read property ${prop} of ${source}.`)
+
+        const base = output && output.__observable__ ? output : source
+
+        setObservable(prop, base, directive)
+
+        return accumulateValues(acc, output)
+      case 'BinaryExpression': {
+        const { operator } = node
+
+        let left = evalExp([node.left], env, directive)[0]
+        let right = evalExp([node.right], env, directive)[0]
+
+        // if (left && left.type && left.type === 'identifier') {
+        //   setObservable(left[0], env, directive)
+
+        //   left = env.get(left[0])
+        // }
+
+        // if (right && right.type && right.type === 'identifier') {
+        //   setObservable(right[0], env, directive)
+
+        //   right = env.get(right[0])
+        // }
+
+        const operation = getOperation(operator, 'binary')
+
+        if (operation) return accumulateValues(acc, operation(left, right))
+
+        throw Error(`Unkown operation: ${operator}`)
+      }
+      case 'StringLiteral': {
+        return accumulateValues(acc, node.name)
+      }
       case 'tenary': {
         return accumulateValues(
           acc,
@@ -31,16 +103,12 @@ const evalExp = (tree, env = {}, directive = null) =>
         return accumulateValues(
           acc,
           args.reduce((acc, arg) => {
-            if (arg[0].type === 'identifier') {
-              setObservable(arg[0][0], env, directive)
-            }
+            if (arg[0].type === 'identifier') setObservable(arg[0][0], env, directive)
 
-            if (arg[1].type === 'identifier') {
-              setObservable(arg[1][0], env, directive)
-            }
+            if (arg[1].type === 'identifier') setObservable(arg[1][0], env, directive)
 
-            const key = arg[0].type === 'identifier' ? arg[0][0] : arg[0]
-            const val = arg[1].type === 'identifier' ? env.get(arg[1][0]) : arg[1]
+            const key = arg[0].type === 'Identifier' ? arg[0][0] : arg[0]
+            const val = arg[1].type === 'Identifier' ? env.get(arg[1][0]) : arg[1]
 
             acc[key] = val
 
@@ -71,10 +139,7 @@ const evalExp = (tree, env = {}, directive = null) =>
             ? parent[prop]
             : undefined
 
-        // setObservable(prop, parent, directive)
-
         path.forEach((p, i) => {
-          // if (output && (output.hasOwnProperty(p) || i === 0)) {
           if (output || i == 0) {
             let base = output
 
@@ -121,9 +186,6 @@ const evalExp = (tree, env = {}, directive = null) =>
         } else {
           throw new TypeError(`${fnName[fnName.length - 1][0]} is not a function.`)
         }
-      }
-      case 'program': {
-        return accumulateValues(acc, evalExp(node, env, directive))
       }
       case 'number': {
         return accumulateValues(acc, node[0])

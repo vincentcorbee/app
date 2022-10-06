@@ -1,255 +1,436 @@
+const createUnaryExpressionNode = ({ type, children }) => {
+  const [operator, argument] = children
+
+  return {
+    type,
+    operator: operator.value,
+    argument,
+    prefix: false,
+  }
+}
+
+const createUpdateExpressionNode = ({ children }) => {
+  const [argument, operator] = children
+
+  return {
+    type: 'UpdateExpression',
+    operator: operator.value,
+    argument,
+    prefix: false,
+  }
+}
+
+const createBinaryExpressionNode = ({ children }) => {
+  const [left, operator, right] = children
+
+  if (children.length === 1) return left
+
+  if (children.lenght === 2) return createUpdateExpressionNode({ children })
+
+  return {
+    type: 'BinaryExpression',
+    operator: operator.value,
+    left,
+    right,
+  }
+}
+
+const createLogicalExpressionNode = ({ children }) => {
+  const [left, operator, right] = children
+
+  if (children.length === 1) return left
+
+  return {
+    type: 'LogicalExpression',
+    operator,
+    left,
+    right,
+  }
+}
+
+const createLeafNode = ({ children, type }) => ({
+  type,
+  name: children[0].value,
+})
+
+const skipNode = ({ children }) => children
+
+const returnValueFromNode = ({ children }) => children[0].value
+
+const createNodeList = ({ children }) => {
+  if (children.length === 0) return [[]]
+  if (children.length === 1) return [children]
+
+  children[0].push(children[2])
+
+  return [children[0]]
+}
+
 const grammer = [
-  // {
-  //   exp: 'Prog : TopStmts',
-  //   action: list => ['program', list[1]]
-  // },
-  // {
-  //   exp: 'TopStmts : | TopStmtsPref',
-  //   action: list => [list[1]]
-  // },
-  // {
-  //   exp: 'TopStmtsPref : TopStmt',
-  //   action: list => [list[1]]
-  // },
-  // {
-  //   exp: 'TopStmt : Stm',
-  //   action: list => [list[1]]
-  // },
+  /* Programs */
   {
-    // exp: 'Stm : EmpStm | ExpStm OptSemi',
-    exp: 'Stm : EmpStm | ExpStm',
-    action: list => [list[1]],
+    exp: `Program :
+        SourceElements`,
+    action: ({ type, children: body }) => ({
+      type,
+      body,
+      directives: [],
+    }),
   },
   {
-    exp: 'EmpStm : SEMI',
+    exp: `SourceElements :
+      SourceElement
+      | SourceElements SourceElement`,
+    action: skipNode,
+  },
+  {
+    exp: `SourceElement : Statement`,
+    action: skipNode,
+  },
+  /* Postfix Operators */
+  {
+    exp: `PostfixExpression :
+        LeftSideExpression
+      | LeftSideExpression INCREMENT
+      | LeftSideExpression DECREMENT`,
+    action: ({ children }) => {
+      if (children.length === 2)
+        return createUpdateExpressionNode({ children: [children[0], children[1]] })
+
+      return children
+    },
+  },
+  /* Statements */
+  {
+    exp: 'OptSemi : SEMI',
     action: () => null,
   },
+  /* Statements */
   {
-    exp: 'ExpStm : Exp',
-    action: list => [list[1]],
+    exp: `Statement :
+        EmptyStatement
+      | ExpressionStatement OptSemi`,
+    action: skipNode,
   },
-  // {
-  //   exp: 'OptSemi : SEMI',
-  //   action: () => null
-  // },
+  /* Empty Statement */
   {
-    exp: 'Exp : AsExp | Exp COMMA AsExp',
+    exp: 'EmptyStatement : SEMI',
+    action: ({ type }) => ({ type }),
+  },
+  {
+    exp: `ExpressionStatement : Expression`,
+    action: ({ type, children }) => ({ type, expression: children[0] }),
+  },
+  {
+    exp: `Expression :
+        AssignmentExpression
+      | SequenceExpression`,
+    action: skipNode,
+  },
+  {
+    exp: `SequenceExpression : Expression COMMA AssignmentExpression`,
+    action: ({ children }) => ({
+      type: 'SequenceExpression',
+      expressions: [children[0], children[2]],
+    }),
+  },
+  {
+    exp: `Exp :
+      AsExp
+      | Exp COMMA AsExp`,
     action: list => (list.length === 4 ? [[list[1], list[3]]] : [list[1]]),
   },
   {
-    exp: 'AsExp : ConExp | LsExp EQUAL AsExp | LsExp CompAs AsExp',
-    action: list => {
-      if (list.length === 4) {
-        return [
-          'assign',
-          [list[1], list[2].value === '=' ? list[2].value : list[2], list[3]],
-        ]
-      } else {
-        return [list[1]]
+    exp: `AssignmentExpression :
+        ConditionalExpression
+      | LeftSideExpression EQUAL AssignmentExpression
+      | LeftSideExpression CompoundAssignment AssignmentExpression`,
+    action({ type, children }) {
+      const [left, operator, right] = children
+
+      if (children.length === 1) return left
+
+      return {
+        type,
+        operator,
+        left,
+        right,
       }
     },
   },
   {
-    exp: 'CompAs : "*=" | "/=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|="',
-    action: list => [list[1].value],
+    exp: `CompoundAssignment :
+        "*="
+      | "/="
+      | "%="
+      | "+="
+      | "-="
+      | "<<="
+      | ">>="
+      | ">>>="
+      | "&="
+      | "^="
+      | "|="`,
+    action: returnValueFromNode,
   },
   {
-    exp: 'ConExp : LogOrExp | LogOrExp TENARY AsExp PERIOD AsExp',
-    action: list => {
-      if (list.length === 6) {
-        return ['tenary', [list[1], list[3], list[5]]]
-      } else {
-        return [list[1]]
+    exp: `ConditionalExpression :
+        LogicalOrExpression
+      | LogicalOrExpression TENARY AssignmentExpression PERIOD AssignmentExpression`,
+    action({ type, children }) {
+      if (children.length === 1) return children[0]
+
+      return {
+        type,
+        test: children[0],
+        alternate: children[2],
+        consequence: children[4],
       }
     },
   },
   {
-    exp: 'LogOrExp :  LogAndExp | LogOrExp LOGOR LogAndExp',
-    action: list => {
-      if (list.length === 4) {
-        return ['binop', [list[1], list[2].value, list[3]]]
-      } else {
-        return [list[1]]
-      }
+    exp: `LogicalOrExpression :
+        LogicalAndExpression
+      | LogicalOrExpression LOGOR LogicalAndExpression`,
+    action: createLogicalExpressionNode,
+  },
+  {
+    exp: `LogicalAndExpression :
+        BitwiseOrExpression
+      | LogicalAndExpression LOGAND BitwiseOrExpression`,
+    action: createLogicalExpressionNode,
+  },
+
+  {
+    exp: `BitwiseOrExpression :
+        BitwiseXorExpression
+      | BitwiseOrExpression BINOR BitwiseXorExpression`,
+    action: createBinaryExpressionNode,
+  },
+
+  {
+    exp: `BitwiseXorExpression :
+        BitwiseAndExpression
+      | BitwiseXorExpression XOR BitwiseAndExpression`,
+    action: createBinaryExpressionNode,
+  },
+  {
+    exp: `BitwiseAndExpression :
+        EqualityExpression
+      | BitwiseAndExpression BINAND EqualityExpression`,
+    action: createBinaryExpressionNode,
+  },
+
+  {
+    exp: `EqualityExpression :
+        RelationalExpression
+      | EqualityExpression EQUALEQUAL RelationalExpression
+      | EqualityExpression NOTEQUAL RelationalExpression
+      | EqualityExpression STRICTEQUAL RelationalExpression
+      | EqualityExpression NOTSTRICTEQUAL RelationalExpression`,
+    action: createBinaryExpressionNode,
+  },
+  {
+    exp: `RelationalExpression :
+        ShiftExpression
+      | RelationalExpression LT ShiftExpression
+      | RelationalExpression GT ShiftExpression
+      | RelationalExpression LTEQ ShiftExpression
+      | RelationalExpression GTEQ ShiftExpression
+      | RelationalExpression INSTANCEOF ShiftExpression
+      | RelationalExpression IN ShiftExpression`,
+    action: createBinaryExpressionNode,
+  },
+  {
+    exp: `ShiftExpression :
+        AdditiveExpression
+      | ShiftExpression "<<" AdditiveExpression
+      | ShiftExpression ">>" AdditiveExpression
+      | ShiftExpression ">>>" AdditiveExpression`,
+    action: createBinaryExpressionNode,
+  },
+  {
+    exp: `AdditiveExpression :
+        MultiplicativeExpression
+      | AdditiveExpression PLUS MultiplicativeExpression
+      | AdditiveExpression MINUS MultiplicativeExpression`,
+    action: createBinaryExpressionNode,
+  },
+  {
+    exp: `MultiplicativeExpression :
+        UnaryExpression
+      | MultiplicativeExpression MULTIPLY UnaryExpression
+      | MultiplicativeExpression MODULUS UnaryExpression`,
+    action: skipNode,
+  },
+  {
+    exp: `UnaryExpression :
+        PostfixExpression
+      | PLUS UnaryExpression
+      | MINUS UnaryExpression`,
+    action: node => {
+      if (node.children.length === 1) return skipNode(node)
+
+      const { children } = node
+
+      if (['++', '--'].includes(children[0].value))
+        return createUpdateExpressionNode({ children: [children[1], children[0]] })
+
+      return createUnaryExpressionNode(node)
     },
-  },
-  {
-    exp: 'LogAndExp :  BitOrExp | LogAndExp LOGAND BitOrExp',
-    action: list => {
-      if (list.length === 4) {
-        return ['binop', [list[1], list[2].value, list[3]]]
-      } else {
-        return [list[1]]
-      }
-    },
-  },
-  {
-    exp: 'BitOrExp :  BitXorExp | BitOrExp BINOR BitXorExp',
-    action: list => {
-      if (list.length === 4) {
-        return ['binop', [list[1], list[2].value, list[3]]]
-      } else {
-        return [list[1]]
-      }
-    },
-  },
-  {
-    exp: 'BitXorExp :  BitAndExp | BitXorExp XOR BitAndExp',
-    action: list => {
-      if (list.length === 4) {
-        return ['binop', [list[1], list[2].value, list[3]]]
-      } else {
-        return [list[1]]
-      }
-    },
-  },
-  {
-    exp: 'BitAndExp :  EqExp | BitAndExp BINAND EqExp',
-    action: list => {
-      if (list.length === 4) {
-        return ['binop', [list[1], list[2].value, list[3]]]
-      } else {
-        return [list[1]]
-      }
-    },
-  },
-  {
-    exp: 'EqExp :  RelExp | EqExp EQUALEQUAL RelExp | EqExp NOTEQUAL RelExp | EqExp STRICTEQUAL RelExp | EqExp NOTSTRICTEQUAL RelExp',
-    action: list => {
-      if (list.length === 4) {
-        return ['binop', [list[1], list[2].value, list[3]]]
-      } else {
-        return [list[1]]
-      }
-    },
-  },
-  {
-    exp: 'RelExp :  ShiExp | RelExp LT ShiExp | RelExp GT ShiExp | RelExp LTEQ ShiExp | RelExp GTEQ ShiExp',
-    action: list => {
-      if (list.length === 4) {
-        return ['binop', [list[1], list[2].value, list[3]]]
-      } else {
-        return [list[1]]
-      }
-    },
-  },
-  {
-    exp: 'ShiExp :  AddExp | ShiExp "<<" AddExp | ShiExp ">>" AddExp | ShiExp ">>>" AddExp',
-    action: list =>
-      list.length === 4 ? ['binop', [list[1], list[2].value, list[3]]] : [list[1]],
-  },
-  {
-    exp: 'AddExp : MulExp | AddExp PLUS MulExp | AddExp MINUS MulExp',
-    action: list =>
-      list.length === 4 ? ['binop', [list[1], list[2].value, list[3]]] : [list[1]],
-  },
-  {
-    exp: 'MulExp : UnExp | MulExp MULTIPLY UnExp | MulExp MODULUS UnExp',
-    action: list =>
-      list.length === 4 ? ['binop', [list[1], list[2].value, list[3]]] : [list[1]],
-  },
-  {
-    exp: 'UnExp : PfixExp | PLUS UnExp | MINUNS UnExp',
-    action: list => (list.length === 3 ? ['unop', [list[1], list[2]]] : [list[1]]),
-  },
-  {
-    exp: 'PfixExp : LsExp | LsExp PLUSPLUS | LsExp MINMIN',
-    action: list => [list[1]],
-  },
-  {
-    exp: 'LsExp : CallExp',
-    action: list => [list[1]],
-  },
-  {
-    exp: 'CallExp : PriExp | CallExp Args | CallExp MemOp',
-    action: list => {
-      if (list.length === 3) {
-        if (list[2].type === 'MemOp') {
-          return ['accessor', [list[1], list[2]]]
-        } else {
-          return ['call', [list[1], list[2]]]
-        }
-      } else {
-        return [list[1]]
-      }
-    },
-  },
-  {
-    exp: 'MemOp : LBRACK Exp RBRACK | DOT Identifier',
-    action: list => [list[2]],
-  },
-  {
-    exp: 'Args : LPAREN RPAREN | LPAREN ArgList RPAREN',
-    action: list => (list.length === 3 ? ['args', []] : ['args', [list[2]]]),
-  },
-  {
-    exp: 'ArgList : AsExp | ArgList COMMA AsExp',
-    action: list => (list.length === 4 ? [[list[1], list[3]]] : [[list[1]]]),
-  },
-  {
-    exp: 'PriExp : SimExp | ObjLit',
-    action: list => [list[1]],
-  },
-  {
-    exp: 'ObjLit : LCBRACE RCBRACE | LCBRACE FieldList RCBRACE',
-    action: list =>
-      list.length === 4 ? ['objectLiteral', [list[2]]] : ['objectLiteral', []],
-  },
-  {
-    exp: 'FieldList : LitField | FieldList COMMA LitField',
-    action: list => (list.length === 4 ? [[list[1], list[3]]] : [list[1]]),
-  },
-  {
-    exp: 'LitField : Identifier PERIOD AsExp',
-    action: list => [[list[1], list[3]]],
-  },
-  {
-    exp: 'SimExp : This | Null | Boolean | String | Number | Identifier | ParenExp | ArrLit',
-    action: list => [list[1]],
-  },
-  {
-    exp: 'ParenExp : LPAREN Exp RPAREN',
-    action: list => [list[2]],
-  },
-  {
-    exp: 'ArrLit : LBRACK RBRACK | LBRACK ElmList RBRACK',
-    action: list =>
-      list.length === 4 ? ['arrayLiteral', [list[2]]] : ['arrayLiteral', []],
-  },
-  {
-    exp: 'ElmList : LitElm | ElmList COMMA LitElm',
-    action: list => (list.length === 4 ? [list[1], list[3]] : [list[1]]),
-  },
-  {
-    exp: 'LitElm : AsExp',
-    action: list => [list[1]],
   },
   {
     exp: 'Identifier : IDENTIFIER',
-    action: list => [
-      list[1].value === 'undefined' ? 'undefined' : 'identifier',
-      list[1].value,
-    ],
+    action: createLeafNode,
   },
   {
     exp: 'Number : NUMBER',
-    action: list => ['number', list[1].value],
+    action: createLeafNode,
   },
   {
-    exp: 'String : STRING',
-    action: list => ['string', list[1].value],
+    exp: 'StringLiteral : STRING',
+    action: createLeafNode,
   },
   {
     exp: 'Null : NULL',
-    action: list => ['null', list[1].value],
+    action: createLeafNode,
   },
   {
     exp: 'This : THIS',
-    action: list => ['this', list[1].value],
+    action: createLeafNode,
   },
   {
     exp: 'Boolean : TRUE | FALSE',
-    action: list => ['boolean', list[1].value],
+    action: createLeafNode,
+  },
+  /* Left-Side expression */
+  {
+    exp: `LeftSideExpression : CallExpression`,
+    action: skipNode,
+  },
+  {
+    exp: `CallExpression :
+        PrimaryExpression
+      | CallExpression Arguments
+      | CallExpression MemberOperator`,
+    action: ({ children }) => {
+      if (children.length === 1) return children
+
+      if (children[1].type === 'MemberOperator') {
+        return {
+          type: 'MemberExpression',
+          property: children[1].property,
+          object: children[0],
+          computed: children[1].computed,
+        }
+      }
+
+      if (children[1].type === 'Arguments') {
+        return {
+          type: 'CallExpression',
+          callee: children[0],
+          arguments: children[1].children,
+        }
+      }
+
+      return children[1]
+    },
+  },
+  {
+    exp: `MemberOperator :
+        LBRACK Expression RBRACK
+      | DOT Identifier`,
+    action: ({ type, children }) => ({
+      type,
+      property: children[1],
+      computed: children.length === 3,
+    }),
+  },
+  {
+    exp: `Arguments :
+        LPAREN RPAREN
+      | LPAREN ArgumentList RPAREN`,
+    action: ({ type, children }) => ({
+      type,
+      children: children.length === 3 ? children[1] : [],
+    }),
+  },
+  {
+    exp: `ArgumentList :
+        AssignmentExpression
+      | ArgumentList COMMA AssignmentExpression`,
+    action: createNodeList,
+  },
+  /* Expressions */
+  /* Primary Expressions */
+  {
+    exp: `PrimaryExpression :
+        SimpleExpression
+      | ObjectLiteral`,
+    action: skipNode,
+  },
+  {
+    exp: `SimpleExpression :
+        This
+      | Null
+      | Boolean
+      | StringLiteral
+      | Number
+      | Identifier
+      | ParenthesizedExpression
+      | ArrayLiteral`,
+    action: skipNode,
+  },
+  {
+    exp: 'ParenthesizedExpression : LPAREN Expression RPAREN',
+    action: node => node.children[1],
+  },
+  /* Object literals */
+  {
+    exp: `ObjectLiteral :
+        LCBRACE RCBRACE
+      | LCBRACE FieldList RCBRACE`,
+    action: ({ type, children }) => ({
+      type,
+      properties: children.length === 2 ? [] : children[1],
+    }),
+  },
+  {
+    exp: `FieldList :
+        LiteralField
+      | FieldList COMMA LiteralField`,
+    action: createNodeList,
+  },
+  {
+    exp: `LiteralField :
+        Identifier PERIOD AssignmentExpression`,
+    action: ({ children }) => ({
+      type: 'Property',
+      key: children[0],
+      value: children[2],
+      kind: 'init',
+    }),
+  },
+  /* Array literals  */
+  {
+    exp: `ArrayLiteral :
+        LBRACK RBRACK
+      | LBRACK ElementList RBRACK`,
+    action: ({ children }) => ({
+      type: 'ArrayExpression',
+      elements: children.length === 2 ? [] : children[1],
+    }),
+  },
+
+  {
+    exp: `ElementList :
+        LiteralElement
+      | ElementList COMMA LiteralElement`,
+    action: createNodeList,
+  },
+  {
+    exp: 'LiteralElement : AssignmentExpression',
+    action: skipNode,
   },
 ]
 export default grammer

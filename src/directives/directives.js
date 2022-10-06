@@ -230,6 +230,8 @@ const directiveRegistry = {
 
           const formControl = getFormControl(vm, node.name, form)
 
+          console.log(formControl, vm, node.name, form)
+
           if (formControl) {
             formControl.value = output
 
@@ -241,8 +243,6 @@ const directiveRegistry = {
           }
 
           data[key] = output
-
-          console.log(data)
         }
 
         this.identifier = identifier
@@ -264,7 +264,7 @@ const directiveRegistry = {
             for (const option of node.options) {
               option.selected = option.value === value
             }
-          } else if (/text|number|tel|email/.test(type)) {
+          } else if (/text|number|tel|email|password/.test(type)) {
             addListener(
               node,
               modifiers.includes('lazy') ? 'change' : 'input',
@@ -316,19 +316,21 @@ const directiveRegistry = {
         this.update()
       },
       update() {
+        const {
+          attributeName: name,
+          vm,
+          expression,
+          element: { node },
+        } = this
         const self = this
-        const name = self.attributeName
-        const vm = self.vm
-        const expression = self.expression
-        const node = self.element.node
 
         if (name === 'checked') {
-          node.checked = expressionParser(vm, expression, self)
+          node.checked = expressionParser(vm, expression, this)
         } else if (name === 'style') {
           let style = ''
 
           if (/^{[^}]+}$/.test(expression)) {
-            const obj = expressionParser(vm, expression, self)
+            const obj = expressionParser(vm, expression, this)
 
             for (const prop in obj) {
               style += `${camelToHyphen(prop)}:${obj[prop]};`
@@ -349,7 +351,7 @@ const directiveRegistry = {
             })
           }
 
-          node[name] = expressionParser(vm, expression, self)
+          node[name] = expressionParser(vm, expression, this)
 
           node.setAttribute(name, node[name])
         }
@@ -423,22 +425,16 @@ const directiveRegistry = {
 
         /*
           Checking for the contstructor name is a hack that is
-          needed for passing of the observer to the child properties
+          needed for passing the observer to the child properties
         */
 
         if ((!data.target || data.target.constructor.name !== 'Mask') && cases) {
           if (data.value) {
-            if (!cases.if.element) {
-              insertCase(this, 'if')
-            }
+            if (!cases.if.element) insertCase(this, 'if')
 
-            if (cases.else && cases.else.element) {
-              cases.else.element = null
-            }
+            if (cases.else && cases.else.element) cases.else.element = null
           } else {
-            if (cases.if.element) {
-              cases.if.element = null
-            }
+            if (cases.if.element) cases.if.element = null
 
             insertCase(this, 'else')
           }
