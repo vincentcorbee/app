@@ -1,4 +1,4 @@
-import Directive from '../models/Directive'
+import Directive from '../modules/Directive'
 
 const createDirective = (
   { name, reg, attr, bind = () => {}, update = () => {} } = {},

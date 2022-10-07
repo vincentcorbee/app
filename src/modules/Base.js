@@ -1,4 +1,4 @@
-import { mix, fetchTemplate as ft } from '../helpers/U'
+import { mix, fetchTemplate as ft } from '@digitalbranch/u'
 import Dispatcher from './Dispatcher.js'
 import Emitter from './Emitter.js'
 
@@ -10,17 +10,16 @@ export default class Base extends HTMLElement {
   constructor() {
     super()
 
-    const self = this
+    mix(this, Emitter)
 
-    mix(self, Emitter)
-    _private.set(self, {
+    _private.set(this, {
       dispatcher: new Dispatcher(),
     })
 
-    if (self.template && typeof self.template === 'function') {
-      _private.get(self).template = self.template()
-    } else if (self.templateUrl && typeof self.templateUrl === 'function') {
-      _private.get(self).template = fetchTemplate(self.templateUrl())
+    if (this.template && typeof this.template === 'function') {
+      _private.get(this).template = this.template()
+    } else if (this.templateUrl && typeof this.templateUrl === 'function') {
+      _private.get(this).template = fetchTemplate(this.templateUrl())
     }
   }
 

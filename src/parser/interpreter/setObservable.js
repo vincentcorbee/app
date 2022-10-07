@@ -1,4 +1,4 @@
-import { isType } from '../../helpers/U'
+import { isType } from '@digitalbranch/u'
 import attachObservable from '../../helpers/attachObservable'
 
 /*

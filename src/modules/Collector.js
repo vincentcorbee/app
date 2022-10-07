@@ -1,5 +1,6 @@
 import privateData from '../helpers/privateData'
 import Emitter from './Emitter'
+import { setZeroTimeout } from '@digitalbranch/u'
 
 class Collector extends Emitter {
   constructor() {

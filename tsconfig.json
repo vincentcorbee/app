@@ -14,15 +14,10 @@
     "isolatedModules": true,
     // Import non-ES modules as default imports.
     "esModuleInterop": true,
-		"paths": {
-			"Helpers": ["./src/helpers/"]
+    "paths": {
+      "Helpers": ["./src/helpers/"]
     }
   },
-  "include": [
-    "src",
-    "backup/examples/app.js",
-    "backup/parseObject.js",
-    "backup/Router copy.js"
-  ],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

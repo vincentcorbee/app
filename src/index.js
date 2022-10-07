@@ -1,4 +1,4 @@
-import App from './models/App'
+import App from './modules/App'
 
 export * from './form'
 

@@ -1,4 +1,4 @@
-import { copyArray } from '../helpers/U'
+import { copyArray } from '@digitalbranch/u'
 import Emitter from './Emitter.js'
 
 const _private = new WeakMap()
@@ -8,6 +8,7 @@ export default class Dispatcher extends Emitter {
     super()
 
     let self = this
+
     _private.set(self, {
       args,
       events: {},

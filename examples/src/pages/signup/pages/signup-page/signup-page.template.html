@@ -229,6 +229,24 @@
       </div>
     </div>
     <div class="row">
+      <div class="fc-field">
+        <input
+          type="password"
+          name="passwordControl"
+          id="passwordControl"
+          *model="passwordControl"
+          placeholder=" "
+        />
+        <label for="passwordControl">Password control</label>
+      </div>
+      <div class="fc-error" *if="signup.formControls.passwordControl.errors.required">
+        This field is required.
+      </div>
+    </div>
+    <div class="row" *if="signup.formGroups.passwords.errors.passwordMatch">
+      <div class="fc-error">Passwords don't match.</div>
+    </div>
+    <div class="row">
       <ui-button type="submit">Singup</ui-button>
     </div>
   </form>

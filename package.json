@@ -1,5 +1,5 @@
 {
-  "name": "@digitalbranch/appjs",
+  "name": "@digitalbranch/app",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -29,6 +29,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "@digitalbranch/early-parser": "file:../early-parser"
+    "@digitalbranch/early-parser": "file:../early-parser",
+    "@digitalbranch/u": "file:../U"
   }
 }

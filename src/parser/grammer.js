@@ -136,7 +136,7 @@ const grammer = [
   },
   {
     exp: `Exp :
-      AsExp
+        AsExp
       | Exp COMMA AsExp`,
     action: list => (list.length === 4 ? [[list[1], list[3]]] : [list[1]]),
   },
@@ -266,8 +266,9 @@ const grammer = [
   {
     exp: `UnaryExpression :
         PostfixExpression
-      | PLUS UnaryExpression
-      | MINUS UnaryExpression`,
+      | INCREMENT LeftSideExpression
+      | DECREMENT LeftSideExpression
+      | PLUS UnaryExpression`,
     action: node => {
       if (node.children.length === 1) return skipNode(node)
 

@@ -1,6 +1,6 @@
 import getDirective from './directives'
 import getPlaceholders from '../helpers/getPlaceholders'
-import Element from '../models/Element'
+import Element from '../modules/Element'
 
 const bindDirectives = (element, vm) => {
   if (vm.isDestroyed) return []

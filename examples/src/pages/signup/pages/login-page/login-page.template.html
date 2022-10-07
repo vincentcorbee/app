@@ -115,4 +115,12 @@
       <ui-button type="submit">Login</ui-button>
     </div>
   </form>
+
+  <ui-modal *ref="modal">
+    <span slot="header">Logged in</span>
+    <div slot="main">{{ username }} is logged in.</div>
+    <div slot="footer">
+      <ui-button type="button" @click="closeModal">Close</ui-button>
+    </div>
+  </ui-modal>
 </div>

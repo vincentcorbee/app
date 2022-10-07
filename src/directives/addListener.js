@@ -1,4 +1,4 @@
-import { addListener } from '../helpers/U'
+import { addListener } from '@digitalbranch/u'
 import expressionParser from '../parser/expressionParser'
 import getListener from './getListener'
 import setValidStateInput from './setValidStateInput'
@@ -48,18 +48,16 @@ const addEventListener = (
     )
 
     if (fnName == 'emit') {
-      if (e.target === node) {
-        parent.emit(...args, e)
-      }
+      if (e.target === node) parent.emit(...args, e)
     } else {
       if (event == 'submit' && e.target.$form) {
         const formElement = e.target
         const form = formElement.$form
         const valid = form.validate()
 
-        for (const [name, control] of Object.entries(form.formControls)) {
+        Object.entries(form.formControls).forEach(([name, control]) => {
           setValidStateInput(control.valid, formElement.elements[name])
-        }
+        })
 
         if (!valid) return
       }

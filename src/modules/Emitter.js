@@ -1,4 +1,4 @@
-import { copyObject, copyArray } from '../helpers/U'
+import { copyObject, copyArray } from '@digitalbranch/u'
 
 const _private = new WeakMap()
 const _data = {
@@ -6,17 +6,14 @@ const _data = {
 }
 const setPrivate = inst => _private.set(inst, copyObject(_data))
 const getPrivate = inst => {
-  if (!_private.get(inst)) {
-    setPrivate(inst)
-  }
+  if (!_private.get(inst)) setPrivate(inst)
+
   return _private.get(inst)
 }
 
 export default class Emitter {
   constructor() {
-    const self = this
-
-    setPrivate(self)
+    setPrivate(this)
   }
 
   on(event, listener, ...args) {

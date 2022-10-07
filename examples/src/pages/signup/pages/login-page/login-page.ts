@@ -26,6 +26,8 @@ const loginPage = {
       title: 'Login',
       password: '',
       username: '',
+      passone: '',
+      passtwo: '',
       login: new Form({
         username: new FormControl({ value: '', validators }),
         password: new FormControl({ value: '', validators }),
@@ -34,19 +36,20 @@ const loginPage = {
   },
   /*
     Load template with webpack dynamic imports.
-    webpackMode "eager" addes html to the bundle in stead of a seperate chunk.
+    webpackMode "eager" adds html to the bundle in stead of a seperate chunk.
   */
   template: import(/* webpackMode: "eager" */ './login-page.template.html').then(
     ({ default: template }) => template
   ),
   listeners: {
-    ready() {
-      console.log(this)
-    },
+    ready() {},
   },
   methods: {
     onSubmit() {
-      console.log('logged in')
+      this.$refs.modal.openModal()
+    },
+    closeModal() {
+      this.$refs.modal.closeModal()
     },
   },
 } as Config

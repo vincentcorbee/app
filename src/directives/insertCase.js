@@ -1,4 +1,4 @@
-import Element from '../models/Element'
+import Element from '../modules/Element'
 
 const insertCase = (directive, c) => {
   const { cases, element, vm } = directive

@@ -1,4 +1,4 @@
-import { copyObject } from './U'
+import { copyObject } from '@digitalbranch/u'
 
 const _private = new WeakMap()
 

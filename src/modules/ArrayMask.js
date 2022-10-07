@@ -1,4 +1,4 @@
-import { mix } from '../helpers/U'
+import { mix } from '@digitalbranch/u'
 import attachObservable from '../helpers/attachObservable'
 import copyProperties from '../helpers/copyProperties'
 // Modifiers to intercept
@@ -8,13 +8,7 @@ const _private = new WeakMap()
 
 class ArrayMask {
   constructor(target, handler, queue) {
-    // super()
-
-    // console.trace(target)
-
-    if (typeof target !== 'object') {
-      throw new TypeError('target is not an Object')
-    }
+    if (typeof target !== 'object') throw new TypeError('target is not an Object')
 
     _private.set(this, {
       handler,

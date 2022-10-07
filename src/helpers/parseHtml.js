@@ -1,4 +1,4 @@
-import Element from '../models/Element'
+import Element from '../modules/Element'
 import bindDirectives from '../directives/bindDirectives'
 
 const parseHtml = (element, vm, ce) => {

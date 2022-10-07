@@ -49,7 +49,7 @@ parser.error = err => {
 }
 
 export default (vm, expression, directive) => {
-  lexer.input(expression)
+  lexer.input(`${expression};`)
 
   parser.reset()
 

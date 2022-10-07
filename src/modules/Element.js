@@ -1,4 +1,4 @@
-import { isType, removeListener } from '../helpers/U'
+import { isType, removeListener } from '@digitalbranch/u'
 import parseHtml from '../helpers/parseHtml'
 import Emitter from './Emitter'
 import Collector from './Collector'

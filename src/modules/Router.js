@@ -1,5 +1,5 @@
 import Emitter from './Emitter'
-import { createNewElement } from '../helpers/U'
+import { createNewElement } from '@digitalbranch/u'
 
 const _private = new WeakMap()
 
@@ -213,8 +213,6 @@ export default class Router extends Emitter {
     rTags.forEach(rTag => {
       const to = rTag.getAttribute('to')
       const aTag = createNewElement('a', [`href=${to}`, `innerHTML=${rTag.innerHTML}`])
-
-      console.log(to, window.history.state)
 
       aTag.classList.add('r-link')
 

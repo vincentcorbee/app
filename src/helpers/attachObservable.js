@@ -1,4 +1,4 @@
-import Observable from '../models/Observable'
+import Observable from '../modules/Observable'
 
 const attachObservable = (target, ob = new Observable()) => {
   if (target && !target.hasOwnProperty('__observable__')) {

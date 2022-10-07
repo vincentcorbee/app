@@ -1,5 +1,6 @@
-import { AppConfig } from '../signup'
-import { Form, FormControl, requiredValidator } from '@App'
+import { Form, FormControl, requiredValidator, FormGroup } from '@App'
+import { User } from '../../models'
+import { AppConfig } from '../../types'
 
 import './signup-page.css'
 
@@ -13,36 +14,6 @@ interface Config extends AppConfig {
   data(): AppData
 }
 
-class User {
-  firstname = ''
-  lastname = ''
-  gender = ''
-  age: string | number = ''
-  details: any
-  password = ''
-
-  fullName() {
-    return `${this.firstname} ${this.lastname}`
-  }
-
-  constructor(
-    firstname?: string,
-    lastname?: string,
-    gender?: string,
-    age?: number,
-    password?: string
-  ) {
-    this.firstname = firstname || this.firstname
-    this.lastname = lastname || this.lastname
-    this.gender = gender || this.gender
-    this.age = age || this.age
-    this.details = {
-      hobbies: 'none',
-    }
-    this.password = password || this.password
-  }
-}
-
 const validators = {
   required: requiredValidator,
 }
@@ -54,6 +25,7 @@ const signupPage = {
       title: 'Signup',
       user: new User(),
       newUser: null,
+      passwordControl: '',
       genders: [
         { label: 'Male', value: 'male' },
         { label: 'Female', value: 'female' },
@@ -63,13 +35,26 @@ const signupPage = {
         lastname: new FormControl({ value: '', validators }),
         gender: new FormControl({ value: '', validators }),
         age: new FormControl({ value: '', validators }),
-        password: new FormControl({ value: '', validators }),
+        passwords: new FormGroup(
+          {
+            password: new FormControl({ value: '', validators }),
+            passwordControl: new FormControl({ value: '', validators }),
+          },
+          {
+            passwordMatch: (input: FormGroup) => {
+              const password = input.get('password')?.value
+              const passwordControl = input.get('passwordControl')?.value
+
+              return password === passwordControl ? true : false
+            },
+          }
+        ),
       }),
     }
   },
   /*
     Load template with webpack dynamic imports.
-    webpackMode "eager" addes html to the bundle in stead of a seperate chunk.
+    webpackMode "eager" adds html to the bundle in stead of a seperate chunk.
   */
   template: import(/* webpackMode: "eager" */ './signup-page.template.html').then(
     ({ default: template }) => template
@@ -81,6 +66,7 @@ const signupPage = {
     onSubmit() {
       this.newUser = this.user
       this.user = new User()
+      this.passwordControl = ''
 
       this.$refs.modal.openModal()
     },

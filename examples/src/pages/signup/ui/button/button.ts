@@ -1,4 +1,4 @@
-import { AppConfig } from '../../signup'
+import { AppConfig } from '../../types'
 
 const button = {
   props: ['type'],

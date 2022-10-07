@@ -16,7 +16,7 @@
     // Import non-ES modules as default imports.
     "esModuleInterop": true,
     "paths": {
-      "@App": ["../src/"]
+      "@App": ["../src/*"]
     }
   },
   "exclude": ["node_modules"]
