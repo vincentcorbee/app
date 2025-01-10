@@ -10,13 +10,7 @@ export default class User {
     return `${this.firstname} ${this.lastname}`
   }
 
-  constructor(
-    firstname?: string,
-    lastname?: string,
-    gender?: string,
-    age?: number,
-    password?: string
-  ) {
+  constructor(firstname = '', lastname = '', gender = '', age?: number, password = '') {
     this.firstname = firstname || this.firstname
     this.lastname = lastname || this.lastname
     this.gender = gender || this.gender

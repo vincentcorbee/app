@@ -1,16 +1,16 @@
-import { AppConfig } from '../../types'
+import { defineComponent } from '@digitalbranch/app'
 
-const button = {
+import template from './button.template'
+
+const button = defineComponent({
   props: ['type'],
-  template: import(/* webpackMode 'eager' */ './button.template.html').then(
-    ({ default: template }) => template
-  ),
+  template,
   methods: {
     onClick() {
-      if (this.type == 'submit')
-        this.node.closest('FORM').dispatchEvent(new Event('submit'))
+      if (this.type === 'submit')
+        (this.$node as HTMLElement).closest('FORM')?.dispatchEvent(new Event('submit'))
     },
   },
-} as AppConfig
+})
 
 export default button

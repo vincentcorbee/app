@@ -7,7 +7,7 @@ const config = {
   resolve: {
     extensions: ['.js', '.ts'],
   },
-  plugins: [new BundleAnalyzerPlugin({ analyzerPort: 9898 })],
+  // plugins: [new BundleAnalyzerPlugin({ analyzerPort: 9898 })],
   module: {
     rules: [
       {

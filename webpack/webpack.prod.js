@@ -1,18 +1,21 @@
 const merge = require('webpack-merge')
 const common = require('./webpack.common')
-const MinifyPlugin = require('babel-minify-webpack-plugin')
+// const MinifyPlugin = require('babel-minify-webpack-plugin')
 const path = require('path')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
-const library = 'App'
+
+const library = 'app'
 const entry = {
-  App: path.resolve('src', 'index.js'),
+  app: path.resolve('src', 'index.ts'),
 }
+
+console.log('hoi')
 
 module.exports = merge(common, {
   entry,
   plugins: [
     new CleanWebpackPlugin(['dist'], {
-      root: path.resolve('..'),
+      root: path.resolve(__dirname, '..'),
     }),
   ],
   optimization: {
@@ -26,7 +29,7 @@ module.exports = merge(common, {
   mode: 'production',
   output: {
     filename: '[name].js',
-    path: path.resolve('dist'),
+    path: path.resolve(__dirname, '..', 'dist'),
     library,
     libraryTarget: 'umd',
     globalObject: 'this',

@@ -12,11 +12,12 @@
     </header>
     <div id="app" a-cloak>
       <nav>
-        <r-link to="/signup">Signup</r-link>
-        <r-link to="/login">Login</r-link>
+        <router-link to="/">Home</router-link>
+        <router-link to="/signup">Signup</router-link>
+        <router-link to="/login">Login</router-link>
       </nav>
       <main>
-        <r-view></r-view>
+        <router-view></router-view>
       </main>
     </div>
   </body>

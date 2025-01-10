@@ -1,10 +1,17 @@
-<!-- This will add the css to the shadowDom if enabled -->
 <style>
   :host {
-    display: block;
-    padding: 24px;
     background-color: white;
-    border-radius: 5px;
+    padding: 24px;
+    border-radius: 10px;
+    margin: 0 auto;
+    max-width: 78rem;
+    display: block;
+    --color-error: #f44336;
+    --color-blue: #3f51b5;
+  }
+
+  h1 {
+    margin-top: 0;
   }
 
   .loader {
@@ -16,26 +23,119 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(255, 255, 255, 0.5)
+    background-color: rgba(255, 255, 255, 0.5);
   }
 
+  .row:not(:last-child) {
+    margin-bottom: var(--offset-md);
+  }
+
+  /* .fc-field {
+    position: relative;
+    display: inline-flex;
+    height: 56px;
+    background-color: #f5f5f5;
+    --background-color-blue: #14cded;
+  }
+
+  .fc-field label {
+    left: 16px;
+    right: initial;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 1rem;
+    position: absolute;
+    transform-origin: left top;
+    line-height: 1.15rem;
+    transition: transform 150ms;
+  }
+
+  .fc-field input {
+    padding: 20px 16px 6px;
+    font-size: 1rem;
+    border: none;
+    margin: 0;
+    border-bottom: 1px solid;
+    width: 100%;
+    height: 100%;
+    align-self: flex-end;
+    box-sizing: border-box;
+    background-color: transparent;
+  }
+
+  .fc-field input.fc-invalid {
+    border-bottom-color: var(--color-error);
+    color: var(--color-error);
+  }
+
+  .fc-field input.fc-invalid + label {
+    color: var(--color-error);
+  }
+
+  .fc-field input:focus {
+    outline: none;
+  }
+
+  .fc-field input:focus:not(.fc-invalid) {
+    border-bottom: 1px solid var(--background-color-blue);
+  }
+
+  .fc-field input:focus + label,
+  .fc-field input:not(:placeholder-shown) + label {
+    transform: translateY(-106%) scale(0.75);
+  }
+
+  .fc-error {
+    color: var(--color-error);
+    margin-top: 4px;
+    font-size: 0.75rem;
+  } */
+
+  .flex {
+    display: flex;
+  }
+
+  .flex-direction-column {
+    flex-direction: column;
+  }
+
+  .flex-1 {
+    flex: 1;
+  }
 </style>
 
-<div *if="loading" class="loader">
-  {{ action }}
-</div>
+<div *if="loading" class="loader">{{ action }}</div>
+<!-- <div *if="bar" class="flex flex-direction-column">
+  <div class="flex flex-direction-column">
+    <div class="row">
+      <ui-input type="text" @update="update" *bind:value="newTodo">
+        <span slot="label">New todo</span>
+      </ui-input>
+      <ui-button type="button" @click="addTodo">Add todo</ui-button>
+    </div>
+  </div>
+</div> -->
 
-<div *if="todos">
-  <span>Todos: {{ todos.length }} </span>
-  <todo-list *bind:todos="todos" @remove-todo="removeTodo"></todo-list>
-  <div>
-    <input type="text" *model="newTodo"/>
-    <button @click="addTodo">Add todo</button>
+<div *if="todos" class="flex flex-direction-column">
+  {{ foo.doSomething(10, 12) }} {{ test.text }}
+  <h1>Todos: {{ todos.length }}</h1>
+  <div class="row">
+    <ui-input *bind:type="type" @update="update" *bind:value="newTodo">
+      <span slot="label">New todo</span>
+    </ui-input>
+    <!-- <div class="fc-field">
+      <input type="text" *model="newTodo" placeholder=" " />
+      <label for="username">New todo</label>
+    </div> -->
+    <ui-button type="button" @click="addTodo">Add todo</ui-button>
   </div>
-  <div>
-    <span>{{ newTodo }}</span>
+  <div class="flex">
+    <div class="flex-1">
+      <todo-list *bind:todos="todos" @remove-todo="removeTodo" />
+    </div>
+    <pre class="flex-1">{{ todos }}</pre>
   </div>
-  <pre>{{ todos }}</pre>
 </div>
 <div *else>
   <span>Loading</span>

@@ -1,27 +1,37 @@
-import App from '@App'
+import { createComponent } from '@digitalbranch/app'
 import main from './main/main'
+import { uiButton } from './ui'
 
 import './todo.css'
 
-const app = new App({
+const app = createComponent({
   el: '#app',
   components: {
-    main
+    main,
+    uiButton,
   },
-  data: {
-    title: 'My Todo app',
-    user: {
-      person: {
-        firstname: 'Vincent',
-        lastname: 'Corbee'
-      }
+  data() {
+    return {
+      title: 'My Todo app',
+      counter: 0,
+      user: {
+        person: {
+          firstname: 'Vincent',
+          lastname: 'Corbee',
+        },
+      },
     }
   },
   computed: {
     fullName(): string {
       return `${this.user.person.firstname} ${this.user.person.lastname}`
     },
-  } as any,
+  },
+  methods: {
+    add(number: number) {
+      this.counter += number
+    },
+  },
 })
 
 export default app

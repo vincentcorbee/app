@@ -1,8 +1,6 @@
-import App from '@App'
-import Router from '@App/modules/Router'
+import { Router, createComponent, routerLink, routerView } from '@digitalbranch/app'
 
-import { signupPage, loginPage } from './pages'
-import { AppConfig } from './types'
+import { signupPage, loginPage, homePage } from './pages'
 import { uiButton, uiModal } from './ui'
 
 import './signup.css'
@@ -11,22 +9,26 @@ const router = new Router()
 
 router.set(
   {
-    uri: '/signup',
+    path: '/',
+    component: homePage,
+  },
+  {
+    path: '/signup',
     component: signupPage,
   },
   {
-    uri: '/login',
+    path: '/login',
     component: loginPage,
   }
 )
 
-const app = new App({
+createComponent({
   el: '#app',
   router,
   components: {
+    routerLink,
+    routerView,
     uiModal,
     uiButton,
   },
-} as AppConfig)
-
-export default app
+})

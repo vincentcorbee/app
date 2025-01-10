@@ -1,30 +1,25 @@
-import { Form, FormControl, requiredValidator, FormGroup } from '@App'
+import {
+  Form,
+  FormControl,
+  requiredValidator,
+  FormGroup,
+  defineComponent,
+} from '@digitalbranch/app'
 import { User } from '../../models'
-import { AppConfig } from '../../types'
 
-import './signup-page.css'
-
-interface AppData {
-  title: string
-  user: User
-  newUser: null | User
-}
-
-interface Config extends AppConfig {
-  data(): AppData
-}
+import template from './signup-page.template'
 
 const validators = {
   required: requiredValidator,
 }
 
-const signupPage = {
+const signupPage = defineComponent({
   name: 'signupPage',
   data() {
     return {
       title: 'Signup',
       user: new User(),
-      newUser: null,
+      newUser: null as null | User,
       passwordControl: '',
       genders: [
         { label: 'Male', value: 'male' },
@@ -45,23 +40,14 @@ const signupPage = {
               const password = input.get('password')?.value
               const passwordControl = input.get('passwordControl')?.value
 
-              return password === passwordControl ? true : false
+              return password === passwordControl
             },
           }
         ),
       }),
     }
   },
-  /*
-    Load template with webpack dynamic imports.
-    webpackMode "eager" adds html to the bundle in stead of a seperate chunk.
-  */
-  template: import(/* webpackMode: "eager" */ './signup-page.template.html').then(
-    ({ default: template }) => template
-  ),
-  listeners: {
-    ready() {},
-  },
+  template,
   methods: {
     onSubmit() {
       this.newUser = this.user
@@ -74,6 +60,6 @@ const signupPage = {
       this.$refs.modal.closeModal()
     },
   },
-} as Config
+})
 
 export default signupPage

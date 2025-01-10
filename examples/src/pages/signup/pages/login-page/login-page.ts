@@ -1,25 +1,12 @@
-import { Form, FormControl, requiredValidator } from '@App'
+import { Form, FormControl, defineComponent, requiredValidator } from '@digitalbranch/app'
 
-interface AppConfig {
-  el?: string
-  data: any
-  methods?: {
-    [key: string]: (this: { [key: string]: any }, args?: any) => void
-  }
-  listeners?: {
-    [key: string]: (this: { [key: string]: any }) => void
-  }
-}
-
-interface Config extends AppConfig {
-  data: () => {}
-}
+import template from './login-page.template'
 
 const validators = {
   required: requiredValidator,
 }
 
-const loginPage = {
+const loginPage = defineComponent({
   name: 'loginPage',
   data() {
     return {
@@ -34,13 +21,7 @@ const loginPage = {
       }),
     }
   },
-  /*
-    Load template with webpack dynamic imports.
-    webpackMode "eager" adds html to the bundle in stead of a seperate chunk.
-  */
-  template: import(/* webpackMode: "eager" */ './login-page.template.html').then(
-    ({ default: template }) => template
-  ),
+  template,
   listeners: {
     ready() {},
   },
@@ -52,6 +33,6 @@ const loginPage = {
       this.$refs.modal.closeModal()
     },
   },
-} as Config
+})
 
 export default loginPage

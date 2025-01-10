@@ -1,18 +1,14 @@
-import todoItem from '../todo-item/todo-item';
+import { defineComponent } from '../../../../../src'
+import todoItem from '../todo-item/todo-item'
 
-const todoList = {
+const todoList = defineComponent({
   props: ['todos'],
   components: {
-    todoItem
+    todoItem,
   },
-  /*
-    Load template with webpack dynamic imports.
-    webpackMode "eager" addes html to the bundle in stead of a seperate chunk.
-  */
-  template: import(/* webpackMode: "eager" */ './todo-list.template.html').then(({ default: template }) => template),
-  listeners:{
-    ready() {}
-  },
-}
+  template: import(/* webpackMode: "eager" */ './todo-list.template.html').then(
+    ({ default: template }) => template
+  ),
+})
 
 export default todoList

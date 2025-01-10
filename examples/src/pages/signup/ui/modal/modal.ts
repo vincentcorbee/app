@@ -1,20 +1,22 @@
-import { AppConfig } from '../../signup'
+import { defineComponent } from '@digitalbranch/app'
 
-const uiModal = {
+import template from './modal.template'
+
+const uiModal = defineComponent({
   data() {
     return {
-      open: false
+      open: false,
     }
   },
-  template: import(/* webpackMode: "eager" */ './modal.template.html').then(({ default: template }) => template),
+  template,
   methods: {
     openModal() {
       this.open = true
     },
     closeModal() {
       this.open = false
-    }
-  }
-} as AppConfig
+    },
+  },
+})
 
 export default uiModal
