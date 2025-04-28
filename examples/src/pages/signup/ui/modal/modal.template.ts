@@ -1,0 +1,73 @@
+const template = `<style>
+  :host {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  .modal {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal__container {
+    border-radius: 10px;
+    background-color: white;
+    min-width: 20rem;
+    z-index: 1;
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+  }
+
+  header {
+    display: flex;
+    padding: 20px;
+  }
+
+  header h2 {
+    margin: 0;
+  }
+
+  header button {
+    margin-left: auto;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+  }
+
+  main {
+    padding: 20px;
+  }
+
+  footer {
+    display: flex;
+    padding: 0 20px 20px;
+  }
+
+  .modal__scrim {
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.3);
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 0;
+  }
+</style>
+<div class="modal" *if="open">
+  <div class="modal__container">
+    <header>
+      <h2><slot name="header"></slot></h2>
+    </header>
+    <main><slot name="main"></slot></main>
+    <footer>
+      <slot name="footer"></slot>
+    </footer>
+  </div>
+  <div class="modal__scrim" @click="closeModal"></div>
+</div>`
+
+export default template

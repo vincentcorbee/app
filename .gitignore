@@ -1,5 +1,9 @@
-node_modules/
-dist/*
+node_modules
+
+dist
+
 .DS_Store
 .ds_store
 .ds_Store
+
+stats.json

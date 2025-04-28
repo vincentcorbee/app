@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "strict": true,
+    "sourceMap": true,
+    "declaration": true,
+    "isolatedModules": true,
+    "esModuleInterop": true
+  },
+  "exclude": ["node_modules"]
+}

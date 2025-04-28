@@ -1,0 +1,266 @@
+export const template = `<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  :host {
+    --color-error: #f44336;
+    --color-blue: #3f51b5;
+  }
+
+  h1 {
+    margin-top: 0;
+  }
+
+  .row:not(:last-child) {
+    margin-bottom: var(--offset-md);
+  }
+
+  .fc-field {
+    position: relative;
+    display: inline-flex;
+    height: 56px;
+    background-color: #f5f5f5;
+    --background-color-blue: #14cded;
+  }
+
+  .fc-field label {
+    left: 16px;
+    right: initial;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 1rem;
+    position: absolute;
+    transform-origin: left top;
+    line-height: 1.15rem;
+    transition: transform 150ms;
+  }
+
+  .fc-field input {
+    padding: 20px 16px 6px;
+    font-size: 1rem;
+    border: none;
+    margin: 0;
+    border-bottom: 1px solid;
+    width: 100%;
+    height: 100%;
+    align-self: flex-end;
+    box-sizing: border-box;
+    background-color: transparent;
+  }
+
+  .fc-field input.fc-invalid {
+    border-bottom-color: var(--color-error);
+    color: var(--color-error);
+  }
+
+  .fc-field input.fc-invalid + label {
+    color: var(--color-error);
+  }
+
+  .fc-field input:focus {
+    outline: none;
+  }
+
+  .fc-field input:focus:not(.fc-invalid) {
+    border-bottom: 1px solid var(--background-color-blue);
+  }
+
+  .fc-field input:focus + label,
+  .fc-field input:not(:placeholder-shown) + label {
+    transform: translateY(-106%) scale(0.75);
+  }
+
+  .fc-radio {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+    --fc-radio-border-color: rgba(0, 0, 0, 0.54);
+  }
+
+  .fc-radio-button {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .fc-radio label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .fc-radio input {
+    display: none;
+  }
+
+  .fc-radio-button-label {
+    padding-left: 8px;
+  }
+
+  .fc-radio-button__outer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--fc-radio-border-color);
+    border-radius: 50%;
+  }
+
+  .fc-radio-button__inner {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: transparent;
+  }
+
+  .fc-radio input:checked + .fc-radio-button .fc-radio-button__inner {
+    background-color: var(--color-blue);
+  }
+
+  .fc-radio input:checked + .fc-radio-button .fc-radio-button__outer {
+    border-color: var(--color-blue);
+  }
+
+  .fc-radio input.fc-invalid + .fc-radio-button .fc-radio-button__outer {
+    border-color: var(--color-error);
+  }
+
+  .fc-error {
+    color: var(--color-error);
+    margin-top: 4px;
+    font-size: 0.75rem;
+  }
+</style>
+
+<div>
+  <h1>{{title}}</h1>
+  <form @submit.prevent="onSubmit()" *form="signup">
+    <div class="row">
+      <div class="fc-field">
+        <input
+          type="text"
+          id="firstname"
+          name="firstname"
+          *model="user.firstname"
+          placeholder=" "
+        />
+        <label for="firstname">Firstname</label>
+      </div>
+      <div class="fc-error" *if="signup.formControls.firstname.errors.required">
+        This field is required.
+      </div>
+    </div>
+    <div class="row">
+      <div class="fc-field">
+        <input
+          type="text"
+          id="lastname"
+          name="lastname"
+          *model="user.lastname"
+          placeholder=" "
+        />
+        <label for="lastname">Lastname</label>
+      </div>
+      <div class="fc-error" *if="signup.formControls.lastname.errors.required">
+        This field is required.
+      </div>
+    </div>
+    <div class="row">
+      <div class="fc-radio-group">
+        <label class="">Gender</label>
+        <div class="fc-radio-group__container">
+          <div class="fc-radio" *for="gender of genders">
+            <label *bind:for="'gender-' + gender.value">
+              <input
+                type="radio"
+                name="gender"
+                *model="$parent.user.gender"
+                *bind:value="gender.value"
+                *bind:id="'gender-' + gender.value"
+                aria-hidden="true"
+              />
+              <div class="fc-radio-button">
+                <div class="fc-radio-button__outer"></div>
+                <div class="fc-radio-button__inner"></div>
+              </div>
+              <div class="fc-radio-button-label">
+                <span>{{gender.label}}</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="fc-error" *if="signup.formControls.gender.errors.required">
+        This field is required.
+      </div>
+    </div>
+    <div class="row">
+      <div class="fc-field">
+        <input
+          type="number"
+          name="age"
+          id="age"
+          *model.number="user.age"
+          placeholder=" "
+        />
+        <label for="age">Age</label>
+      </div>
+      <div class="fc-error" *if="signup.formControls.age.errors.required">
+        This field is required.
+      </div>
+    </div>
+    <div class="row">
+      <div class="fc-field">
+        <input
+          type="password"
+          name="password"
+          id="password"
+          *model="user.password"
+          placeholder=" "
+        />
+        <label for="password">Password</label>
+      </div>
+      <div class="fc-error" *if="signup.formControls.password.errors.required">
+        This field is required.
+      </div>
+    </div>
+    <div class="row">
+      <div class="fc-field">
+        <input
+          type="password"
+          name="passwordControl"
+          id="passwordControl"
+          *model="passwordControl"
+          placeholder=" "
+        />
+        <label for="passwordControl">Password control</label>
+      </div>
+      <div class="fc-error" *if="signup.formControls.passwordControl.errors.required">
+        This field is required.
+      </div>
+    </div>
+    <div class="row" *if="signup.formGroups.passwords.errors.passwordMatch">
+      <div class="fc-error">Passwords don't match.</div>
+    </div>
+    <div class="row">
+      <ui-button type="submit">Signup</ui-button>
+    </div>
+  </form>
+
+  <ui-modal *ref="modal">
+    <span slot="header">Signup complete</span>
+    <div slot="main">
+      Thank you for signing up
+      <pre>{{ newUser }}</pre>
+    </div>
+    <div slot="footer">
+      <ui-button type="button" @click="closeModal">Close</ui-button>
+    </div>
+  </ui-modal>
+</div>`
+
+export default template
