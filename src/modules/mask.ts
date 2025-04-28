@@ -5,15 +5,15 @@ import Queue from './queue'
 
 const _private = new WeakMap()
 
-export interface MaskInterface {
+export interface MaskInterface<T> {
   get isRevoked(): boolean
-  get data(): any
+  get data(): T
   get revoke(): () => void
 
   toString: () => string
 }
 
-export default class Mask<T = Record<string, any>> implements MaskInterface {
+export default class Mask<T = Record<string, any>> implements MaskInterface<T> {
   constructor(target: any, handler = {}, queue: Queue) {
     if (typeof target !== 'object') throw new TypeError('target is not an Object')
 
@@ -55,22 +55,6 @@ export default class Mask<T = Record<string, any>> implements MaskInterface {
     attachObservable(target)
 
     copyProperties(this, target, proxy.proxy)
-
-    // if (!this.hasOwnProperty('revoke')) {
-    //   Reflect.defineProperty(this, 'revoke', {
-    //     get() {
-    //       return proxy.revoke
-    //     },
-    //   })
-    // }
-
-    // if (!this.hasOwnProperty('isRevoked')) {
-    //   Reflect.defineProperty(this, 'isRevoked', {
-    //     get() {
-    //       return isProxyRevoked(proxy.proxy)
-    //     },
-    //   })
-    // }
   }
 
   get revoke() {

@@ -33,6 +33,6 @@ export class Store<S, M extends MutationsOptions<S>, A extends ActionsOptions<S>
       payload
     )
 
-    // console.log('DISPATCH', action, payload)
+    console.log('DISPATCH', action, payload)
   }
 }

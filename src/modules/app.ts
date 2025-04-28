@@ -15,11 +15,13 @@ import {
 import {
   ComponentConfig,
   ComponentInstance,
+  ComponentInterface,
   ComputedOptions,
   ListnersOptions,
   MethodsOptions,
   RouterInterface,
 } from '../types'
+import { StoreInstance } from './store/types'
 
 let __id__ = 0
 
@@ -32,11 +34,14 @@ declare global {
 }
 
 export default class App<
-  D,
-  M extends MethodsOptions,
-  L extends ListnersOptions,
-  C extends ComputedOptions
-> extends Emitter {
+    D,
+    M extends MethodsOptions,
+    L extends ListnersOptions,
+    C extends ComputedOptions
+  >
+  extends Emitter
+  implements ComponentInterface<D, M, L, C>
+{
   static async component<
     D,
     M extends MethodsOptions,
@@ -58,9 +63,9 @@ export default class App<
   #listeners: L | null = null
   #components: Record<string, ComponentConfig<any, any, any, any>> = {}
   #router: RouterInterface | null = null
-  #store: Mask | null = null
+  #store: Mask<StoreInstance<any, any, any>> | null = null
   #computed: C | null = null
-  #proxy: Mask | null = null
+  #proxy: Mask<D> | null = null
   #refs = {}
   #isDestroyed: boolean = false
   #toBeDestroyed: boolean = false
@@ -72,10 +77,14 @@ export default class App<
   #providers = null
   #dependencies = {}
   #root: string | null = null
+
   #currentComputedProperty: string | null = null
-  #computedPropertyHandler: Map<string, any>
+  #computedPropertyHandler: Map<string, any> = new Map()
+  #boundComputedProperties: Set<string> = new Set()
 
   id: number
+
+  $$store: StoreInstance<any, any, any> | null = null
 
   constructor(config: ComponentConfig<D, M, L, C> & { parent?: ComponentInstance }) {
     super()
@@ -98,7 +107,6 @@ export default class App<
 
     this.id = __id__++
 
-    this.#data = data ? (typeof data === 'function' ? data() : data) : {}
     this.#methods = methods
     this.#template = template
     this.#root = el
@@ -111,13 +119,17 @@ export default class App<
     this.#dependencies = Array.isArray(inject)
       ? inject.reduce((acc, key) => ({ ...acc, [key]: key }), {})
       : inject
-    this.#computedPropertyHandler = new Map()
 
     this.#handler = {
       get(target: any, prop: any) {
         const data = target[prop]
 
-        if (vm.#currentComputedProperty) {
+        if (
+          prop !== '__observable__' &&
+          target.__observable__ &&
+          vm.#currentComputedProperty &&
+          !vm.#boundComputedProperties.has(vm.#currentComputedProperty)
+        ) {
           const directive = vm.#computedPropertyHandler.get(vm.#currentComputedProperty)
 
           if (directive) target.__observable__.subscribe(directive, prop)
@@ -159,8 +171,14 @@ export default class App<
 
     if (parent) this.$$setParent(parent)
 
-    if (store) this.#store = new Mask(store, this.#handler, this.#queue)
+    if (store) {
+      this.#store = new Mask(store, this.#handler, this.#queue)
+      this.$$store = store
+    } else if (parent?.$$store) {
+      this.#store = new Mask(parent.$$store, this.#handler, this.#queue)
+    }
 
+    this.#data = data ? (typeof data === 'function' ? data.call(this) : data) : {}
     this.#proxy = new Mask(this.#data, this.#handler, this.#queue)
 
     this.#init()
@@ -227,7 +245,7 @@ export default class App<
 
     this.#isMounted = true
 
-    return this
+    return this as ComponentInstance<D, M, L, C>
   }
 
   get $toBeDestroyed() {
@@ -268,6 +286,31 @@ export default class App<
 
   get $store(): Mask | null {
     return this.#store || this.#parent?.$store || null
+
+    // if (!store) return null
+
+    // if (
+    //   this.#currentComputedProperty &&
+    //   !this.#boundComputedProperties.has(this.#currentComputedProperty)
+    // ) {
+    //   store.$vm.$$setCurrentComputedProperty(this.#currentComputedProperty)
+    //   store.$vm.$$setComputedPropertyHandler(
+    //     this.#currentComputedProperty,
+    //     this.#computedPropertyHandler.get(this.#currentComputedProperty)
+    //   )
+    //   // const directive = this.#computedPropertyHandler.get(this.#currentComputedProperty)
+
+    //   // console.log({ prop: 'store', computed: this.#currentComputedProperty })
+
+    //   // console.log(store)
+
+    //   // if (directive) {
+    //   //   store.__observable__.subscribe(directive, 'state')
+    //   //   store.state.__observable__.subscribe(directive, 'user')
+    //   // }
+    // }
+
+    // return store
   }
 
   get $node() {
@@ -286,15 +329,27 @@ export default class App<
     return this.#data
   }
 
+  $getProvider(key: any): any {
+    return this.$providers[key] || this.#parent?.$getProvider(key)
+  }
+
   $$setParent(parent: any) {
     this.#parent = parent
 
     if (parent && !parent.$children.includes(this)) parent.$children.push(this)
   }
 
-  $getProvider(key: any): any {
-    return this.$providers[key] || this.#parent?.$getProvider(key)
-  }
+  // $$setCurrentComputedProperty(prop: string) {
+  //   this.#currentComputedProperty = prop
+  // }
+
+  // $$setBoundComputedProperties(prop: string) {
+  //   this.#boundComputedProperties.add(prop)
+  // }
+
+  // $$setComputedPropertyHandler(prop: string, handler: any) {
+  //   this.#computedPropertyHandler.set(prop, handler)
+  // }
 
   #copyDataToInstance() {
     const proxy = this.#proxy
@@ -328,18 +383,21 @@ export default class App<
         const observable = attachObservable(vm)
 
         vm.#computedPropertyHandler.set(prop, {
+          addObservable() {},
           update(data: any) {
+            console.log(data)
             observable.notify({ ...data, prop })
           },
         })
 
-        vm.#currentComputedProperty = prop
-        desc.call(vm)
-        vm.#currentComputedProperty = null
-
         descriptor = {
           get() {
-            return desc.call(vm)
+            console.log({ prop, vm })
+            vm.#currentComputedProperty = prop
+            const value = desc.call(vm)
+            vm.#currentComputedProperty = null
+
+            return value
           },
         }
       } else {

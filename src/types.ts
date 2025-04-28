@@ -2,7 +2,8 @@ import { Encapsulation } from './constants'
 import { VNode } from './modules'
 import Directive from './modules/directive'
 import Emitter from './modules/emitter'
-import { StoreInterface } from './modules/store/types'
+import { MaskInterface } from './modules/mask'
+import { StoreInstance } from './modules/store/types'
 
 export type ExtractReturnType<C extends ComputedOptions> = {
   [prop in keyof C]: ReturnType<C[prop]>
@@ -39,21 +40,19 @@ export interface ComponentInterface<
   L extends ListnersOptions = {},
   C extends ComputedOptions = {}
 > {
-  $data: D
+  $data: MaskInterface<D>
   $toBeDestroyed: boolean
   $isDestroyed: boolean
   $isMounted: boolean
   $children: ComponentInstance[]
   $parent: ComponentInstance | null
   $route: any
-  $router: Router
-  $store: any
+  $router: Router | null
+  $store: MaskInterface<StoreInstance<any, any, any>> | null
   $node: HTMLElement
   $el: any
   $refs: ComponentRefs
   $providers: Record<string, any>
-  _data: D
-  emit(event: string, ...args: any[]): void
   $emit(event: string, ...args: any[]): void
   $dispatchEvent(event: Event): void
   $dispatchCustomEvent<T>(event: string, eventInitDict?: CustomEventInit<T>): void
@@ -61,6 +60,12 @@ export interface ComponentInterface<
   $nextTick(): void
   $getProvider(key: string): any
   $destroy(): void
+
+  $$store: StoreInstance<any, any, any> | null
+
+  emit(event: string, ...args: any[]): void
+
+  _data: D
 }
 
 export type ComponentConfig<
@@ -73,7 +78,7 @@ export type ComponentConfig<
   el?: string
   name?: string
   router?: Router
-  store?: StoreInterface<any, any, any>
+  store?: StoreInstance<any, any, any>
   components?: any
   template?: string | Promise<string>
   css?: string | Promise<string>

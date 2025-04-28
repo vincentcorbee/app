@@ -5,12 +5,13 @@ import { Directive } from '../modules'
 import { ComponentInstance } from '../types'
 import { interpret } from './interpreter/interpret'
 import { EnvironmentRecord } from './interpreter/environment-record'
+import { ExpressionParser } from './types/parser.types'
 
 const parser = new Parser()
 
 let comments = []
 
-parser.lexer.addTokens(tokens as any)
+parser.lexer.addTokens(tokens)
 
 parser.lexer.setState('COMMENT', lexer => {
   lexer.setTokens([
@@ -38,25 +39,25 @@ parser.lexer.setState('COMMENT', lexer => {
 
 parser.lexer.ignoreTokens([/^[ \t\v\r]+/, /^\/\/.*/])
 
-parser.setGrammar(grammar as any)
+parser.setGrammar(grammar)
 
-parser.onError = (error: any) => {
-  console.log(error)
-  console.log(
-    parser.lexer.col,
-    parser.lexer.line,
-    parser.lexer.source[parser.lexer.index],
-    parser.lexer.index,
-    parser.lexer.peakToken()
-  )
+parser.onError = error => {
+  // console.log(error)
+  // console.log(
+  //   parser.lexer.col,
+  //   parser.lexer.line,
+  //   parser.lexer.source[parser.lexer.index],
+  //   parser.lexer.index,
+  //   parser.lexer.peakToken()
+  // )
   try {
     return ASI(parser, error)
   } catch (ASIError) {
-    console.log(ASIError)
+    console.error(ASIError)
   }
 }
 
-const expressionParser = (
+const expressionParser: ExpressionParser = (
   vm: ComponentInstance,
   expression: string,
   directive?: Directive

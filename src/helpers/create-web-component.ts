@@ -89,7 +89,7 @@ const createWebComponent = async <
       listeners = {},
       components = {},
       router = null,
-      computed = null,
+      computed,
       template = '',
       css,
       formAssociated,
@@ -263,8 +263,8 @@ const createWebComponent = async <
         }
       }
 
-      #getDataFromProps() {
-        const data = typeof config.data === 'function' ? config.data() : config.data || {}
+      #getDataFromProps(source: any) {
+        const data = typeof source === 'function' ? source() : source || {}
 
         if (props) {
           const instantiatedAttributes = this.#instantiatedAttributes
@@ -299,8 +299,6 @@ const createWebComponent = async <
       }
 
       #instantiate() {
-        const data = this.#getDataFromProps()
-
         let parent = (_parent || config.parent) ?? null
 
         if (this.$scope && this.$scope.$vm) parent = this.$scope.$vm
@@ -329,6 +327,9 @@ const createWebComponent = async <
             parentNode = parentNode.parentNode
           }
         }
+        // const data = this.#getDataFromProps(config.data)
+
+        const data = config.data
 
         this.#vm = new App({
           el: this,
@@ -342,6 +343,8 @@ const createWebComponent = async <
           inject,
           provide,
         })
+
+        this.#getDataFromProps(this.#vm)
 
         Object.keys(methods).forEach(name =>
           Reflect.defineProperty(this, name, {
