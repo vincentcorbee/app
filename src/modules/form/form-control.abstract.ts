@@ -1,4 +1,5 @@
 import {
+  AbstractControlInterface,
   FormControls,
   FormErrors,
   FormGroupInterface,
@@ -6,7 +7,7 @@ import {
   Validators,
 } from './types'
 
-export class AbstractControl {
+export class AbstractControl implements AbstractControlInterface {
   validators: Validators
   errors: FormErrors
   value: any | null = null
@@ -26,12 +27,11 @@ export class AbstractControl {
 
   get(name: string): AbstractControl | null {
     if (!this.formControls) return null
+
     const path = name.split('.')
 
     let [currentPath] = path
-
     let i = 0
-
     let controller: AbstractControl | null = this as AbstractControl
 
     while (controller && currentPath) {
@@ -41,5 +41,9 @@ export class AbstractControl {
     }
 
     return controller
+  }
+
+  validate(): boolean {
+    throw Error('Method "validate" not implemented')
   }
 }

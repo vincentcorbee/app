@@ -1,43 +1,25 @@
 {
   "name": "@digitalbranch/app",
   "version": "1.0.0",
-  "description": "",
+  "description": "Reactive frontend JavaScript library",
   "author": "V.J.M. Corbee",
   "license": "ISC",
   "scripts": {
-    "build": "webpack --config ./webpack/webpack.prod.js --json > stats.json",
-    "build:watch": "webpack --config ./webpack/webpack.prod.js -w",
-    "build:tsc": "tsc"
+    "build": "parcel build",
+    "watch": "parcel watch"
   },
-  "module": "src/index.ts",
+  "source": "src/index.ts",
   "main": "src/index.ts",
   "types": "src/index.ts",
-  "exports": {
-    ".": {
-      "import": "./src/index.ts",
-      "require": "./src/index.ts",
-      "types": "./src/index.ts"
-    }
-  },
   "devDependencies": {
-    "@babel/cli": "^7.12.1",
-    "@babel/core": "^7.14.6",
-    "@babel/plugin-proposal-class-properties": "^7.2.1",
-    "@babel/plugin-proposal-object-rest-spread": "^7.2.0",
-    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
-    "@babel/plugin-transform-modules-umd": "^7.2.0",
-    "@babel/preset-env": "^7.14.7",
-    "@babel/preset-typescript": "^7.14.5",
-    "babel-loader": "^8.0.4",
-    "clean-webpack-plugin": "^0.1.19",
-    "typescript": "^5.6.3",
-    "webpack": "^5.96.1",
-    "webpack-bundle-analyzer": "^4.10.2",
-    "webpack-cli": "^5.1.4",
-    "webpack-merge": "^4.2.2"
+    "@parcel/bundler-library": "^2.15.4",
+    "@parcel/config-default": "^2.15.4",
+    "@parcel/packager-ts": "2.15.4",
+    "@parcel/transformer-typescript-types": "2.15.4",
+    "parcel": "^2.15.4",
+    "typescript": "^5.6.3"
   },
   "dependencies": {
-    "@digitalbranch/earley-parser": "file:../../blogs/earley-parser",
-    "@digitalbranch/u": "file:../U"
+    "@digitalbranch/earley-parser": "file:../../blogs/earley-parser"
   }
 }

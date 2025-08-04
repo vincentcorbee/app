@@ -1,4 +1,4 @@
-import Base from '../modules/base'
+import BaseComponent from '../modules/base-component'
 import App from '../modules/app'
 import camelToHyphen from './camel-to-hyphen'
 import createTemplate from './create-template'
@@ -9,14 +9,16 @@ import {
   ListnersOptions,
   MethodsOptions,
   PropDefinition,
-  Props,
+  ComponentProps,
   PropType,
 } from '../types'
 import { Encapsulation } from '../constants'
+import ArrayMask from '../modules/array-mask'
+import Mask from '../modules/mask'
 
 type Attribute = { name: string; propertyName: string; value: any }
 
-const DEFAULT_CSS = `* { box-sizing: border-box; }`
+const DEFAULT_CSS = /* css */ `* { box-sizing: border-box; }`
 
 const getValue = (value: any) => {
   try {
@@ -42,9 +44,9 @@ const getCastedValue = (value: any, type: PropType) => {
     case 'number':
       return Number(value)
     case 'object':
-      return typeof value === 'object' ? value : getValue(value)
+      return typeof value === 'object' || value instanceof Mask ? value : getValue(value)
     case 'array':
-      return Array.isArray(value) ? value : getValue(value)
+      return Array.isArray(value) || value instanceof ArrayMask ? value : getValue(value)
     case 'date':
       return value instanceof Date ? value : new Date(value)
     case 'string':
@@ -55,7 +57,7 @@ const getCastedValue = (value: any, type: PropType) => {
   }
 }
 
-const getAttributes = (props?: Props | null) =>
+const getAttributes = (props?: ComponentProps | null) =>
   Array.isArray(props)
     ? props.map(prop => camelToHyphen(typeof prop === 'string' ? prop : prop.name))
     : props && typeof props === 'object'
@@ -72,6 +74,9 @@ const createWebComponent = async <
   _parent: App<any, any, any, any> | null = null
 ) => {
   const { name } = config
+
+  if (!name) throw new Error('Name for web component is required')
+
   const elementName = camelToHyphen(name)
   const element = document.createElement(elementName)
 
@@ -79,7 +84,7 @@ const createWebComponent = async <
     Only register the component if it is not already registered
   */
 
-  if (!document.defaultView?.customElements.get(elementName)) {
+  if (!App.registeredWebComponents.has(elementName)) {
     App.registeredWebComponents.add(elementName)
 
     const {
@@ -88,7 +93,7 @@ const createWebComponent = async <
       methods = {},
       listeners = {},
       components = {},
-      router = null,
+      router,
       computed,
       template = '',
       css,
@@ -104,7 +109,7 @@ const createWebComponent = async <
 
     if ($css) $css.replaceSync(`${DEFAULT_CSS}${css!}`)
 
-    class Component extends Base {
+    class Component extends BaseComponent {
       static get formAssociated() {
         return formAssociated
       }
@@ -128,8 +133,6 @@ const createWebComponent = async <
         super()
 
         if (formAssociated) this.#internals = this.attachInternals()
-
-        this.dispatcher.addEvents()
 
         this.on('connected', () => (this.#isConnected = true))
       }
@@ -155,37 +158,17 @@ const createWebComponent = async <
       }
 
       attributeChangedCallback(name: string, oldValue: string, value: string) {
-        /*
-          Make sure the attributes are processed before instantiating the component.
-          JSON.parse breaks the reference to the orginal object.
-        */
-
         const propertyName = hyphenToCamel(name)
 
         if (this.hasAttribute(name)) {
           const vm = this.$vm
-
           // @ts-ignore
           const modelValue = this[propertyName] ?? getValue(value)
 
           if (!this.#instantiated) {
-            /*
-              This is to keep track of the attributes that have been instantiated
-              Should be changed to a set
-            */
-            if (!this.#instantiatedAttributes.has(name))
-              this.#instantiatedAttributes.set(propertyName, {
-                name,
-                propertyName,
-                value: modelValue,
-              })
+            this.#setInstantiatedAttributes(name, propertyName, modelValue)
 
-            if (
-              this.#instantiatedAttributes.size === this.#requiredAttributesCount &&
-              this.#isConnected
-            ) {
-              this.#instantiate()
-            }
+            if (this.#shouldInstantiate()) this.#instantiate()
           } else if (vm && modelValue.data !== vm[propertyName]?.data) {
             vm[propertyName] = modelValue.data
           } else if (vm && modelValue !== vm[propertyName]) {
@@ -193,17 +176,7 @@ const createWebComponent = async <
           }
         }
 
-        if (!Reflect.has(this, propertyName)) {
-          Reflect.defineProperty(this, propertyName, {
-            get() {
-              if (!this.$vm) return undefined
-              return this.$vm[propertyName]
-            },
-            set(value) {
-              this.$vm[propertyName] = value
-            },
-          })
-        }
+        this.#defineProperty(propertyName)
 
         this.emit('attributeChanged', { name, value, oldValue })
       }
@@ -235,12 +208,55 @@ const createWebComponent = async <
       }
 
       /**
+        Make sure the attributes are processed before instantiating the component.
+      */
+      #shouldInstantiate() {
+        return (
+          this.#instantiatedAttributes.size === this.#requiredAttributesCount &&
+          this.#isConnected
+        )
+      }
+
+      /**
+        Keeps track of the attributes that have been instantiated
+
+        @Todo Should be changed to a set.
+      */
+      #setInstantiatedAttributes(name: string, propertyName: string, value: any) {
+        if (!this.#instantiatedAttributes.has(name)) {
+          this.#instantiatedAttributes.set(propertyName, {
+            name,
+            propertyName,
+            value,
+          })
+        }
+      }
+
+      /**
        * All props are optional, so only get the count of the attributes that are on the html element
        */
       #setRequiredAttributeCount() {
         this.#requiredAttributesCount = __attributes__.filter(attr =>
           Boolean(this.attributes.getNamedItem(attr))
         ).length
+      }
+
+      /**
+        Define a property on the component instance
+      */
+      #defineProperty(name: string) {
+        if (!Reflect.has(this, name)) {
+          Reflect.defineProperty(this, name, {
+            get() {
+              if (!this.$vm) return undefined
+
+              return this.$vm[name]
+            },
+            set(value) {
+              this.$vm[name] = value
+            },
+          })
+        }
       }
 
       #attach() {
@@ -263,7 +279,7 @@ const createWebComponent = async <
         }
       }
 
-      #getDataFromProps(source: any) {
+      #getDataFromProps(source: any, props: ComponentProps | null = null) {
         const data = typeof source === 'function' ? source() : source || {}
 
         if (props) {
@@ -271,24 +287,24 @@ const createWebComponent = async <
 
           if (Array.isArray(props)) {
             props.forEach(prop => {
-              const config: PropDefinition =
+              const definition: PropDefinition =
                 typeof prop === 'string' ? { name: prop, type: 'string' } : prop
 
-              const attr = instantiatedAttributes.get(config.name)
+              const attr = instantiatedAttributes.get(definition.name)
 
               if (attr) {
-                const castedValue = getCastedValue(attr.value, config.type)
+                const castedValue = getCastedValue(attr.value, definition.type)
 
-                data[config.name] = castedValue
+                data[definition.name] = castedValue
 
-                instantiatedAttributes.delete(config.name)
+                instantiatedAttributes.delete(definition.name)
               } else {
-                if (Reflect.has(config, 'default')) {
-                  data[config.name] = config.default
+                if (Reflect.has(definition, 'default')) {
+                  data[definition.name] = definition.default
                 }
 
-                if (config.required) {
-                  console.warn(`The attribute ${config.name} is required`)
+                if (definition.required) {
+                  console.warn(`The attribute ${definition.name} is required`)
                 }
               }
             })
@@ -301,35 +317,43 @@ const createWebComponent = async <
       #instantiate() {
         let parent = (_parent || config.parent) ?? null
 
+        // @ts-expect-error
         if (this.$scope && this.$scope.$vm) parent = this.$scope.$vm
         else {
           let parentNode = this.parentNode
 
           while (parentNode) {
+            // @ts-expect-error
             if (parentNode.host) parentNode = parentNode.host
-
-            if (parentNode.$scope && parentNode.$scope.$vm) {
+            // @ts-expect-error
+            if (parentNode?.$scope && parentNode.$scope.$vm) {
+              // @ts-expect-error
               parent = parentNode.$scope.$vm
 
               break
-            } else if (parentNode.on) {
+            }
+            // @ts-expect-error
+            else if (parentNode?.on) {
+              // @ts-expect-error
               parentNode.on('connected', () => {
-                if (this.#isConnected) this.#vm.$$setParent(parentNode.$vm)
+                // @ts-expect-error
+                if (this.#isConnected) this.#vm.$$setParent(parentNode?.$vm)
               })
 
               break
-            } else if (parentNode.$vm) {
+            }
+            // @ts-expect-error
+            else if (parentNode?.$vm) {
+              // @ts-expect-error
               parent = parentNode.$vm
 
               break
             }
 
-            parentNode = parentNode.parentNode
+            parentNode = parentNode?.parentNode ?? null
           }
         }
-        // const data = this.#getDataFromProps(config.data)
-
-        const data = config.data
+        const data = this.#getDataFromProps(config.data, props)
 
         this.#vm = new App({
           el: this,
@@ -344,7 +368,7 @@ const createWebComponent = async <
           provide,
         })
 
-        this.#getDataFromProps(this.#vm)
+        // this.#getDataFromProps(this.#vm, props)
 
         Object.keys(methods).forEach(name =>
           Reflect.defineProperty(this, name, {
@@ -352,12 +376,19 @@ const createWebComponent = async <
           })
         )
 
+        this.#instantiatedAttributes = new Map()
+
         this.#instantiated = true
       }
     }
 
-    document.defaultView?.customElements.define(elementName, Component)
+    document.defaultView?.customElements.define(
+      elementName,
+      Component as unknown as CustomElementConstructor
+    )
   }
+
+  await document.defaultView?.customElements.whenDefined(elementName)
 
   return element
 }

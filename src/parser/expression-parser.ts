@@ -42,14 +42,6 @@ parser.lexer.ignoreTokens([/^[ \t\v\r]+/, /^\/\/.*/])
 parser.setGrammar(grammar)
 
 parser.onError = error => {
-  // console.log(error)
-  // console.log(
-  //   parser.lexer.col,
-  //   parser.lexer.line,
-  //   parser.lexer.source[parser.lexer.index],
-  //   parser.lexer.index,
-  //   parser.lexer.peakToken()
-  // )
   try {
     return ASI(parser, error)
   } catch (ASIError) {

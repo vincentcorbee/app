@@ -3,10 +3,12 @@ import isInPage from '../is-in-page'
 
 if (!window.requestIdleCallback) {
   window.requestIdleCallback = function (callback, options) {
-    var options = options || {}
-    var relaxation = 1
-    var timeout = options.timeout || relaxation
-    var start = performance.now()
+    options = options || {}
+
+    const relaxation = 1
+    const timeout = options.timeout || relaxation
+    const start = performance.now()
+
     return setTimeout(function () {
       callback({
         get didTimeout() {
@@ -28,26 +30,28 @@ if (!window.cancelIdleCallback) {
   }
 }
 
-export const collectGarbage = (self, int = 60000) => {
+export const collectGarbage = (instance, interval = 60000) => {
   const s = performance.now()
-  const interval = () =>
+  const handler = () =>
     requestIdleCallback(
       () => {
         const t = performance.now()
 
-        if (t - s >= int) {
-          self.listeners.forEach(o => {
+        if (t - s >= interval) {
+          instance.listeners.forEach(o => {
             const { obj } = o
 
-            if (!isInPage(obj)) self.remove(obj, o.eventType, o.fn)
+            if (!isInPage(obj)) instance.remove(obj, o.eventType, o.fn)
           })
 
-          return collectGarbage(self, int)
-        } else return interval()
+          return collectGarbage(instance, interval)
+        } else {
+          return handler()
+        }
       },
       { timeout: 1000 }
     )
-  return interval()
+  return handler()
 }
 
 export default collectGarbage

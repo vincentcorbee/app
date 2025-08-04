@@ -6,6 +6,7 @@ export const copyArray = arr => {
   const copy = () => {
     const copied = []
     const l = arr.length
+
     let i = 0
 
     while (i < l) {
@@ -16,6 +17,7 @@ export const copyArray = arr => {
       } else {
         copied[i] = arr[i]
       }
+
       i += 1
     }
     // Copy any methods and properties added to instance of array
@@ -27,6 +29,7 @@ export const copyArray = arr => {
 
     return copied
   }
+
   return copy(arr)
 }
 

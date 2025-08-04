@@ -8,8 +8,10 @@ const parseHtml = (vNode: VNode, vm: ComponentInstance, isCustomElement: boolean
   const { node } = vNode
   const { nodeType } = node
   const childNodes =
+    // @ts-expect-error
     isCustomElement && node.shadowRoot
-      ? [...node.shadowRoot.childNodes]
+      ? // @ts-expect-error
+        [...node.shadowRoot.childNodes]
       : [...node.childNodes]
   const directives = isCustomElement ? [] : bindDirectives(vNode, vm)
 

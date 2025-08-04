@@ -31,8 +31,9 @@ export default class Emitter {
       body = listener.toString()
     }
 
-    if (typeof listener !== 'function')
+    if (typeof listener !== 'function') {
       throw new TypeError(listener + ' is not a function')
+    }
 
     if (events[event] === undefined) {
       events[event] = [[listener, args]]
@@ -58,13 +59,14 @@ export default class Emitter {
   off(event: string, listener: any) {
     let { events } = getPrivate(this)
 
-    if (events[event] !== undefined)
+    if (events[event] !== undefined) {
       events[event] = events[event].filter(([fn]) => fn !== listener)
+    }
 
     return this
   }
 
-  emit(event: string, payload?: any) {
+  emit(event: string, _payload?: any) {
     const { events } = getPrivate(this)
 
     if (events[event] && events.hasOwnProperty(event)) {

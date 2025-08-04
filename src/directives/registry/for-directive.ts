@@ -1,4 +1,5 @@
-import { App, VNode } from '../../modules'
+import { App } from '../../modules'
+import { ExpressionParser } from '../../parser/types/parser.types'
 import { DirectiveConfig } from '../../types'
 import bindDirectives from '../bind-directives'
 
@@ -8,10 +9,10 @@ import parseForExpression from '../parse-for-expression'
  * only works on arrays
  */
 
-export default (): DirectiveConfig => ({
+export default (_expressionParser: ExpressionParser): DirectiveConfig<HTMLElement> => ({
   name: 'for',
   reg: /^(?:(a-)|:|\*)for/,
-  bind(vNode: VNode) {
+  bind(vNode) {
     const { attr } = this
     const parentVNode = vNode.parent
 
@@ -29,6 +30,7 @@ export default (): DirectiveConfig => ({
     const expression = parseForExpression(attr.value, this)
 
     if (expression.lhs !== null && expression.op !== null && expression.rhs !== null) {
+      // @ts-expect-error
       const data = expression.rhs.value.result
 
       this.expression = expression
@@ -60,7 +62,7 @@ export default (): DirectiveConfig => ({
 
       for (const item of data.value) {
         const node = orgNode.cloneNode(true)
-        const appData = {}
+        const appData: Record<string, any> = {}
 
         for (const prop in lhs) {
           if (prop === 'alias' || prop === 'val') {
@@ -86,6 +88,7 @@ export default (): DirectiveConfig => ({
           parent: vm,
         })
 
+        // @ts-expect-error
         bindDirectives(scope.$el, scope)
 
         scope.on('ready', () => {
@@ -110,6 +113,7 @@ export default (): DirectiveConfig => ({
             const observer =
               appData.__observable__ &&
               appData.__observable__.__observers__.find(
+                // @ts-expect-error
                 observable => observable[1] === 'index'
               )
 

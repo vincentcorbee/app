@@ -1,12 +1,12 @@
 import { FormGroup } from './form-group'
-import { FormControls, FormGroups } from './types'
+import { FormControls, FormGroups, FormInterface } from './types'
 
-export class Form {
-  formControls: FormControls | FormGroups = {}
+export class Form implements FormInterface {
+  formControls: FormControls = {}
   valid = true
   formGroups: FormGroups = {}
 
-  constructor(formControls: FormControls | FormGroups = {}) {
+  constructor(formControls: FormControls) {
     Object.entries(formControls).forEach(([name, control]) => {
       control.form = this
 
@@ -16,10 +16,10 @@ export class Form {
         },
       })
 
-      if (control.formControls) {
-        this.formGroups[name] = control as FormGroup
+      if (control instanceof FormGroup) {
+        this.formGroups[name] = control
 
-        Object.entries(control.formControls as FormControls).forEach(
+        Object.entries(control.formControls).forEach(
           ([name, control]) => (this.formControls[name] = control)
         )
       } else {

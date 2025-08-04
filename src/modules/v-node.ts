@@ -248,6 +248,7 @@ export default class VNode<
 
       if (!node) return
 
+      // @ts-expect-error
       const root = node.shadowRoot || node
 
       children[index] = newChild
@@ -274,14 +275,16 @@ export default class VNode<
     if (children.length) this.removeChild(children[0])
   }
 
-  /* This is not reliable for adding a node directly as the current node does not have to be it's parent */
-
+  /*
+    This is not reliable for adding a node directly as the current node does not have to be it's parent
+  */
   addChild(childElement: VNode, index = null, parentNode = null) {
     const { children, node } = this
     const childNode = childElement.node
 
     if (!childNode || !node) return
 
+    // @ts-expect-error
     const root = parentNode || node.shadowRoot || node
 
     if (children && children.indexOf(childElement) === -1) {

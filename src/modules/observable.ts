@@ -1,4 +1,4 @@
-import { privateData } from '.'
+import privateData from './private-data'
 
 export default class Observable {
   constructor(...args: [string, any][]) {

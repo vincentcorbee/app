@@ -1,23 +1,19 @@
 import { AbstractControl } from './form-control.abstract'
-import { FormErrors, Validators } from './types'
+import { FormControlInterface, FormControlOptions, FormErrors } from './types'
 
-export class FormControl extends AbstractControl {
-  constructor({
-    value = null,
-    validators = {},
-  }: {
-    value?: any
-    validators?: Validators
-  }) {
+export class FormControl extends AbstractControl implements FormControlInterface {
+  constructor(options: FormControlOptions) {
+    const { value = null, validators = {} } = options
+
     super(validators)
 
     this.value = value
 
-    this.errors = Object.keys(validators).reduce((acc, name) => {
+    this.errors = Object.keys(validators).reduce<FormErrors>((acc, name) => {
       acc[name] = null
 
       return acc
-    }, {} as FormErrors)
+    }, {})
   }
 
   setValue(value: any) {

@@ -5,5 +5,5 @@ export const requiredValidator: ValidatorFunctionType = (control: AbstractContro
   control.value
     ? null
     : {
-        message: 'Dit veld is verplicht',
+        required: true,
       }

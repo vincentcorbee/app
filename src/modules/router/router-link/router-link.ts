@@ -32,7 +32,7 @@ export const routerLink = defineComponent({
 
       if (shiftKey || ctrlKey) return true
 
-      this.$router.navigate(this.to)
+      this.$router?.navigate(this.to)
     },
   },
 })

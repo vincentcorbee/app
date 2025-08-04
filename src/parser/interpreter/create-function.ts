@@ -9,6 +9,7 @@ export function createFunction(
 ): Function {
   return function () {
     const scope = new EnvironmentRecord(env instanceof EnvironmentRecord ? env : null)
+
     node.params.forEach((param, i) =>
       scope.createMutableBinding(param.name, arguments[i])
     )

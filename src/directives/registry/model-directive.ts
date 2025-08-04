@@ -23,7 +23,7 @@ const getFormControl = (name: string, form: any) =>
       : form[name]
     : null
 
-export default (expressionParser: ExpressionParser): DirectiveConfig => ({
+export default (expressionParser: ExpressionParser): DirectiveConfig<HTMLElement> => ({
   name: 'model',
   reg: /^(a-|\*)?model(\.[a-z]+)*/,
   bind(vNode, vm) {
@@ -36,20 +36,25 @@ export default (expressionParser: ExpressionParser): DirectiveConfig => ({
 
     node.removeAttribute(this.attr.name)
 
+    // @ts-expect-error
     let formElement = node.form || node.closest('form')
     let form = (formElement || {}).$form
 
-    const changeListener = (e: Event | CustomEvent) => {
+    const changeListener = (e: Event | CustomEvent<HTMLElement>) => {
+      // @ts-expect-error
       const { target, detail } = e
       const { data, key } = getData(vm, expression)
       const output = parseInputValue(
-        target.value || detail || target.$vm?.value || '',
+        // @ts-expect-error
+        target?.value || detail || target?.$vm?.value || '',
         valueType
       )
 
+      // @ts-expect-error
       formElement = formElement || node.form || node.closest('form')
       form = form || (formElement || {}).$form
 
+      // @ts-expect-error
       const formControl = getFormControl(node.name, form)
 
       if (formControl) {
@@ -57,7 +62,8 @@ export default (expressionParser: ExpressionParser): DirectiveConfig => ({
 
         const isValid = formControl.validate()
 
-        setValidStateInput(isValid, formElement ? formElement[target.name] : target)
+        // @ts-expect-error
+        setValidStateInput(isValid, formElement ? formElement[target?.name] : target)
 
         if (!isValid) return
       }
@@ -65,6 +71,7 @@ export default (expressionParser: ExpressionParser): DirectiveConfig => ({
       data[key] = output
     }
 
+    // @ts-expect-error
     const type = node.type || node.$name || vm.type || node.nodeName.toLowerCase()
 
     /*

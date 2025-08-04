@@ -1,7 +1,7 @@
 import { AbstractControl } from './form-control.abstract'
-import { FormControls, FormErrors, Validators } from './types'
+import { FormControls, FormErrors, FormGroupInterface, Validators } from './types'
 
-export class FormGroup extends AbstractControl {
+export class FormGroup extends AbstractControl implements FormGroupInterface {
   formControls: FormControls
 
   constructor(formControls: FormControls = {}, validators: Validators = {}) {
@@ -9,11 +9,11 @@ export class FormGroup extends AbstractControl {
 
     this.formControls = formControls
     this.validators = validators
-    this.errors = Object.keys(validators).reduce((acc, name) => {
+    this.errors = Object.keys(validators).reduce<FormErrors>((acc, name) => {
       acc[name] = null
 
       return acc
-    }, {} as FormErrors)
+    }, {})
 
     Object.entries(formControls).forEach(([name, control]) => {
       control.parent = this
@@ -40,6 +40,8 @@ export class FormGroup extends AbstractControl {
 
       if (this.valid) {
         Object.entries(validators).forEach(([name, fn]) => (this.errors[name] = fn(this)))
+
+        console.log(this.errors)
 
         this.valid = Object.values(this.errors).every(error => !error)
       }

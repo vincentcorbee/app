@@ -74,8 +74,8 @@ export type ComponentConfig<
   L extends ListnersOptions,
   C extends ComputedOptions
 > = {
-  props?: Props
-  el?: string
+  props?: ComponentProps
+  el?: any
   name?: string
   router?: Router
   store?: StoreInstance<any, any, any>
@@ -90,6 +90,7 @@ export type ComponentConfig<
   formAssociated?: boolean
   inject?: string[]
   provide?: Record<string, any>
+  parent?: any
 } & ThisType<ComponentInstance<D, M, L, C>>
 
 export interface RouterInterface {
@@ -131,7 +132,7 @@ export type PropDefinition = {
   default?: any
 }
 
-export type Props =
+export type ComponentProps =
   | Array<string | PropDefinition>
   | Record<string, PropType | Omit<PropDefinition, 'name'>>
 
@@ -172,12 +173,12 @@ export interface VNodeInterface<T extends Node = Node | Element> extends Emitter
 
 export type Update = { type: 'string'; value: any; prop: any; target: any }
 
-export type DirectiveConfig = {
+export type DirectiveConfig<E extends Node = Node> = {
   name: string
   reg: RegExp
   bind: (
     this: Directive,
-    vNode: VNode,
+    vNode: VNode<E>,
     vm: ComponentInstance,
     expressionParser: Function
   ) => void

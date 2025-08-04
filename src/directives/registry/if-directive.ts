@@ -3,12 +3,13 @@ import getCases from '../get-cases'
 import { ExpressionParser } from '../../parser/types/parser.types'
 import { DirectiveConfig } from '../../types'
 
-export default (expressionParser: ExpressionParser): DirectiveConfig => ({
+export default (expressionParser: ExpressionParser): DirectiveConfig<HTMLElement> => ({
   name: 'if',
   reg: /^(a-|\*)?if/,
   bind(vNode) {
     const { attr } = this
     const { node } = vNode
+    // @ts-expect-error
     const index = node.parentNode ? [].indexOf.call(node.parentNode.childNodes, node) : 0
 
     node.removeAttribute(attr.name)

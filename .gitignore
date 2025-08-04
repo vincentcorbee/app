@@ -7,3 +7,5 @@ dist
 .ds_Store
 
 stats.json
+
+.parcel-cache

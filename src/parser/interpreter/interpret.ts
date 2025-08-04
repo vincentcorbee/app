@@ -261,6 +261,7 @@ export function interpret(
       if (node.callee.type === 'Identifier')
         name = interpret(node.callee, env, directive, options)?.value
 
+      // @ts-expect-error
       if (node.callee.type === 'MemberExpression') name = node.callee.property.name
 
       const fn = interpret(node.callee, env, directive, options)?.value

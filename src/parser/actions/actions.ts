@@ -1,4 +1,4 @@
-import { ParseTreeNode, SemanticAction } from '@digitalbranch/earley-parser'
+import { SemanticAction } from '@digitalbranch/earley-parser'
 import {
   ArrowFunctionExpression,
   AssignmentExpression,
@@ -13,7 +13,6 @@ import {
   Literal,
   LogicalExpression,
   ObjectExpression,
-  Pattern,
   Program,
   ReturnStatement,
   SequenceExpression,

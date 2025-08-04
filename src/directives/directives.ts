@@ -53,6 +53,7 @@ const directiveRegistry = {
       return mod.replace('.', '')
     })
 
+    // @ts-expect-error
     return createDirective({ ...config, attr }, vm)
   },
 }

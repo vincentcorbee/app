@@ -1,6 +1,6 @@
 import Emitter from './emitter'
 import { setZeroTimeout } from '../utils'
-import { privateData } from '.'
+import privateData from './private-data'
 
 export default class Queue extends Emitter {
   constructor() {

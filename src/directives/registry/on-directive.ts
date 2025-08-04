@@ -1,7 +1,8 @@
+import { ExpressionParser } from '../../parser/types/parser.types'
 import { DirectiveConfig } from '../../types'
 import addEventListener from '../add-event-listener'
 
-export default (): DirectiveConfig => ({
+export default (_expressionParser: ExpressionParser): DirectiveConfig<HTMLElement> => ({
   name: 'on',
   reg: /^((a-|\*)?on:)|@([^ ]+)(\.[a-z]+)*/,
   bind(vNode, vm) {
@@ -19,7 +20,7 @@ export default (): DirectiveConfig => ({
     params = params
       .replace(/^\(|\)$/g, '')
       .split(',')
-      .flatMap(param => {
+      .flatMap((param: string) => {
         if (!param) return []
 
         let isString = false
@@ -34,6 +35,7 @@ export default (): DirectiveConfig => ({
         }
       })
 
+    //@ts-expect-error
     addEventListener(vNode, event, fnName, params, vm, this, modifiers)
   },
 })

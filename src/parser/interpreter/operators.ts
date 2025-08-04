@@ -1,11 +1,4 @@
-import {
-  BinaryOperation,
-  // BinaryOperator,
-  // Scope,
-  UnaryOperation,
-  UnaryOperator,
-  UpdateOperator,
-} from '../types'
+import { BinaryOperation, UnaryOperation, UnaryOperator, UpdateOperator } from '../types'
 
 export const BinaryOperations = {
   '==': (lhs: any, rhs: any) => lhs === rhs,

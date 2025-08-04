@@ -313,6 +313,7 @@ export default class App<
     // return store
   }
 
+  // @ts-expect-error
   get $node() {
     return this.#el ? this.#el.node ?? null : null
   }
@@ -321,6 +322,7 @@ export default class App<
     return this.#el
   }
 
+  // @ts-expect-error
   get $data() {
     return this.#proxy
   }
@@ -361,10 +363,12 @@ export default class App<
       Reflect.defineProperty(this, prop, {
         enumerable: true,
         get() {
+          //@ts-expect-error
           if (!proxy.isRevoked) return proxy[prop]
           else return undefined
         },
         set(value) {
+          // @ts-expect-error
           if (!proxy.isRevoked && Reflect.get(proxy, prop) !== value) proxy[prop] = value
         },
       })

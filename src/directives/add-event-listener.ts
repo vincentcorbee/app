@@ -42,10 +42,12 @@ const addEventListener = (
     const target = e.target as HTMLElement
 
     const args = params.map(param =>
+      // @ts-expect-error
       param.isString ? param.value : expressionParser(vm, param.value, directive)
     )
 
     if (fnName === 'emit') {
+      // @ts-expect-error
       if (target === node) parentVm.emit(...args, e)
     } else {
       if (event === 'submit' && (target as any).$form) {

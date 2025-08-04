@@ -1,0 +1,64 @@
+export default /* css */ `
+:host {
+  position: relative;
+  display: inline-flex;
+  height: 56px;
+  background-color: #f5f5f5;
+
+  --color-error: #f44336;
+  --color-primary: #3f51b9;
+}
+
+.ui-field label {
+  left: 16px;
+  right: initial;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 1rem;
+  position: absolute;
+  transform-origin: left top;
+  line-height: 1.15rem;
+  transition: transform 150ms;
+}
+
+.ui-field input {
+  padding: 20px 16px 6px;
+  font-size: 1rem;
+  border: none;
+  margin: 0;
+  border-bottom: 1px solid;
+  width: 100%;
+  height: 100%;
+  align-self: flex-end;
+  box-sizing: border-box;
+  background-color: transparent;
+}
+
+.ui-field input.ui-invalid {
+  border-bottom-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.ui-field input.ui-invalid + label {
+  color: var(--color-error);
+}
+
+.ui-field input:focus {
+  outline: none;
+}
+
+.ui-field input:focus:not(.ui-invalid) {
+  border-bottom: 1px solid var(--color-primary);
+}
+
+.ui-field input:focus + label,
+.ui-field input:not(:placeholder-shown) + label {
+  transform: translateY(-106%) scale(0.75);
+}
+
+.ui-error {
+  color: var(--color-error);
+  margin-top: 4px;
+  font-size: 0.75rem;
+}`

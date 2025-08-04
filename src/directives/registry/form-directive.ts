@@ -1,6 +1,9 @@
+import { ExpressionParser } from '../../parser/types/parser.types'
 import { DirectiveConfig } from '../../types'
 
-export default (): DirectiveConfig => ({
+export default (
+  _expressionParser: ExpressionParser
+): DirectiveConfig<HTMLFormElement> => ({
   name: 'form',
   reg: /^(a-|\*)?form/,
   bind(vNode, vm) {
@@ -16,6 +19,7 @@ export default (): DirectiveConfig => ({
       },
     })
 
+    // @ts-expect-error
     node.$form = vm[this.attr.value]
 
     node.removeAttribute(this.attr.name)

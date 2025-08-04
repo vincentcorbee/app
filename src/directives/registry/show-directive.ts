@@ -1,7 +1,7 @@
 import { ExpressionParser } from '../../parser/types/parser.types'
 import { DirectiveConfig } from '../../types'
 
-export default (expressionParser: ExpressionParser): DirectiveConfig => ({
+export default (expressionParser: ExpressionParser): DirectiveConfig<HTMLElement> => ({
   name: 'show',
   reg: /^(a-|\*)?show/,
   bind(vNode) {

@@ -1,12 +1,13 @@
-export type ValidatorFunctionType = (
-  control: AbstractControlInterface
-) => ValidationErrors | null
+export type ValidatorFunctionType<
+  Control extends AbstractControlInterface = AbstractControlInterface
+> = (control: Control) => ValidationErrors | null
 
 export interface FormInterface {
-  formControls: FormControls | FormGroups
+  formControls: Record<string, AbstractControlInterface>
   valid: boolean
   formGroups: FormGroups
-  validate: () => boolean
+
+  validate(): boolean
 }
 
 export type ValidationErrors = {
@@ -22,16 +23,22 @@ export interface AbstractControlInterface {
   formControls?: FormControls
   valid: boolean
 
+  validate(): boolean
   get(name: string): AbstractControlInterface | null
 }
 
 export interface FormGroupInterface extends AbstractControlInterface {
   formControls: FormControls
-  validators: Validators
   errors: FormErrors
   valid: boolean
+  validators: Validators
 
   validate(): boolean
+}
+
+export type FormControlOptions = {
+  value?: any
+  validators?: Validators
 }
 
 export interface FormControlInterface extends AbstractControlInterface {
@@ -39,8 +46,10 @@ export interface FormControlInterface extends AbstractControlInterface {
   setValue(value: any): void
 }
 
-export type Validators = {
-  [key: string]: ValidatorFunctionType
+export type Validators<
+  Control extends AbstractControlInterface = AbstractControlInterface
+> = {
+  [key: string]: ValidatorFunctionType<Control>
 }
 
 export type FormErrors = {
@@ -48,7 +57,7 @@ export type FormErrors = {
 }
 
 export type FormControls = {
-  [key: string]: FormControlInterface
+  [key: string]: AbstractControlInterface
 }
 
 export type FormGroups = {

@@ -21,10 +21,10 @@ const setClassList = (node: HTMLElement, value: Record<string, boolean>) => {
   }
 }
 
-export default (expressionParser: ExpressionParser): DirectiveConfig => ({
+export default (expressionParser: ExpressionParser): DirectiveConfig<HTMLElement> => ({
   name: 'bind',
   reg: /^((a-|\*)?bind)?:([^ ]+)/,
-  bind(vNode: VNode) {
+  bind(vNode) {
     const {
       attr: { name },
     } = this
