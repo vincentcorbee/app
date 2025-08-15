@@ -1,0 +1,61 @@
+[data-mode='dark'] {
+  --ui-sys-color-primary: var(--ui-ref-palette-primary80);
+  --ui-sys-color-primary-container: var(--ui-ref-palette-primary30);
+
+  --ui-sys-color-secondary: var(--ui-ref-palette-secondary80);
+  --ui-sys-color-secondary-container: var(--ui-ref-palette-secondary30);
+
+  --ui-sys-color-tertiary: var(--ui-ref-palette-tertiary80);
+  --ui-sys-color-tertiary-container: var(--ui-ref-palette-tertiary30);
+
+  --ui-sys-color-surface-dim: var(--ui-ref-palette-neutral6);
+  --ui-sys-color-surface: var(--ui-ref-palette-neutral10);
+  --ui-sys-color-surface-bright: var(--ui-ref-palette-neutral24);
+
+  --ui-sys-color-surface-container-lowest: var(--ui-ref-palette-neutral4);
+  --ui-sys-color-surface-container-low: var(--ui-ref-palette-neutral10);
+  --ui-sys-color-surface-container: var(--ui-ref-palette-neutral12);
+  --ui-sys-color-surface-container-high: var(--ui-ref-palette-neutral17);
+  --ui-sys-color-surface-container-highest: var(--ui-ref-palette-neutral24);
+
+  --ui-sys-color-surface-variant: var(--ui-ref-palette-neutral-variant30);
+  --ui-sys-color-surface-tint: var(--ui-sys-color-primary);
+  --ui-sys-color-surface-tint-transparent: var(--ui-ref-palette-primary80), 0.9;
+  --ui-sys-color-surface-transparent: var(--ui-ref-palette-neutral10), 0.9;
+
+  --ui-sys-color-background: var(--ui-ref-palette-neutral10);
+  --ui-sys-color-background-transparent: var(--ui-ref-palette-neutral10), 0.9;
+
+  --ui-sys-color-outline: var(--ui-ref-palette-neutral60);
+  --ui-sys-color-outline-variant: var(--ui-ref-palette-neutral30);
+
+  --ui-sys-color-scrim: 0, 0%, 0%, 0.32;
+
+  --ui-sys-color-skeleton: var(--ui-sys-color-surface-variant), 0.8;
+
+  --ui-sys-color-error: var(--ui-ref-palette-error80);
+
+  /* On colors */
+  --ui-sys-color-on-primary: var(--ui-ref-palette-primary20);
+  --ui-sys-color-on-primary-container: var(--ui-ref-palette-primary90);
+
+  --ui-sys-color-on-secondary: var(--ui-ref-palette-secondary20);
+  --ui-sys-color-on-secondary-container: var(--ui-ref-palette-secondary90);
+
+  --ui-sys-color-on-tertiary: var(--ui-ref-palette-tertiary20);
+  --ui-sys-color-on-tertiary-container: var(--ui-ref-palette-tertiary90);
+
+  --ui-sys-color-on-surface: var(--ui-ref-palette-neutral90);
+  --ui-sys-color-on-surface-variant: var(--ui-ref-palette-neutral-variant80);
+
+  --ui-sys-color-on-background: var(--ui-ref-palette-neutral90);
+
+  --ui-sys-color-on-error: var(--ui-ref-palette-error20);
+
+  --ui-sys-color-inverse-surface: var(--ui-ref-palette-neutral90);
+  --ui-sys-color-inverse-on-surface: var(--ui-ref-palette-neutral20);
+  --ui-sys-color-inverse-primary: var(--ui-ref-palette-primary40);
+
+  /* Elevation */
+  --ui-sys-shadow-color: 0, 0%, 0%;
+}

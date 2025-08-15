@@ -1,4 +1,4 @@
-const isProxyRevoked = (proxy: any) => {
+export const isProxyRevoked = (proxy: any) => {
   try {
     new Proxy(proxy, proxy)
 

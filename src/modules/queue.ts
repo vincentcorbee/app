@@ -1,35 +1,40 @@
 import Emitter from './emitter'
 import { setZeroTimeout } from '../utils'
 import privateData from './private-data'
+import Observable from './observable'
+
+export type Update = { observable: Observable; data: any }
+
+type PrivateData = {
+  buffer: Array<Update>
+}
 
 export default class Queue extends Emitter {
   constructor() {
     super()
 
-    privateData.attach(this, {
+    privateData.attach<PrivateData>(this, {
       buffer: [],
     })
   }
 
-  push(args: any) {
-    const { buffer } = privateData.get(this)
+  push(update: Update | Array<Update>) {
+    const { buffer } = privateData.get<PrivateData>(this)
+    const updates = Array.isArray(update) ? update : [update]
 
-    const observers = Array.isArray(args) ? args : [args]
-
-    for (const observer of observers) {
-      setZeroTimeout(() => buffer.push(observer))
+    for (let i = 0; i < updates.length; i++) {
+      queueMicrotask(() => buffer.push(updates[i]))
 
       this.pop()
     }
   }
 
   pop() {
-    const { buffer } = privateData.get(this)
+    queueMicrotask(() => {
+      const { buffer } = privateData.get(this)
+      const { observable, data } = buffer.shift()
 
-    setZeroTimeout(() => {
-      const obj = buffer.pop()
-
-      obj.observable.notify(obj.data)
+      observable.notify(data)
 
       if (buffer.length === 0) this.emit('flushed')
     })

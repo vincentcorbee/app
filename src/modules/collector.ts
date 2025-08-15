@@ -1,46 +1,41 @@
-import privateData from './private-data'
 import Emitter from './emitter'
 import { setZeroTimeout } from '../utils'
 
 class Collector extends Emitter {
-  count: number
-  isCollecting: boolean
+  #prevCount: number
+  #currentCount: number
+  #isCollecting: boolean
 
   constructor() {
     super()
 
-    this.count = 0
-    this.isCollecting = false
-
-    privateData.attach(this, {
-      __count__: 0,
-    })
+    this.#prevCount = 0
+    this.#currentCount = 0
+    this.#isCollecting = false
   }
 
   start() {
-    if (this.isCollecting) return
+    if (this.#isCollecting) return
 
-    this.isCollecting = true
+    this.#isCollecting = true
 
     setZeroTimeout(() => {
-      const __count__ = privateData.get(this)
-
-      if (this.count !== __count__) {
-        this.count = __count__
+      if (this.#prevCount !== this.#currentCount) {
+        this.#prevCount = this.#currentCount
 
         this.emit('collect')
 
-        this.isCollecting = false
+        this.#isCollecting = false
 
         return this.start()
       }
 
-      this.isCollecting = false
+      this.#isCollecting = false
     })
   }
 
   updateCount(int: number) {
-    privateData.get(this).__count__ += int
+    this.#currentCount += int
   }
 }
 

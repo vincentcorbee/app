@@ -40,10 +40,10 @@ const setObservable = (
   if (!directive || directive.isDestroyed || !env) return
 
   const parentValue = env.this
-    ? env.this._data && prop in env.this._data
-      ? env.this._data
+    ? env.this.$$data && prop in env.this.$$data
+      ? env.this.$$data
       : env.this
-    : env.data || env._data || env
+    : env.data || env.$$data || env
   const parentObservable = parentValue && parentValue.__observable__
 
   if (parentObservable) {

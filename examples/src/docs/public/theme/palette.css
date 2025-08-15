@@ -1,0 +1,658 @@
+/* Tonal steps */
+:root {
+  --ui-ref-palette-tonal-low-1: 1;
+  --ui-ref-palette-tonal-low-1-2: 1.2;
+  --ui-ref-palette-tonal-low-1-7: 1.7;
+  --ui-ref-palette-tonal-low-2: 2;
+  --ui-ref-palette-tonal-low-2-4: 2.4;
+  --ui-ref-palette-tonal-low-3: 3;
+  --ui-ref-palette-tonal-low-4: 4;
+
+  --ui-ref-palette-tonal-high-1: 1;
+  --ui-ref-palette-tonal-high-2: 2;
+  --ui-ref-palette-tonal-high-3: 3;
+  --ui-ref-palette-tonal-high-4: 4;
+  --ui-ref-palette-tonal-high-5: 5;
+  --ui-ref-palette-tonal-high-5-2: 5.2;
+  --ui-ref-palette-tonal-high-5-4: 5.4;
+  --ui-ref-palette-tonal-high-5-5: 5.5;
+  --ui-ref-palette-tonal-high-5-6: 5.6;
+  --ui-ref-palette-tonal-high-5-8: 5.8;
+  --ui-ref-palette-tonal-high-5-9: 5.9;
+  --ui-ref-palette-tonal-high-6: 6;
+}
+
+/* Primary */
+:root {
+  --ui-ref-palette-primary: hsl(251, 58%, 31%);
+
+  --ui-ref-int-palette-primary-h: var(--ui-ref-palette-primary-h, 251);
+  --ui-ref-int-palette-primary-s: var(--ui-ref-palette-primary-s, 58%);
+  --ui-ref-int-palette-primary-l: var(--ui-ref-palette-primary-l, 31%);
+
+  --ui-ref-palette-primary-low-tones-l: calc(
+    var(--ui-ref-int-palette-primary-l) / var(--ui-ref-palette-tonal-low-4)
+  );
+  --ui-ref-palette-primary-high-tones-l: calc(
+    (100% - var(--ui-ref-int-palette-primary-l)) /
+      var(--ui-ref-palette-tonal-high-6)
+  );
+
+  --ui-ref-palette-primary0: var(--ui-ref-int-palette-primary-h),
+    var(--ui-ref-int-palette-primary-s), 0%;
+
+  --ui-ref-palette-primary10-l: calc(
+    var(--ui-ref-palette-primary-low-tones-l) *
+      var(--ui-ref-palette-tonal-low-1)
+  );
+
+  --ui-ref-palette-primary10: var(--ui-ref-int-palette-primary-h),
+    var(--ui-ref-int-palette-primary-s), var(--ui-ref-palette-primary10-l);
+
+  --ui-ref-palette-primary20: var(--ui-ref-int-palette-primary-h),
+    var(--ui-ref-int-palette-primary-s),
+    calc(
+      var(--ui-ref-palette-primary-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-2)
+    );
+
+  --ui-ref-palette-primary30: var(--ui-ref-int-palette-primary-h),
+    var(--ui-ref-int-palette-primary-s),
+    calc(
+      var(--ui-ref-palette-primary-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-3)
+    );
+
+  --ui-ref-palette-primary40: var(--ui-ref-int-palette-primary-h),
+    var(--ui-ref-int-palette-primary-s), var(--ui-ref-int-palette-primary-l);
+
+  --ui-ref-palette-primary50: var(--ui-ref-int-palette-primary-h),
+    var(--ui-ref-int-palette-primary-s),
+    calc(
+      var(--ui-ref-int-palette-primary-l) +
+        var(--ui-ref-palette-primary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-1)
+    );
+
+  --ui-ref-palette-primary60: var(--ui-ref-int-palette-primary-h),
+    var(--ui-ref-int-palette-primary-s),
+    calc(
+      var(--ui-ref-int-palette-primary-l) +
+        var(--ui-ref-palette-primary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-2)
+    );
+
+  --ui-ref-palette-primary70: var(--ui-ref-int-palette-primary-h),
+    var(--ui-ref-int-palette-primary-s),
+    calc(
+      var(--ui-ref-int-palette-primary-l) +
+        var(--ui-ref-palette-primary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-3)
+    );
+
+  --ui-ref-palette-primary80-l: calc(
+    var(--ui-ref-int-palette-primary-l) +
+      var(--ui-ref-palette-primary-high-tones-l) *
+      var(--ui-ref-palette-tonal-high-4)
+  );
+  --ui-ref-palette-primary80: var(--ui-ref-int-palette-primary-h),
+    var(--ui-ref-int-palette-primary-s), var(--ui-ref-palette-primary80-l);
+
+  --ui-ref-palette-primary90: var(--ui-ref-int-palette-primary-h),
+    var(--ui-ref-int-palette-primary-s),
+    calc(
+      var(--ui-ref-int-palette-primary-l) +
+        var(--ui-ref-palette-primary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5)
+    );
+
+  --ui-ref-palette-primary95: var(--ui-ref-int-palette-primary-h),
+    var(--ui-ref-int-palette-primary-s),
+    calc(
+      var(--ui-ref-int-palette-primary-l) +
+        var(--ui-ref-palette-primary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5-5)
+    );
+
+  --ui-ref-palette-primary99-l: calc(
+    var(--ui-ref-int-palette-primary-l) +
+      var(--ui-ref-palette-primary-high-tones-l) *
+      var(--ui-ref-palette-tonal-high-5-9)
+  );
+  --ui-ref-palette-primary99: var(--ui-ref-int-palette-primary-h),
+    var(--ui-ref-int-palette-primary-s), var(--ui-ref-palette-primary99-l);
+
+  --ui-ref-palette-primary100: var(--ui-ref-int-palette-primary-h),
+    var(--ui-ref-int-palette-primary-s), 100%;
+}
+
+/* Secondary */
+:root {
+  --ui-ref-palette-secondary: hsl(248, 17%, 43%);
+
+  --ui-ref-int-palette-secondary-h: var(--ui-ref-palette-secondary-h, 248);
+  --ui-ref-int-palette-secondary-s: var(--ui-ref-palette-secondary-s, 17%);
+  --ui-ref-int-palette-secondary-l: var(--ui-ref-palette-secondary-l, 43%);
+
+  --ui-ref-palette-secondary-low-tones-l: calc(
+    var(--ui-ref-int-palette-secondary-l) / var(--ui-ref-palette-tonal-low-4)
+  );
+  --ui-ref-palette-secondary-high-tones-l: calc(
+    (100% - var(--ui-ref-int-palette-secondary-l)) /
+      var(--ui-ref-palette-tonal-high-6)
+  );
+
+  --ui-ref-palette-secondary0: var(--ui-ref-int-palette-secondary-h),
+    var(--ui-ref-int-palette-secondary-s), 0%;
+
+  --ui-ref-palette-secondary10: var(--ui-ref-int-palette-secondary-h),
+    var(--ui-ref-int-palette-secondary-s),
+    calc(
+      var(--ui-ref-palette-secondary-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-1)
+    );
+
+  --ui-ref-palette-secondary20: var(--ui-ref-int-palette-secondary-h),
+    var(--ui-ref-int-palette-secondary-s),
+    calc(
+      var(--ui-ref-palette-secondary-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-2)
+    );
+
+  --ui-ref-palette-secondary30: var(--ui-ref-int-palette-secondary-h),
+    var(--ui-ref-int-palette-secondary-s),
+    calc(
+      var(--ui-ref-palette-secondary-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-3)
+    );
+
+  --ui-ref-palette-secondary40: var(--ui-ref-int-palette-secondary-h),
+    var(--ui-ref-int-palette-secondary-s), var(--ui-ref-int-palette-secondary-l);
+
+  --ui-ref-palette-secondary50: var(--ui-ref-int-palette-secondary-h),
+    var(--ui-ref-int-palette-secondary-s),
+    calc(
+      var(--ui-ref-int-palette-secondary-l) +
+        var(--ui-ref-palette-secondary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-1)
+    );
+
+  --ui-ref-palette-secondary60: var(--ui-ref-int-palette-secondary-h),
+    var(--ui-ref-int-palette-secondary-s),
+    calc(
+      var(--ui-ref-int-palette-secondary-l) +
+        var(--ui-ref-palette-secondary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-2)
+    );
+
+  --ui-ref-palette-secondary70: var(--ui-ref-int-palette-secondary-h),
+    var(--ui-ref-int-palette-secondary-s),
+    calc(
+      var(--ui-ref-int-palette-secondary-l) +
+        var(--ui-ref-palette-secondary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-3)
+    );
+
+  --ui-ref-palette-secondary80: var(--ui-ref-int-palette-secondary-h),
+    var(--ui-ref-int-palette-secondary-s),
+    calc(
+      var(--ui-ref-int-palette-secondary-l) +
+        var(--ui-ref-palette-secondary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-4)
+    );
+
+  --ui-ref-palette-secondary90: var(--ui-ref-int-palette-secondary-h),
+    var(--ui-ref-int-palette-secondary-s),
+    calc(
+      var(--ui-ref-int-palette-secondary-l) +
+        var(--ui-ref-palette-secondary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5)
+    );
+
+  --ui-ref-palette-secondary95: var(--ui-ref-int-palette-secondary-h),
+    var(--ui-ref-int-palette-secondary-s),
+    calc(
+      var(--ui-ref-int-palette-secondary-l) +
+        var(--ui-ref-palette-secondary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5-5)
+    );
+  --ui-ref-palette-secondary99: var(--ui-ref-int-palette-secondary-h),
+    var(--ui-ref-int-palette-secondary-s),
+    calc(
+      var(--ui-ref-int-palette-secondary-l) +
+        var(--ui-ref-palette-secondary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5-9)
+    );
+
+  --ui-ref-palette-secondary100: var(--ui-ref-int-palette-secondary-h),
+    var(--ui-ref-int-palette-secondary-s), 100%;
+}
+
+/* Tertiary */
+:root {
+  --ui-ref-palette-tertiary: hsl(308, 68%, 22%);
+
+  --ui-ref-int-palette-tertiary-h: var(--ui-ref-palette-tertiary-h, 308);
+  --ui-ref-int-palette-tertiary-s: var(--ui-ref-palette-tertiary-s, 68%);
+  --ui-ref-int-palette-tertiary-l: var(--ui-ref-palette-tertiary-l, 22%);
+
+  --ui-ref-palette-tertiary-low-tones-l: calc(
+    var(--ui-ref-int-palette-tertiary-l) / var(--ui-ref-palette-tonal-low-4)
+  );
+  --ui-ref-palette-tertiary-high-tones-l: calc(
+    (100% - var(--ui-ref-int-palette-tertiary-l)) /
+      var(--ui-ref-palette-tonal-high-6)
+  );
+
+  --ui-ref-palette-tertiary: var(--ui-ref-int-palette-tertiary-h),
+    var(--ui-ref-int-palette-tertiary-s), 0%;
+
+  --ui-ref-palette-tertiary10: var(--ui-ref-int-palette-tertiary-h),
+    var(--ui-ref-int-palette-tertiary-s),
+    calc(
+      var(--ui-ref-palette-tertiary-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-1)
+    );
+
+  --ui-ref-palette-tertiary20: var(--ui-ref-int-palette-tertiary-h),
+    var(--ui-ref-int-palette-tertiary-s),
+    calc(
+      var(--ui-ref-palette-tertiary-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-2)
+    );
+
+  --ui-ref-palette-tertiary30: var(--ui-ref-int-palette-tertiary-h),
+    var(--ui-ref-int-palette-tertiary-s),
+    calc(
+      var(--ui-ref-palette-tertiary-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-3)
+    );
+
+  --ui-ref-palette-tertiary40: var(--ui-ref-int-palette-tertiary-h),
+    var(--ui-ref-int-palette-tertiary-s), var(--ui-ref-int-palette-tertiary-l);
+
+  --ui-ref-palette-tertiary50: var(--ui-ref-int-palette-tertiary-h),
+    var(--ui-ref-int-palette-tertiary-s),
+    calc(
+      var(--ui-ref-int-palette-tertiary-l) +
+        var(--ui-ref-palette-tertiary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-1)
+    );
+
+  --ui-ref-palette-tertiary60: var(--ui-ref-int-palette-tertiary-h),
+    var(--ui-ref-int-palette-tertiary-s),
+    calc(
+      var(--ui-ref-int-palette-tertiary-l) +
+        var(--ui-ref-palette-tertiary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-2)
+    );
+
+  --ui-ref-palette-tertiary70: var(--ui-ref-int-palette-tertiary-h),
+    var(--ui-ref-int-palette-tertiary-s),
+    calc(
+      var(--ui-ref-int-palette-tertiary-l) +
+        var(--ui-ref-palette-tertiary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-3)
+    );
+
+  --ui-ref-palette-tertiary80: var(--ui-ref-int-palette-tertiary-h),
+    var(--ui-ref-int-palette-tertiary-s),
+    calc(
+      var(--ui-ref-int-palette-tertiary-l) +
+        var(--ui-ref-palette-tertiary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-4)
+    );
+
+  --ui-ref-palette-tertiary90: var(--ui-ref-int-palette-tertiary-h),
+    var(--ui-ref-int-palette-tertiary-s),
+    calc(
+      var(--ui-ref-int-palette-tertiary-l) +
+        var(--ui-ref-palette-tertiary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5)
+    );
+
+  --ui-ref-palette-tertiary95: var(--ui-ref-int-palette-tertiary-h),
+    var(--ui-ref-int-palette-tertiary-s),
+    calc(
+      var(--ui-ref-int-palette-tertiary-l) +
+        var(--ui-ref-palette-tertiary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5-5)
+    );
+  --ui-ref-palette-tertiary99: var(--ui-ref-int-palette-tertiary-h),
+    var(--ui-ref-int-palette-tertiary-s),
+    calc(
+      var(--ui-ref-int-palette-tertiary-l) +
+        var(--ui-ref-palette-tertiary-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5-9)
+    );
+
+  --ui-ref-palette-tertiary100: var(--ui-ref-int-palette-tertiary-h),
+    var(--ui-ref-int-palette-tertiary-s), 100%;
+}
+
+/* Neutral */
+:root {
+  --ui-ref-int-palette-neutral-h: var(--ui-ref-palette-neutral-h, 300);
+  --ui-ref-int-palette-neutral-s: var(--ui-ref-palette-neutral-s, 2%);
+  --ui-ref-int-palette-neutral-l: var(--ui-ref-palette-neutral-l, 37%);
+
+  --ui-ref-palette-neutral-low-tones-l: calc(
+    var(--ui-ref-int-palette-neutral-l) / var(--ui-ref-palette-tonal-low-4)
+  );
+
+  --ui-ref-palette-neutral-high-tones-l: calc(
+    (100% - var(--ui-ref-int-palette-neutral-l)) /
+      var(--ui-ref-palette-tonal-high-6)
+  );
+
+  --ui-ref-palette-neutral0: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s), 0%;
+
+  --ui-ref-palette-neutral10-l: calc(
+    var(--ui-ref-palette-neutral-low-tones-l) *
+      var(--ui-ref-palette-tonal-low-1)
+  );
+
+  --ui-ref-palette-neutral10: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s), var(--ui-ref-palette-neutral10-l);
+
+  --ui-ref-palette-neutral12: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-palette-neutral-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-1-2)
+    );
+
+  --ui-ref-palette-neutral17: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-palette-neutral-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-1-7)
+    );
+
+  --ui-ref-palette-neutral20: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-palette-neutral-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-2)
+    );
+
+  --ui-ref-palette-neutral24: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-palette-neutral-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-2-4)
+    );
+
+  --ui-ref-palette-neutral30: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-palette-neutral-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-3)
+    );
+
+  --ui-ref-palette-neutral40: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s), var(--ui-ref-int-palette-neutral-l);
+
+  --ui-ref-palette-neutral50: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-l) +
+        var(--ui-ref-palette-neutral-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-1)
+    );
+
+  --ui-ref-palette-neutral60: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-l) +
+        var(--ui-ref-palette-neutral-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-2)
+    );
+
+  --ui-ref-palette-neutral70: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-l) +
+        var(--ui-ref-palette-neutral-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-3)
+    );
+
+  --ui-ref-palette-neutral80: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-l) +
+        var(--ui-ref-palette-neutral-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-4)
+    );
+
+  --ui-ref-palette-neutral90: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-l) +
+        var(--ui-ref-palette-neutral-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5)
+    );
+
+  --ui-ref-palette-neutral92: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-l) +
+        var(--ui-ref-palette-neutral-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5-2)
+    );
+
+  --ui-ref-palette-neutral94: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-l) +
+        var(--ui-ref-palette-neutral-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5-4)
+    );
+
+  --ui-ref-palette-neutral95: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-l) +
+        var(--ui-ref-palette-neutral-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5-5)
+    );
+
+  --ui-ref-palette-neutral96: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-l) +
+        var(--ui-ref-palette-neutral-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5-6)
+    );
+
+  --ui-ref-palette-neutral98: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-l) +
+        var(--ui-ref-palette-neutral-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5-8)
+    );
+
+  --ui-ref-palette-neutral99-l: calc(
+    var(--ui-ref-int-palette-neutral-l) +
+      var(--ui-ref-palette-neutral-high-tones-l) *
+      var(--ui-ref-palette-tonal-high-5-9)
+  );
+  --ui-ref-palette-neutral99: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s), var(--ui-ref-palette-neutral99-l);
+
+  --ui-ref-palette-neutral100: var(--ui-ref-int-palette-neutral-h),
+    var(--ui-ref-int-palette-neutral-s), 100%;
+}
+
+/* Neutral variant */
+:root {
+  --ui-ref-int-palette-neutral-variant-h: var(
+    --ui-ref-palette-neutral-variant-h,
+    287
+  );
+  --ui-ref-int-palette-neutral-variant-s: var(
+    --ui-ref-palette-neutral-variant-s,
+    7%
+  );
+  --ui-ref-int-palette-neutral-variant-l: var(
+    --ui-ref-palette-neutral-variant-l,
+    38%
+  );
+
+  --ui-ref-palette-neutral-variant-low-tones-l: calc(
+    var(--ui-ref-int-palette-neutral-variant-l) /
+      var(--ui-ref-palette-tonal-low-4)
+  );
+  --ui-ref-palette-neutral-variant-high-tones-l: calc(
+    (100% - var(--ui-ref-int-palette-neutral-variant-l)) /
+      var(--ui-ref-palette-tonal-high-6)
+  );
+
+  --ui-ref-palette-neutral-variant0: var(--ui-ref-int-palette-neutral-variant-h),
+    var(--ui-ref-int-palette-neutral-variant-s), 0%;
+
+  --ui-ref-palette-neutral-variant10: var(
+      --ui-ref-int-palette-neutral-variant-h
+    ),
+    var(--ui-ref-int-palette-neutral-variant-s),
+    calc(
+      var(--ui-ref-palette-neutral-variant-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-1)
+    );
+
+  --ui-ref-palette-neutral-variant20: var(
+      --ui-ref-int-palette-neutral-variant-h
+    ),
+    var(--ui-ref-int-palette-neutral-variant-s),
+    calc(
+      var(--ui-ref-palette-neutral-variant-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-2)
+    );
+
+  --ui-ref-palette-neutral-variant30: var(
+      --ui-ref-int-palette-neutral-variant-h
+    ),
+    var(--ui-ref-int-palette-neutral-variant-s),
+    calc(
+      var(--ui-ref-palette-neutral-variant-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-3)
+    );
+
+  --ui-ref-palette-neutral-variant40: var(
+      --ui-ref-int-palette-neutral-variant-h
+    ),
+    var(--ui-ref-int-palette-neutral-variant-s),
+    var(--ui-ref-int-palette-neutral-variant-l);
+
+  --ui-ref-palette-neutral-variant50: var(
+      --ui-ref-int-palette-neutral-variant-h
+    ),
+    var(--ui-ref-int-palette-neutral-variant-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-variant-l) +
+        var(--ui-ref-palette-neutral-variant-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-1)
+    );
+
+  --ui-ref-palette-neutral-variant60: var(
+      --ui-ref-int-palette-neutral-variant-h
+    ),
+    var(--ui-ref-int-palette-neutral-variant-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-variant-l) +
+        var(--ui-ref-palette-neutral-variant-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-2)
+    );
+
+  --ui-ref-palette-neutral-variant70: var(
+      --ui-ref-int-palette-neutral-variant-h
+    ),
+    var(--ui-ref-int-palette-neutral-variant-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-variant-l) +
+        var(--ui-ref-palette-neutral-variant-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-3)
+    );
+
+  --ui-ref-palette-neutral-variant80: var(
+      --ui-ref-int-palette-neutral-variant-h
+    ),
+    var(--ui-ref-int-palette-neutral-variant-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-variant-l) +
+        var(--ui-ref-palette-neutral-variant-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-4)
+    );
+
+  --ui-ref-palette-neutral-variant90: var(
+      --ui-ref-int-palette-neutral-variant-h
+    ),
+    var(--ui-ref-int-palette-neutral-variant-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-variant-l) +
+        var(--ui-ref-palette-neutral-variant-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5)
+    );
+
+  --ui-ref-palette-neutral-variant95: var(
+      --ui-ref-int-palette-neutral-variant-h
+    ),
+    var(--ui-ref-int-palette-neutral-variant-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-variant-l) +
+        var(--ui-ref-palette-neutral-variant-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5-5)
+    );
+
+  --ui-ref-palette-neutral-variant99: var(
+      --ui-ref-int-palette-neutral-variant-h
+    ),
+    var(--ui-ref-int-palette-neutral-variant-s),
+    calc(
+      var(--ui-ref-int-palette-neutral-variant-l) +
+        var(--ui-ref-palette-neutral-variant-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-5-9)
+    );
+
+  --ui-ref-palette-neutral-variant100: var(
+      --ui-ref-int-palette-neutral-variant-h
+    ),
+    var(--ui-ref-int-palette-neutral-variant-s), 100%;
+}
+
+/* Error */
+:root {
+  --ui-ref-int-palette-error-h: var(--ui-ref-palette-error-h, 3);
+  --ui-ref-int-palette-error-s: var(--ui-ref-palette-error-s, 71%);
+  --ui-ref-int-palette-error-l: var(--ui-ref-palette-error-l, 41%);
+
+  --ui-ref-palette-error-low-tones-l: calc(
+    var(--ui-ref-int-palette-error-l) / var(--ui-ref-palette-tonal-low-4)
+  );
+  --ui-ref-palette-error-high-tones-l: calc(
+    (100% - var(--ui-ref-int-palette-error-l)) /
+      var(--ui-ref-palette-tonal-high-6)
+  );
+
+  --ui-ref-palette-error20: var(--ui-ref-int-palette-error-h),
+    var(--ui-ref-int-palette-error-s),
+    calc(
+      var(--ui-ref-palette-error-low-tones-l) *
+        var(--ui-ref-palette-tonal-low-2)
+    );
+
+  --ui-ref-palette-error40: var(--ui-ref-int-palette-error-h),
+    var(--ui-ref-int-palette-error-s), var(--ui-ref-int-palette-error-l);
+  --ui-ref-palette-error80: var(--ui-ref-int-palette-error-h),
+    var(--ui-ref-int-palette-error-s),
+    calc(
+      var(--ui-ref-int-palette-error-l) +
+        var(--ui-ref-palette-error-high-tones-l) *
+        var(--ui-ref-palette-tonal-high-4)
+    );
+
+  --ui-ref-palette-error100: var(--ui-ref-int-palette-error-h),
+    var(--ui-ref-int-palette-error-s), 100%;
+}

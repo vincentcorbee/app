@@ -1,0 +1,37 @@
+:root {
+  --ui-sys-motion-duration-short1: 50ms;
+  --ui-sys-motion-duration-short2: 100ms;
+  --ui-sys-motion-duration-short3: 150ms;
+  --ui-sys-motion-duration-short4: 200ms;
+  --ui-sys-motion-duration-medium1: 250ms;
+  --ui-sys-motion-duration-medium2: 300ms;
+  --ui-sys-motion-duration-medium3: 350ms;
+  --ui-sys-motion-duration-medium4: 400ms;
+  --ui-sys-motion-duration-long1: 450ms;
+  --ui-sys-motion-duration-long2: 500ms;
+  --ui-sys-motion-duration-long3: 550ms;
+  --ui-sys-motion-duration-long4: 600ms;
+  --ui-sys-motion-duration-extra-long1: 700ms;
+  --ui-sys-motion-duration-extra-long2: 800ms;
+  --ui-sys-motion-duration-extra-long3: 900ms;
+  --ui-sys-motion-duration-extra-long4: 900ms;
+
+  --ui-sys-motion-easing-linear: 0, 0, 1, 1;
+  --ui-sys-motion-easing-standard: 0.2, 0, 0, 1;
+  --ui-sys-motion-easing-standard-accelerate: 0.3, 0, 1, 1;
+  --ui-sys-motion-easing-standard-decelerate: 0, 0, 0, 1;
+  --ui-sys-motion-easing-emphasized: 0.2, 0, 0, 1;
+  --ui-sys-motion-easing-emphasized-decelerate: 0.05, 0.7, 0.1, 1;
+  --ui-sys-motion-easing-emphasized-accelerate: 0.3, 0, 0.8, 0.15;
+  --ui-sys-motion-easing-legacy: 0.4, 0, 0.2, 1;
+  --ui-sys-motion-easing-legacy-decelerate: 0, 0, 0.2, 1;
+  --ui-sys-motion-easing-legacy-accelerate: 0.4, 0, 1, 1;
+
+  --ui-sys-motion-easing-emphasized: none;
+  --ui-sys-motion-easing-emphasized-decelerate: 0.05, 0.7, 0.1, 1;
+  --ui-sys-motion-easing-emphasized-accelerate: 0.3, 0, 0.8, 0.15;
+
+  --ui-sys-motion-easing-standard: 0.2, 0, 0, 1;
+  --ui-sys-motion-easing-standard-decelerate: 0, 0, 0, 1;
+  --ui-sys-motion-easing-standard-accelerate: 0.3, 0, 1, 1;
+}

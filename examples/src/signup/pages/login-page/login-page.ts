@@ -8,6 +8,7 @@ const validators = {
 
 const loginPage = defineComponent({
   name: 'loginPage',
+  template,
   data() {
     return {
       title: 'Login',
@@ -21,16 +22,16 @@ const loginPage = defineComponent({
       }),
     }
   },
-  template,
-  listeners: {
-    ready() {},
-  },
   methods: {
     onSubmit() {
-      this.$refs.modal.openModal()
+      const modal = this.$refs.modal as any
+
+      modal.openModal()
     },
     closeModal() {
-      this.$refs.modal.closeModal()
+      const modal = this.$refs.modal as any
+
+      modal.closeModal()
     },
   },
 })

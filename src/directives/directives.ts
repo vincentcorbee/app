@@ -15,11 +15,6 @@ import {
   computedDirective,
 } from './registry'
 
-/**
- * Create a new vm for each directive.
- * Not doing that at the moment, only the for loop
- */
-
 const directiveRegistry = {
   directives: [
     textDirective(expressionParser),

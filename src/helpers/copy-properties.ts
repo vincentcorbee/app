@@ -1,4 +1,4 @@
-const copyProperties = (dest: any, source: any, proxy: any) => {
+export const copyProperties = (dest: any, source: any, proxy: any) => {
   const prototype = Object.getPrototypeOf(source)
   const { constructor } = prototype
 

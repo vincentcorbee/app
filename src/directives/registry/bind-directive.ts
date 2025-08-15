@@ -1,5 +1,4 @@
 import { camelToHyphen, hyphenToCamel } from '../../helpers'
-import { VNode } from '../../modules'
 import { ExpressionParser } from '../../parser/types/parser.types'
 import { DirectiveConfig } from '../../types'
 
@@ -11,14 +10,14 @@ const BooleanAttributes = new Set([
   'selected',
 ])
 
-const setClassList = (node: HTMLElement, value: Record<string, boolean>) => {
-  for (const key in value) {
-    if (value[key]) {
+const setClassList = (node: HTMLElement, record: Record<string, boolean>) => {
+  Object.entries(record).forEach(([key, value]) => {
+    if (value) {
       node.classList.add(key)
     } else {
       node.classList.remove(key)
     }
-  }
+  })
 }
 
 export default (expressionParser: ExpressionParser): DirectiveConfig<HTMLElement> => ({
@@ -48,7 +47,6 @@ export default (expressionParser: ExpressionParser): DirectiveConfig<HTMLElement
       metaData: { staticClass },
     } = this
     const self = this
-
     const value = expressionParser(vm, expression, this)
 
     if (name === 'checked') {
@@ -72,7 +70,10 @@ export default (expressionParser: ExpressionParser): DirectiveConfig<HTMLElement
       } else if (typeof value === 'object') {
         setClassList(node, value)
       } else {
-        node.setAttribute(name, `${staticClass} ${value}`)
+        node.setAttribute(
+          name,
+          `${staticClass ? `${staticClass} ` : ''}${value ? value : ''}`
+        )
       }
     } else {
       const propertyName = hyphenToCamel(name)

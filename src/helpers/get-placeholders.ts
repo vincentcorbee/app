@@ -1,4 +1,4 @@
-const getPlaceholders = (node: any) => {
+export const getPlaceholders = (node: any) => {
   const reg = /\{{2}.*?\}{2}/
   const placeholders = []
 

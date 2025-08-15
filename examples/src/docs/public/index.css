@@ -1,0 +1,36 @@
+:root {
+  color-scheme: light dark;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: hsl(var(--ui-sys-color-surface));
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+.ui-page-content {
+  padding-left: 56px;
+  padding-right: 56px;
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+@media screen and (max-width: 600px) {
+  .ui-page-content {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}

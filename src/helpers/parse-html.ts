@@ -2,7 +2,11 @@ import { VNode } from '../modules'
 import bindDirectives from '../directives/bind-directives'
 import { ComponentInstance } from '../types'
 
-const parseHtml = (vNode: VNode, vm: ComponentInstance, isCustomElement: boolean) => {
+export const parseHtml = (
+  vNode: VNode,
+  vm: ComponentInstance,
+  isCustomElement: boolean
+) => {
   if (vNode.toBeRemoved || vNode.isDetached) return []
 
   const { node } = vNode
@@ -26,7 +30,7 @@ const parseHtml = (vNode: VNode, vm: ComponentInstance, isCustomElement: boolean
       if (
         !child.parentNode ||
         !child.parentNode.contains(child) ||
-        (child.nodeType === 3 && !/\S+/.test(child.data))
+        (child.nodeType === 3 && child.data.trim() === '')
       ) {
         continue
       }

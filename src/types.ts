@@ -57,7 +57,7 @@ export interface ComponentInterface<
   $dispatchEvent(event: Event): void
   $dispatchCustomEvent<T>(event: string, eventInitDict?: CustomEventInit<T>): void
   $mount(el?: string | HTMLElement): Promise<ComponentInstance<D, M, L, C>>
-  $nextTick(): void
+  $nextTick(): Promise<void>
   $getProvider(key: string): any
   $destroy(): void
 
@@ -65,7 +65,7 @@ export interface ComponentInterface<
 
   emit(event: string, ...args: any[]): void
 
-  _data: D
+  $$data: D
 }
 
 export type ComponentConfig<

@@ -1,0 +1,47 @@
+:root {
+  --ui-sys-spacing-none: 0;
+  --ui-sys-spacing-1: calc(var(--ui-sys-unit) * 8);
+  --ui-sys-spacing-2: calc(var(--ui-sys-unit) * 16);
+  --ui-sys-spacing-3: calc(var(--ui-sys-unit) * 24);
+  --ui-sys-spacing-4: calc(var(--ui-sys-unit) * 32);
+}
+
+.ui-sys-spacing-none {
+  margin: var(--ui-sys-spacing-none);
+}
+
+.ui-sys-spacing-1 {
+  margin: var(--ui-sys-spacing-1);
+}
+
+.ui-sys-spacing-2 {
+  margin: var(--ui-sys-spacing-2);
+}
+
+.ui-sys-spacing-3 {
+  margin: var(--ui-sys-spacing-3);
+}
+
+.ui-sys-spacing-4 {
+  margin: var(--ui-sys-spacing-4);
+}
+
+.ui-sys-spacing-inset-none {
+  padding: var(--ui-sys-spacing-none);
+}
+
+.ui-sys-spacing-inset-1 {
+  padding: var(--ui-sys-spacing-1);
+}
+
+.ui-sys-spacing-inset-2 {
+  padding: var(--ui-sys-spacing-2);
+}
+
+.ui-sys-spacing-inset-3 {
+  padding: var(--ui-sys-spacing-3);
+}
+
+.ui-sys-spacing-inset-4 {
+  padding: var(--ui-sys-spacing-4);
+}

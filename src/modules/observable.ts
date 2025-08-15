@@ -1,33 +1,34 @@
 import privateData from './private-data'
 
+type Observer = {
+  update: (data: any, prop?: any) => void
+  isDestroyed: boolean
+}
+
+type ObservableData = {
+  observers: [Observer, any][]
+}
+
 export default class Observable {
-  constructor(...args: [string, any][]) {
+  constructor() {
     privateData.attach(this, {
       observers: [],
     })
-
-    Reflect.defineProperty(this, '__observers__', {
-      get() {
-        return privateData.get(this).observers
-      },
-    })
-
-    while (args.length) {
-      const [event, listener] = args.splice(0, 1)
-
-      this.subscribe(event, listener)
-    }
   }
 
-  subscribe(observer: any, prop: any) {
-    const { observers } = privateData.get(this)
+  get __observers__() {
+    return privateData.get<ObservableData>(this).observers
+  }
 
+  subscribe(observer: Observer, prop: any) {
     if (observer.isDestroyed) return false
+
+    const { observers } = privateData.get<ObservableData>(this)
 
     if (
       observers.some(
-        (currentObserver: any) =>
-          currentObserver[0] === observer && currentObserver[1] === prop
+        ([currentObserver, currentProp]) =>
+          currentObserver === observer && currentProp === prop
       )
     ) {
       return false
@@ -38,25 +39,27 @@ export default class Observable {
     return true
   }
 
-  unsubscribe = (observer: any) => {
-    const { observers } = privateData.get(this)
+  unsubscribe = (observer: Observer) => {
+    const { observers } = privateData.get<ObservableData>(this)
     const length = observers.length
 
     privateData.get(this).observers = observers.filter(
-      ([ob]: any[]) => ob !== observer && !ob.isDestroyed
+      ([currentObserver]) => currentObserver !== observer && !currentObserver.isDestroyed
     )
 
-    const isUnsubscribed = privateData.get(this).observers.length < length
+    const isUnsubscribed = privateData.get<ObservableData>(this).observers.length < length
 
     return isUnsubscribed
   }
 
   notify(data: any) {
-    const { observers } = privateData.get(this)
+    const { observers } = privateData.get<ObservableData>(this)
 
-    for (const [directive, prop] of observers) {
-      if (!data.prop) directive.update(data)
-      else if (prop && prop === data.prop) directive.update(data)
+    for (let i = 0; i < observers.length; i++) {
+      const [observer, prop] = observers[i]
+
+      if (!data.prop) observer.update(data)
+      else if (prop && prop === data.prop) observer.update(data)
     }
 
     return this

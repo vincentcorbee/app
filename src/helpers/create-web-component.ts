@@ -15,6 +15,7 @@ import {
 import { Encapsulation } from '../constants'
 import ArrayMask from '../modules/array-mask'
 import Mask from '../modules/mask'
+import { hyphenToPascal } from './hyphen-to-pascal'
 
 type Attribute = { name: string; propertyName: string; value: any }
 
@@ -64,7 +65,7 @@ const getAttributes = (props?: ComponentProps | null) =>
     ? Object.keys(props).map(key => camelToHyphen(key))
     : []
 
-const createWebComponent = async <
+export const createWebComponent = async <
   D,
   M extends MethodsOptions,
   L extends ListnersOptions,
@@ -83,7 +84,6 @@ const createWebComponent = async <
   /*
     Only register the component if it is not already registered
   */
-
   if (!App.registeredWebComponents.has(elementName)) {
     App.registeredWebComponents.add(elementName)
 
@@ -109,13 +109,17 @@ const createWebComponent = async <
 
     if ($css) $css.replaceSync(`${DEFAULT_CSS}${css!}`)
 
-    class Component extends BaseComponent {
+    class CustomElement extends BaseComponent {
       static get formAssociated() {
         return formAssociated
       }
 
       static get observedAttributes() {
         return __attributes__
+      }
+
+      static get name() {
+        return hyphenToPascal(elementName)
       }
 
       #name = elementName
@@ -384,7 +388,7 @@ const createWebComponent = async <
 
     document.defaultView?.customElements.define(
       elementName,
-      Component as unknown as CustomElementConstructor
+      CustomElement as unknown as CustomElementConstructor
     )
   }
 

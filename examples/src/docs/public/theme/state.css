@@ -1,0 +1,31 @@
+:root {
+  /* Hover state layer opacity */
+  --ui-sys-state-hover-state-layer-opacity: 0.08;
+
+  /* Focus state layer opacity */
+  --sys-state-focus-state-layer-opacity: 0.12;
+  /* Pressed state layer opacity */
+  --ui-sys-state-pressed-state-layer-opacity: 0.12;
+
+  /* Dragged state layer opacity */
+  --ui-sys-state-dragged-state-layer-opacity: 0.16;
+}
+
+.ui-sys-state-layer:before {
+  --ui-sys-state-layer-color: var(--ui-sys-color-on-primary);
+  --ui-sys-state-layer-opacity: 0;
+
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  background-color: hsl(
+    var(--ui-sys-state-layer-color),
+    var(--ui-sys-state-layer-opacity)
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}

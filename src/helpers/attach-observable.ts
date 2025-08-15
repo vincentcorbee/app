@@ -1,6 +1,9 @@
 import { Observable } from '../modules'
 
-const attachObservable = (target: any, observable = new Observable()): Observable => {
+export const attachObservable = (
+  target: any,
+  observable = new Observable()
+): Observable => {
   if (target && !target.hasOwnProperty('__observable__')) {
     Reflect.defineProperty(target, '__observable__', {
       get() {

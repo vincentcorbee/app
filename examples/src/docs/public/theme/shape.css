@@ -1,0 +1,30 @@
+:root {
+  /* None */
+  --ui-sys-shape-corner-none: 0;
+
+  /* Extra small */
+  --ui-sys-shape-corner-extra-small: calc(var(--ui-sys-unit) * 4);
+  --ui-sys-shape-corner-extra-small-top: var(--ui-sys-shape-corner-extra-small)
+    var(--ui-sys-shape-corner-extra-small) 0 0;
+
+  /* Small */
+  --ui-sys-shape-corner-small: calc(var(--ui-sys-unit) * 8);
+
+  /* Medium */
+  --ui-sys-shape-corner-medium: calc(var(--ui-sys-unit) * 12);
+
+  /* Large */
+  --ui-sys-shape-corner-large: calc(var(--ui-sys-unit) * 16);
+  --ui-sys-shape-corner-large-end: 0 var(--ui-sys-shape-corner-large)
+    var(--ui-sys-shape-corner-large) 0;
+  --ui-sys-shape-corner-large-top: var(--ui-sys-shape-corner-large)
+    var(--ui-sys-shape-corner-large) 0 0;
+
+  /* Extra large */
+  --ui-sys-shape-corner-extra-large: calc(var(--ui-sys-unit) * 28);
+  --ui-sys-shape-corner-extra-large-top: var(--ui-sys-shape-corner-extra-large)
+    var(--ui-sys-shape-corner-extra-large) 0 0;
+
+  /* Full */
+  --ui-sys-shape-corner-full: calc(var(--ui-sys-unit) * 9999);
+}

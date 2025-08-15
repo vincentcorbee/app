@@ -1,3 +1,4 @@
-const isArrayMask = (constructor: any) => constructor && constructor.name === 'ArrayMask'
+export const isArrayMask = (constructor: any) =>
+  constructor && constructor.name === 'ArrayMask'
 
 export default isArrayMask

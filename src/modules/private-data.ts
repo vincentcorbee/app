@@ -1,35 +1,37 @@
-import { copyObject } from './../utils'
+const _private = new WeakMap<object, any>()
 
-const _private = new WeakMap()
+const setPrivate = <Data = any, Target extends object = object>(
+  target: Target,
+  data: Data
+) => _private.set(target, data)
 
-const setPrivate = (target: any, _data: any) => _private.set(target, copyObject(_data))
-const getPrivate = (target: any, _data: any) => {
-  if (_private.get(target) == undefined) setPrivate(target, _data)
+const getPrivate = <Data = any, Target extends object = object>(target: Target): Data => {
+  if (!_private.has(target)) throw new Error('Target not attached')
 
   return _private.get(target)
 }
 
 export class PrivateData {
-  attach: (target: any, data: any) => void
-  set: (target: any, prop: any, data: any) => void
-  get: (target: any, prop?: any) => any
+  static attach<Data = any, Target extends object = object>(target: Target, data: Data) {
+    setPrivate<Data, Target>(target, data)
+  }
 
-  constructor() {
-    let _data: any = null
+  static set<Data extends object, K extends keyof Data, Target extends object = object>(
+    target: Target,
+    prop: K,
+    data: Data[K]
+  ): void {
+    const privateData = getPrivate<Data>(target)
 
-    this.attach = (target, data) => {
-      _data = data
+    privateData[prop] = data
+  }
 
-      setPrivate(target, data)
-    }
-
-    this.set = (target, prop, data) => (getPrivate(target, _data)[prop] = data)
-
-    this.get = (target, prop = null) =>
-      prop ? getPrivate(target, _data)[prop] : getPrivate(target, _data)
+  static get<Data = any, Target extends object = object, Value = Data>(
+    target: Target,
+    prop?: keyof Data
+  ): Value {
+    return (prop ? getPrivate<Data, Target>(target)[prop] : getPrivate(target)) as Value
   }
 }
 
-const privateData = new PrivateData()
-
-export default privateData
+export default PrivateData

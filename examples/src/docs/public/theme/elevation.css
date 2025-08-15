@@ -1,0 +1,58 @@
+:root {
+  --ui-elevation-shadow-color: var(--ui-sys-shadow-color);
+
+  /* +5 */
+  --ui-sys-elevation-level5-distance: calc(var(--ui-sys-unit) * 12);
+  --ui-sys-elevation-level5-opacity: 14%;
+  --ui-sys-elevation-level5-shadow: 0px 1px 2px 0px
+      hsl(var(--ui-elevation-shadow-color), 30%),
+    0px 16px 12px 5px hsl(var(--ui-elevation-shadow-color), 15%);
+
+  /* +4 */
+  --ui-sys-elevation-level4-distance: calc(var(--ui-sys-unit) * 8);
+  --ui-sys-elevation-level4-opacity: 12%;
+  --ui-sys-elevation-level4-shadow: 0px 1px 2px 0px
+      hsl(var(--ui-elevation-shadow-color), 30%),
+    0px 8px 10px 4px hsl(var(--ui-elevation-shadow-color), 15%);
+
+  /* +3 */
+  --ui-sys-elevation-level3-distance: calc(var(--ui-sys-unit) * 6);
+  --ui-sys-elevation-level3-opacity: 11%;
+  --ui-sys-elevation-level3-shadow: 0px 1px 2px 0px
+      hsl(var(--ui-elevation-shadow-color), 30%),
+    0px 4px 8px 3px hsl(var(--ui-elevation-shadow-color), 15%);
+
+  /* +2 */
+  --ui-sys-elevation-level2-distance: calc(var(--ui-sys-unit) * 3);
+  --ui-sys-elevation-level2-opacity: 8%;
+  --ui-sys-elevation-level2-shadow: 0px 1px 2px 0px
+      hsl(var(--ui-elevation-shadow-color), 30%),
+    0px 2px 6px 2px hsl(var(--ui-elevation-shadow-color), 15%);
+
+  /* +1 */
+  --ui-sys-elevation-level1-distance: calc(var(--ui-sys-unit) * 1);
+  --ui-sys-elevation-level1-opacity: 5%;
+  --ui-sys-elevation-level1-shadow: 0px 1px 2px 0px
+      hsl(var(--ui-elevation-shadow-color), 30%),
+    0px 1px 3px 1px hsl(var(--ui-elevation-shadow-color), 15%);
+
+  /* 0 */
+  --ui-sys-elevation-level0-distance: 0;
+  --ui-sys-elevation-level0-opacity: 0%;
+  --ui-sys-elevation-level0-shadow: none;
+}
+
+.ui-sys-elevation-layer:after {
+  --ui-sys-elevation-layer-shadow: var(--ui-sys-elevation-level0-shadow);
+
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  box-shadow: var(--ui-sys-elevation-layer-shadow);
+  border-radius: inherit;
+}

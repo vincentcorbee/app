@@ -2,7 +2,7 @@ import isMask from './is-mask'
 import isArrayMask from './is-array-mask'
 import attachObservable from './attach-observable'
 
-const getSourceValue = (value: any, observer: any) => {
+export const getSourceValue = (value: any, observer: any) => {
   if (!value) return value
 
   if (Array.isArray(value)) {

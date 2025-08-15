@@ -80,7 +80,6 @@ export default class App<
 
   #currentComputedProperty: string | null = null
   #computedPropertyHandler: Map<string, any> = new Map()
-  #boundComputedProperties: Set<string> = new Set()
 
   id: number
 
@@ -127,8 +126,7 @@ export default class App<
         if (
           prop !== '__observable__' &&
           target.__observable__ &&
-          vm.#currentComputedProperty &&
-          !vm.#boundComputedProperties.has(vm.#currentComputedProperty)
+          vm.#currentComputedProperty
         ) {
           const directive = vm.#computedPropertyHandler.get(vm.#currentComputedProperty)
 
@@ -286,31 +284,6 @@ export default class App<
 
   get $store(): Mask | null {
     return this.#store || this.#parent?.$store || null
-
-    // if (!store) return null
-
-    // if (
-    //   this.#currentComputedProperty &&
-    //   !this.#boundComputedProperties.has(this.#currentComputedProperty)
-    // ) {
-    //   store.$vm.$$setCurrentComputedProperty(this.#currentComputedProperty)
-    //   store.$vm.$$setComputedPropertyHandler(
-    //     this.#currentComputedProperty,
-    //     this.#computedPropertyHandler.get(this.#currentComputedProperty)
-    //   )
-    //   // const directive = this.#computedPropertyHandler.get(this.#currentComputedProperty)
-
-    //   // console.log({ prop: 'store', computed: this.#currentComputedProperty })
-
-    //   // console.log(store)
-
-    //   // if (directive) {
-    //   //   store.__observable__.subscribe(directive, 'state')
-    //   //   store.state.__observable__.subscribe(directive, 'user')
-    //   // }
-    // }
-
-    // return store
   }
 
   // @ts-expect-error
@@ -322,12 +295,19 @@ export default class App<
     return this.#el
   }
 
+  /**
+   * Reactive data object.
+   */
   // @ts-expect-error
   get $data() {
     return this.#proxy
   }
 
-  get _data() {
+  /**
+    Original data object. Use with caution.
+    It is not reactive and should not be modified directly.
+  */
+  get $$data() {
     return this.#data
   }
 
@@ -335,23 +315,14 @@ export default class App<
     return this.$providers[key] || this.#parent?.$getProvider(key)
   }
 
+  /**
+    For internal use only
+  */
   $$setParent(parent: any) {
     this.#parent = parent
 
     if (parent && !parent.$children.includes(this)) parent.$children.push(this)
   }
-
-  // $$setCurrentComputedProperty(prop: string) {
-  //   this.#currentComputedProperty = prop
-  // }
-
-  // $$setBoundComputedProperties(prop: string) {
-  //   this.#boundComputedProperties.add(prop)
-  // }
-
-  // $$setComputedPropertyHandler(prop: string, handler: any) {
-  //   this.#computedPropertyHandler.set(prop, handler)
-  // }
 
   #copyDataToInstance() {
     const proxy = this.#proxy
@@ -389,14 +360,12 @@ export default class App<
         vm.#computedPropertyHandler.set(prop, {
           addObservable() {},
           update(data: any) {
-            console.log(data)
             observable.notify({ ...data, prop })
           },
         })
 
         descriptor = {
           get() {
-            console.log({ prop, vm })
             vm.#currentComputedProperty = prop
             const value = desc.call(vm)
             vm.#currentComputedProperty = null
@@ -405,21 +374,6 @@ export default class App<
           },
         }
       } else {
-        /* else if (typeof desc === 'object') {
-        if (typeof desc.get !== 'function') {
-          throw Error(`A getter is required for a computed property.`)
-        }
-
-        descriptor = {
-          get() {
-            return desc.get.call(vm)
-          },
-        }
-
-        if (typeof desc.set === 'function') {
-          descriptor.set = () => desc.set.apply(vm, arguments)
-        }
-      }*/
         throw Error(`A getter is required for a computed property.`)
       }
 
@@ -434,13 +388,13 @@ export default class App<
 
     const vm = this
 
-    for (const [name, method] of Object.entries(this.#methods)) {
+    Object.entries(this.#methods).forEach(([name, method]) => {
       Reflect.defineProperty(vm, name, {
         get() {
           return method.bind(vm)
         },
       })
-    }
+    })
   }
 
   async #createComponents() {
@@ -476,9 +430,9 @@ export default class App<
   #setListeners() {
     if (!this.#listeners) return
 
-    for (const [event, listener] of Object.entries(this.#listeners)) {
+    Object.entries(this.#listeners).forEach(([event, listener]) => {
       this.on(event, listener.bind(this))
-    }
+    })
   }
 
   async #init() {
@@ -491,7 +445,6 @@ export default class App<
     this.#copyDataToInstance()
     this.#setComputedProperties()
     this.#copyMethodsToInstance()
-
     this.#compile(this.#root)
 
     await this.#createComponents()
@@ -583,12 +536,11 @@ export default class App<
     }
 
     if (listeners) {
-      for (const [listener, fn] of Object.entries(listeners)) {
-        this.off(listener, fn.bind(this))
-      }
+      Object.entries(listeners).forEach(([event, listener]) => {
+        this.off(event, listener.bind(this))
+      })
     }
 
-    // Destroy child vm's if not already destroyed
     this.#children.forEach(child => child.$destroy())
 
     this.#el = null
@@ -603,7 +555,7 @@ export default class App<
     this.emit('destroy')
   }
 
-  #nextTick() {
+  #nextTick(): Promise<void> {
     return new Promise(resolve => this.#queue.on('flushed', resolve))
   }
 }

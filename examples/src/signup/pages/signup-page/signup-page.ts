@@ -25,6 +25,8 @@ const validators = {
 
 const signupPage = defineComponent({
   name: 'signupPage',
+  template,
+  css,
   data(): SignupPageState {
     return {
       title: 'Signup',
@@ -59,8 +61,6 @@ const signupPage = defineComponent({
       }),
     }
   },
-  template,
-  css,
   methods: {
     onSubmit() {
       this.newUser = this.user

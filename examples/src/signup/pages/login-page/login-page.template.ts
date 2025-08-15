@@ -1,4 +1,5 @@
-const template = `<style>
+const template = /* html */ `
+<style>
   * {
     box-sizing: border-box;
   }
