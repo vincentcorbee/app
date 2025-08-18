@@ -3,7 +3,7 @@ import { DirectiveConfig } from '../../types'
 
 export default (expressionParser: ExpressionParser): DirectiveConfig => ({
   name: 'text',
-  reg: /({{2}.*?\}{2})|^(a-|\*)?text/,
+  reg: /(?:{{.*?\}})|(?:^(a-|\*)text)/,
   bind(vNode) {
     const placeholder = this.attr.placeholder
 

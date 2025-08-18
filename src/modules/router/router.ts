@@ -1,38 +1,8 @@
-//@ts-nocheck
+import { RouterInterface } from '../../types'
 import Emitter from '../emitter'
-import { createNewElement } from '../../utils'
+import { getRouterView } from './helpers/get-router-view'
 
 const _private = new WeakMap()
-
-function getRouterView(root) {
-  let routerView = null
-
-  function traverse(node) {
-    if (routerView) return
-
-    const treeWalker = document.createTreeWalker(node, NodeFilter.SHOW_ELEMENT, {
-      acceptNode: () => {
-        return NodeFilter.FILTER_ACCEPT
-      },
-    })
-
-    let currentNode
-
-    while (!routerView && (currentNode = treeWalker.nextNode()) !== null) {
-      if (currentNode.$name === 'router-view') {
-        routerView = currentNode
-
-        break
-      }
-
-      if (currentNode.shadowRoot) traverse(currentNode.shadowRoot)
-    }
-  }
-
-  traverse(root)
-
-  return routerView
-}
 
 export class Router extends Emitter implements RouterInterface {
   constructor({ baseUrl = '' } = {}) {
@@ -83,22 +53,10 @@ export class Router extends Emitter implements RouterInterface {
     _private.get(this).$vm = vm
 
     this.#init()
-
     this.updateRouterViews()
   }
 
-  #createRoute(config: any, parent = null) {
-    const { path, component, children, redirect } = config
-
-    return {
-      path: `/${path}`.replace(/\/\//g, '/'),
-      component,
-      children: children ? children.map(child => this.#createRoute(child, config)) : [],
-      redirect,
-    }
-  }
-
-  set(...args) {
+  set(...args: any[]) {
     args.forEach(route => _private.get(this).routes.push(this.#createRoute(route)))
   }
 
@@ -116,7 +74,7 @@ export class Router extends Emitter implements RouterInterface {
     routerLinks.delete(routerLink)
   }
 
-  navigate(path) {
+  navigate(path: string) {
     if (_private.get(this).currentFullPath === path) return
 
     _private.get(this).currentPathSegments = this.#getPathSegments(path, this.baseUrl)
@@ -149,7 +107,7 @@ export class Router extends Emitter implements RouterInterface {
     )
   }
 
-  addRoute(route) {
+  addRoute(route: any) {
     if (typeof route !== 'object') throw TypeError(route + ' is not a object')
 
     _private.get(this).routes.push(this.#createRoute(route))
@@ -157,18 +115,6 @@ export class Router extends Emitter implements RouterInterface {
     this.updateRouterViews()
 
     return this
-  }
-
-  async #updateRouterView(routerView: any, node: any) {
-    return new Promise(resolve => {
-      document.startViewTransition(() => {
-        routerView.innerHTML = ''
-
-        routerView.appendChild(node)
-
-        resolve()
-      })
-    })
   }
 
   async updateRouterViews() {
@@ -194,9 +140,7 @@ export class Router extends Emitter implements RouterInterface {
     let currentComponent
 
     if (result) {
-      const { matched, name = 'default' } = result
-      const { routerViews } = _private.get(this)
-      const views = routerViews.get(name)
+      const { matched } = result
 
       _private.get(this).currentRoute = result
 
@@ -247,14 +191,11 @@ export class Router extends Emitter implements RouterInterface {
     )
   }
 
-  next(arg) {
+  next(arg: unknown) {
     if (arg === 'string') this.navigate(arg)
-
-    if (arg instanceof Error) handleError(this, arg)
-
-    if (arg === undefined) _private.get(this).dispatch(this)
-
-    if (arg === false) return
+    else if (arg instanceof Error) this.#handleError(arg)
+    else if (arg === undefined) _private.get(this).dispatch(this)
+    else if (arg === false) return
   }
 
   #init() {
@@ -263,11 +204,35 @@ export class Router extends Emitter implements RouterInterface {
       title: '',
     }
 
+    // @ts-ignore
     window.history.replaceState(state, null, '')
-    window.addEventListener('popstate', e => this.navigate(e.state.url, false))
+    window.addEventListener('popstate', e => this.navigate(e.state.url))
   }
 
-  #updateRouterLink(routerLink): string {
+  #createRoute(config: any) {
+    const { path, component, children, redirect } = config
+
+    return {
+      path: `/${path}`.replace(/\/\//g, '/'),
+      component,
+      children: children ? children.map((child: any) => this.#createRoute(child)) : [],
+      redirect,
+    }
+  }
+
+  async #updateRouterView(routerView: any, node: any) {
+    return new Promise<undefined>(resolve => {
+      document.startViewTransition(() => {
+        routerView.innerHTML = ''
+
+        routerView.appendChild(node)
+
+        resolve(undefined)
+      })
+    })
+  }
+
+  #updateRouterLink(routerLink: any): string {
     const { currentRoute } = _private.get(this)
 
     let title = ''
@@ -287,18 +252,15 @@ export class Router extends Emitter implements RouterInterface {
   }
 
   #updateRouterLinks(): string {
-    const { routerLinks, currentRoute } = _private.get(this)
+    const { routerLinks } = _private.get(this)
     let title = ''
 
-    routerLinks.forEach((routerLink, i) => {
+    routerLinks.forEach((routerLink: any) => {
       title = this.#updateRouterLink(routerLink)
     })
 
     return title
   }
-
-  #getRoute = (uri: string, routes: any[]): any | null =>
-    routes.find(route => route.uri === uri) || null
 
   #matchRoute(pathSegments: string[], routes: any[]) {
     const { currentFullPath } = _private.get(this)
@@ -339,7 +301,7 @@ export class Router extends Emitter implements RouterInterface {
           if (childRoute) {
             matched.push(route, ...childRoute.matched)
 
-            params = childRoute.params
+            params = childRoute.params as Record<string, string>
 
             match = true
             break
@@ -364,7 +326,7 @@ export class Router extends Emitter implements RouterInterface {
           if (childRoute) {
             matched.push(...childRoute.matched)
 
-            params = childRoute.params
+            params = childRoute.params as Record<string, string>
           }
         }
 
@@ -397,7 +359,7 @@ export class Router extends Emitter implements RouterInterface {
     return null
   }
 
-  #getFullPath(source: string, baseUrl = ''): string[] {
+  #getFullPath(source: string, baseUrl = ''): string {
     const path = source.replace(baseUrl, '')
 
     return path.length === 0 ? '/' : path[0] !== '/' ? `/${path}` : path
@@ -424,15 +386,15 @@ export class Router extends Emitter implements RouterInterface {
   }
 
   #getQueryParams(path: string): Record<string, string> {
-    let params = {}
+    let params: Record<string, string> = {}
 
     if (!path.includes('?')) return params
 
     path
       .split('?')
       .pop()
-      .split(/&/g)
-      .forEach(param => {
+      ?.split(/&/g)
+      .forEach((param: any) => {
         if (param) {
           param = param.split('=')
           params[param[0]] = param[1]
@@ -442,33 +404,29 @@ export class Router extends Emitter implements RouterInterface {
     return params
   }
 
-  async #createComponent(component, name) {
+  async #createComponent(component: any) {
     const { $vm } = this
-    const App = Reflect.getPrototypeOf($vm).constructor
+    const App = Reflect.getPrototypeOf($vm)?.constructor
+
+    if (!App) {
+      throw new Error('No App instance found')
+    }
 
     component = Object.assign({}, component)
     component.router = this
     component.parent = $vm
 
-    const node = await App.component(component.name, component)
+    const node = await (App as any).component(component.name, component)
 
     return { component, node }
   }
 
-  #clearRouterViews(routerViews) {
-    routerViews.forEach(routerView => this.#clearRouterView(routerView))
-  }
-
-  #clearRouterView(routerView) {
-    if (routerView.$node) routerView.$node.innerHTML = ''
-  }
-
-  #handleError(error) {
+  #handleError(error: any) {
     const { routes } = _private.get(this)
-    const route = routes.find(route => route.error)
+    const route = routes.find((route: any) => route.error)
 
     if (route) {
-      // route.err(false, err)
+      // route.err(false, error)
     } else {
       console.warn(`${error.message}`)
     }

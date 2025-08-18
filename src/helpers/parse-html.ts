@@ -1,4 +1,4 @@
-import { VNode } from '../modules'
+import { App, VNode } from '../modules'
 import bindDirectives from '../directives/bind-directives'
 import { ComponentInstance } from '../types'
 
@@ -12,14 +12,15 @@ export const parseHtml = (
   const { node } = vNode
   const { nodeType } = node
   const childNodes =
-    // @ts-expect-error
-    isCustomElement && node.shadowRoot
-      ? // @ts-expect-error
-        [...node.shadowRoot.childNodes]
-      : [...node.childNodes]
+    isCustomElement && (node as Element).shadowRoot
+      ? (node as Element)?.shadowRoot?.childNodes
+      : node.childNodes
   const directives = isCustomElement ? [] : bindDirectives(vNode, vm)
 
+  // console.log(node, isCustomElement, directives, (node as Element)?.shadowRoot)
+
   if (
+    childNodes &&
     nodeType === 1 &&
     (directives.length === 0 ||
       directives.every(({ name }) => name !== 'for' && name !== 'if'))
@@ -28,14 +29,15 @@ export const parseHtml = (
       const child = childNodes[i]
 
       if (
+        !child ||
         !child.parentNode ||
         !child.parentNode.contains(child) ||
-        (child.nodeType === 3 && child.data.trim() === '')
+        (child.nodeType === 3 && (child as Text).data.trim() === '')
       ) {
         continue
       }
 
-      new VNode(child, vm, vNode)
+      VNode.create(child, vm, vNode)
     }
   }
 

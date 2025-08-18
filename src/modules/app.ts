@@ -330,20 +330,19 @@ export default class App<
 
     if (!proxy) return
 
-    for (const prop of Object.keys(data)) {
+    Object.keys(data).forEach(prop => {
       Reflect.defineProperty(this, prop, {
         enumerable: true,
         get() {
-          //@ts-expect-error
-          if (!proxy.isRevoked) return proxy[prop]
+          if (!proxy.isRevoked) return proxy[prop as keyof Mask<D>]
           else return undefined
         },
         set(value) {
-          // @ts-expect-error
-          if (!proxy.isRevoked && Reflect.get(proxy, prop) !== value) proxy[prop] = value
+          if (!proxy.isRevoked && Reflect.get(proxy, prop) !== value)
+            proxy[prop as keyof Omit<Mask<D>, 'data' | 'isRevoked' | 'revoke'>] = value
         },
       })
-    }
+    })
   }
 
   #setComputedProperties() {
@@ -477,7 +476,7 @@ export default class App<
 
   #compile(element: Element | null | string = null) {
     if (element) {
-      const vNode = new VNode(
+      const vNode = VNode.create(
         element,
         this as unknown as ComponentInstance,
         null,

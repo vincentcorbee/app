@@ -3,7 +3,7 @@ import { DirectiveConfig } from '../../types'
 
 export default (expressionParser: ExpressionParser): DirectiveConfig<HTMLElement> => ({
   name: 'show',
-  reg: /^(a-|\*)?show/,
+  reg: /^(a-|\*)show/,
   bind(vNode) {
     this.vNode = vNode
     this.expression = this.attr.value

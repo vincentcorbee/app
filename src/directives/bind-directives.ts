@@ -5,12 +5,10 @@ import { ComponentInstance } from '../types'
 import { Directive } from '../modules'
 
 const bindDirectives = (vNode: VNode, vm: ComponentInstance) => {
-  if (vm.$isDestroyed) return []
+  if (vm.$isDestroyed || vNode.isDetached || vNode.toBeRemoved) return []
 
   const { node } = vNode
   const { nodeType } = node
-
-  if (vNode.isDetached || vNode.toBeRemoved) return []
 
   if (nodeType === 1) {
     // Make copy of the attributes
@@ -30,10 +28,10 @@ const bindDirectives = (vNode: VNode, vm: ComponentInstance) => {
 
     return directives
   } else if (nodeType === 3) {
-    return getPlaceholders(node).reduce((acc, placeholder, i) => {
+    return getPlaceholders(node).reduce<Directive[]>((acc, placeholder, i) => {
       const directive = getDirective(
         {
-          name: 'text',
+          name: '*text',
           placeholder,
         },
         vm
@@ -48,11 +46,11 @@ const bindDirectives = (vNode: VNode, vm: ComponentInstance) => {
 
         directive.bind(vNode)
       } else {
-        directive.bind(new VNode(placeholder.node, vm, vNode.parent, [directive]))
+        directive.bind(VNode.create(placeholder.node, vm, vNode.parent, [directive]))
       }
 
       return acc
-    }, [] as Directive[])
+    }, [])
   }
 
   return []

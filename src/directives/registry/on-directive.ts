@@ -4,7 +4,7 @@ import addEventListener from '../add-event-listener'
 
 export default (_expressionParser: ExpressionParser): DirectiveConfig<HTMLElement> => ({
   name: 'on',
-  reg: /^((a-|\*)?on:)|@([^ ]+)(\.[a-z]+)*/,
+  reg: /^((a-|\*)on:)|@([^ ]+)(\.[a-z]+)*/,
   bind(vNode, vm) {
     const {
       attr: { name, value, modifiers, rawName },

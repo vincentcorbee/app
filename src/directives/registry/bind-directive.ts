@@ -22,7 +22,7 @@ const setClassList = (node: HTMLElement, record: Record<string, boolean>) => {
 
 export default (expressionParser: ExpressionParser): DirectiveConfig<HTMLElement> => ({
   name: 'bind',
-  reg: /^((a-|\*)?bind)?:([^ ]+)/,
+  reg: /^((a-|\*)bind)?:([^ ]+)/,
   bind(vNode) {
     const {
       attr: { name },
@@ -54,8 +54,11 @@ export default (expressionParser: ExpressionParser): DirectiveConfig<HTMLElement
     } else if (name === 'style') {
       let style = ''
 
-      if (typeof value === 'string') style = value
-      else for (const prop in value) style += `${camelToHyphen(prop)}:${value[prop]};`
+      if (typeof value === 'string') {
+        style = value
+      } else {
+        for (const prop in value) style += `${camelToHyphen(prop)}:${value[prop]};`
+      }
 
       node.setAttribute(name, style)
     } else if (name === 'class') {
@@ -91,8 +94,9 @@ export default (expressionParser: ExpressionParser): DirectiveConfig<HTMLElement
 
       node[propertyName] = value
 
-      if (value === null || value === undefined) node.removeAttribute(name)
-      else {
+      if (value === null || value === undefined) {
+        node.removeAttribute(name)
+      } else {
         node.setAttribute(name, value)
       }
     }

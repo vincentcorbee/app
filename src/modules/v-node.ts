@@ -14,13 +14,12 @@ type Private<T extends Node = Node | Element> = {
 }
 
 const _private = new WeakMap<VNode, Private>()
+const __collector__ = new Collector()
 
 let __id__ = 0
 
-const __collector__ = new Collector()
-
 export default class VNode<
-  T extends Node = Node | Element | HTMLElement
+  N extends Node = Node | Element | HTMLElement
 > extends Emitter {
   id: number
   isDetached: boolean
@@ -30,7 +29,7 @@ export default class VNode<
   eventListeners?: Record<string, any> | null = null
 
   constructor(
-    el: T | string,
+    el: N | string,
     vm: ComponentInstance,
     parent: VNode | null = null,
     directives: Directive[] = [],
@@ -45,14 +44,10 @@ export default class VNode<
     __collector__.updateCount(1)
 
     const self = this
-    const node: Node | null = isType('String', el)
-      ? document.querySelector(el as string)
-      : isType('Node', el)
-      ? (el as Node)
-      : null
+    const node =
+      typeof el === 'string' ? document.querySelector(el) : isType('Node', el) ? el : null
 
     __collector__.on('collect', this.#collectGarbage, this)
-
     __collector__.start()
 
     _private.set(this, {
@@ -99,13 +94,27 @@ export default class VNode<
     }
   }
 
-  #collectGarbage = (el: VNode) => {
-    if (!el.isCollected && el.isDetached && (!el.children || !el.children.length)) {
-      el.isCollected = true
+  static create<N extends Node = Node | Element>(
+    el: N | string,
+    vm: ComponentInstance,
+    parent: VNode | null = null,
+    directives: Directive[] = [],
+    isCustomElement = false
+  ): VNode<N> {
+    return new this(el, vm, parent, directives, isCustomElement)
+  }
+
+  #collectGarbage = (vNode: VNode) => {
+    if (
+      !vNode.isCollected &&
+      vNode.isDetached &&
+      (!vNode.children || !vNode.children.length)
+    ) {
+      vNode.isCollected = true
 
       __collector__.off('collect', this.#collectGarbage)
-    } else if (el && (!el.node || (el.node && !el.node.parentNode))) {
-      el.$destroy()
+    } else if (vNode && (!vNode.node || (vNode.node && !vNode.node.parentNode))) {
+      vNode.$destroy()
     }
   }
 
@@ -138,7 +147,7 @@ export default class VNode<
   }
 
   get node() {
-    return this.#getPrivate().node as T
+    return this.#getPrivate().node as N
   }
 
   get directives() {
@@ -192,13 +201,11 @@ export default class VNode<
     this.#getPrivate().directives = []
 
     if (this.eventListeners) {
-      const entries = Object.entries(this.eventListeners)
-
-      for (const [event, [listener, parent]] of entries) {
+      Object.entries(this.eventListeners).forEach(([event, [listener, parent]]) => {
         removeListener(this.node, event, listener)
 
         if (parent) parent.off(event, listener)
-      }
+      })
 
       this.eventListeners = null
     }
@@ -226,13 +233,13 @@ export default class VNode<
     if (index > -1) {
       const removed = children.splice(index, count)
 
-      for (const el of removed) {
+      removed.forEach(el => {
         const { children } = el
 
         el.detach()
 
         if (children) children.forEach(child => el.removeChild(child))
-      }
+      })
     }
   }
 
@@ -248,8 +255,7 @@ export default class VNode<
 
       if (!node) return
 
-      // @ts-expect-error
-      const root = node.shadowRoot || node
+      const root = (node as unknown as Element).shadowRoot || node
 
       children[index] = newChild
 
@@ -304,7 +310,7 @@ export default class VNode<
     }
   }
 
-  #getPrivate(): Private<T> {
-    return _private.get(this) as Private<T>
+  #getPrivate(): Private<N> {
+    return _private.get(this) as Private<N>
   }
 }

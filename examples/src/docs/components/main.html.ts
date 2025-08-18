@@ -15,5 +15,11 @@ export default /* html */ `
       <ui-icon icon="light_mode"></ui-icon>
     </ui-icon-button>
   </ui-top-app-bar-small>
+  <div>
+    <ul>
+      <li *for="item in list">{{ item.name }}</li>
+    </ul>
+    {{loading}}{{loading ? 'Loading...' : 'Loaded'}}
+  </div>
 </ui-scaffold>
 `

@@ -5,7 +5,7 @@ export default (
   _expressionParser: ExpressionParser
 ): DirectiveConfig<HTMLFormElement> => ({
   name: 'form',
-  reg: /^(a-|\*)?form/,
+  reg: /^(a-|\*)form/,
   bind(vNode, vm) {
     const self = this
     const { node } = vNode
@@ -19,8 +19,7 @@ export default (
       },
     })
 
-    // @ts-expect-error
-    node.$form = vm[this.attr.value]
+    node.$form = vm[this.attr.value as keyof typeof vm]
 
     node.removeAttribute(this.attr.name)
   },

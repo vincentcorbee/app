@@ -1,6 +1,6 @@
-import { App } from '../../modules'
+import { App, VNode } from '../../modules'
 import { ExpressionParser } from '../../parser/types/parser.types'
-import { DirectiveConfig } from '../../types'
+import { ComponentInstance, DirectiveConfig } from '../../types'
 import bindDirectives from '../bind-directives'
 
 import parseForExpression from '../parse-for-expression'
@@ -81,15 +81,13 @@ export default (_expressionParser: ExpressionParser): DirectiveConfig<HTMLElemen
           }
         }
 
-        // Inherit observers when adding new elements
         const scope = new App({
           el: node,
           data: appData,
           parent: vm,
         })
 
-        // @ts-expect-error
-        bindDirectives(scope.$el, scope)
+        bindDirectives(scope.$el as VNode, scope as unknown as ComponentInstance)
 
         scope.on('ready', () => {
           if (!node.hasOwnProperty('$scope')) {
@@ -113,8 +111,7 @@ export default (_expressionParser: ExpressionParser): DirectiveConfig<HTMLElemen
             const observer =
               appData.__observable__ &&
               appData.__observable__.__observers__.find(
-                // @ts-expect-error
-                observable => observable[1] === 'index'
+                (observable: any) => observable[1] === 'index'
               )
 
             if (observer) {

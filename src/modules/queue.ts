@@ -1,5 +1,4 @@
 import Emitter from './emitter'
-import { setZeroTimeout } from '../utils'
 import privateData from './private-data'
 import Observable from './observable'
 

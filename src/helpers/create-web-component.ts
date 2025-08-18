@@ -166,17 +166,26 @@ export const createWebComponent = async <
 
         if (this.hasAttribute(name)) {
           const vm = this.$vm
-          // @ts-ignore
-          const modelValue = this[propertyName] ?? getValue(value)
 
           if (!this.#instantiated) {
-            this.#setInstantiatedAttributes(name, propertyName, modelValue)
+            // @ts-ignore
+            const propertyValue = this[propertyName] ?? getValue(value)
+
+            this.#setInstantiatedAttributes(name, propertyName, propertyValue)
 
             if (this.#shouldInstantiate()) this.#instantiate()
-          } else if (vm && modelValue.data !== vm[propertyName]?.data) {
-            vm[propertyName] = modelValue.data
-          } else if (vm && modelValue !== vm[propertyName]) {
-            vm[propertyName] = modelValue
+          } else {
+            const propertyValue = this.#getPropertyValue(
+              propertyName,
+              // @ts-ignore
+              this[propertyName] ?? getValue(value)
+            )
+
+            if (vm && propertyValue.data !== vm[propertyName]?.data) {
+              vm[propertyName] = propertyValue.data
+            } else if (vm && propertyValue !== vm[propertyName]) {
+              vm[propertyName] = propertyValue
+            }
           }
         }
 
@@ -211,6 +220,30 @@ export const createWebComponent = async <
         }
       }
 
+      #getPropertyDefinition(propertyName: string): PropDefinition | null {
+        if (!props) return null
+
+        if (!Array.isArray(props)) return null
+
+        for (let i = 0; i < props.length; i++) {
+          const prop = props[i]
+          const definition: PropDefinition =
+            typeof prop === 'string' ? { name: prop, type: 'string' } : prop
+
+          if (definition.name === propertyName) return definition
+        }
+
+        return null
+      }
+
+      #getPropertyValue(propertyName: string, value: string) {
+        const definition = this.#getPropertyDefinition(propertyName)
+
+        if (definition) return getCastedValue(value, definition.type)
+
+        return value
+      }
+
       /**
         Make sure the attributes are processed before instantiating the component.
       */
@@ -227,7 +260,7 @@ export const createWebComponent = async <
         @Todo Should be changed to a set.
       */
       #setInstantiatedAttributes(name: string, propertyName: string, value: any) {
-        if (!this.#instantiatedAttributes.has(name)) {
+        if (!this.#instantiatedAttributes.has(propertyName)) {
           this.#instantiatedAttributes.set(propertyName, {
             name,
             propertyName,
@@ -372,8 +405,6 @@ export const createWebComponent = async <
           provide,
         })
 
-        // this.#getDataFromProps(this.#vm, props)
-
         Object.keys(methods).forEach(name =>
           Reflect.defineProperty(this, name, {
             value: this.#vm[name],
@@ -381,7 +412,6 @@ export const createWebComponent = async <
         )
 
         this.#instantiatedAttributes = new Map()
-
         this.#instantiated = true
       }
     }

@@ -25,7 +25,7 @@ const getFormControl = (name: string, form: any) =>
 
 export default (expressionParser: ExpressionParser): DirectiveConfig<HTMLElement> => ({
   name: 'model',
-  reg: /^(a-|\*)?model(\.[a-z]+)*/,
+  reg: /^(a-|\*)model(\.[a-z]+)*/,
   bind(vNode, vm) {
     const { node } = vNode
     const { expression } = this

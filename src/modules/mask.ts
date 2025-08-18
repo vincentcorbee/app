@@ -5,7 +5,7 @@ import Queue from './queue'
 
 const _private = new WeakMap()
 
-export interface MaskInterface<T> {
+export interface MaskInterface<T = Record<string, any>> {
   get isRevoked(): boolean
   get data(): T
   get revoke(): () => void

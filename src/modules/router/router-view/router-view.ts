@@ -8,19 +8,9 @@ export const routerView = defineComponent({
   props: ['name'],
   encapsulation: Encapsulation.shadowDom,
   template,
-  css: `:host { display: block; }`,
   data() {
     return {
       name: 'default',
     }
   },
-  // listeners: {
-  //   ready() {
-  //     this.$router.registerRouterView(this)
-  //   },
-  //   beforeDestroy() {
-  //     console.log(this)
-  //     this.$router.unRegisterRouterView(this)
-  //   },
-  // },
 })

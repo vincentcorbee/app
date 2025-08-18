@@ -1,7 +1,8 @@
-//@ts-nocheck
-import { VNode } from '../modules'
+import { Directive, VNode } from '../modules'
 
-const insertCase = (directive, c) => {
+export type Case = 'if' | 'else'
+
+const insertCase = (directive: Directive, c: Case) => {
   const { cases, vNode, vm } = directive
 
   if (!cases) return
@@ -11,14 +12,12 @@ const insertCase = (directive, c) => {
   if (c) {
     const { parentNode, orgNode } = cases[c]
     const node = orgNode.cloneNode(true)
-    const newVNode = new VNode(node, vm)
+    const newVNode = VNode.create(node, vm)
 
     cases[c].vNode = newVNode
-
     directive.vNode = newVNode
 
     parent.removeChild(vNode)
-
     parent.addChild(newVNode, cases[c].index + 1, parentNode)
   } else {
     parent.removeChild(vNode)
