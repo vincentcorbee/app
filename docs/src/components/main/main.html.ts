@@ -33,6 +33,10 @@ export default /* html */ `
       <ui-icon slot="icon" icon="check_box"></ui-icon>
       Forms
     </ui-navigation-drawer-button>
+    <ui-navigation-drawer-button to="/providers">
+      <ui-icon slot="icon" icon="syringe"></ui-icon>
+      Providers
+    </ui-navigation-drawer-button>
   </ui-navigation-drawer>
 
   <router-view></router-view>

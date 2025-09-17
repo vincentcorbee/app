@@ -33,6 +33,9 @@ const Keywords = new Set<Keyword>([
   'import',
   'export',
   'from',
+  'class',
+  'await',
+  'async',
 ])
 const Literals = new Set<LiteralType>(['true', 'false', 'null'])
 

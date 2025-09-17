@@ -15,6 +15,9 @@ export type Keyword =
   | 'import'
   | 'export'
   | 'from'
+  | 'class'
+  | 'await'
+  | 'async'
 
 export type LiteralType = 'true' | 'false' | 'null'
 

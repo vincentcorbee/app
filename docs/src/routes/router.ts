@@ -1,5 +1,11 @@
 import { Router } from '@digitalbranch/app'
-import { formsPage, gettingStartedPage, homePage, propsPage } from '../pages'
+import {
+  formsPage,
+  gettingStartedPage,
+  homePage,
+  propsPage,
+  providersPage,
+} from '../pages'
 
 export const router = new Router()
 
@@ -19,5 +25,9 @@ router.set(
   {
     path: '/props',
     component: propsPage,
+  },
+  {
+    path: '/providers',
+    component: providersPage,
   }
 )

@@ -23,6 +23,10 @@ export default /* css */ `
   --color-this: 169, 65%, 68%;
   --color-member: 169, 100%, 84%;
   --color-const: 354, 92%, 72%;
+  --color-class: 354, 92%, 72%;
+  --color-class: 354, 92%, 72%;
+  --color-await: 354, 92%, 72%;
+  --color-async: 354, 92%, 72%;
   --color-quote: 129, 58%, 91%;
   --color-lt: 170, 63%, 68%;
   --color-gt: 170, 63%, 68%;
@@ -35,7 +39,6 @@ export default /* css */ `
   --html-color-literal: 0, 100%, 71%;
   --html-color-left-paren: 50, 100%, 50%;
   --html-color-right-paren: 50, 100%, 50%;
-  --html-color-class: 300, 100%, 76%;
   --html-color-pseudo-selector: 273, 100%, 73%;
 
   --font-size: 14px;
@@ -165,6 +168,18 @@ pre {
 }
 .const {
   color: hsl(var(--color-const));
+  font-weight: bold;
+}
+.class {
+  color: hsl(var(--color-class));
+  font-weight: bold;
+}
+.await {
+  color: hsl(var(--color-await));
+  font-weight: bold;
+}
+.async {
+  color: hsl(var(--color-async));
   font-weight: bold;
 }
 .from {
