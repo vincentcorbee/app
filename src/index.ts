@@ -11,4 +11,4 @@ export * from './types'
 export * from './constants'
 
 export * from './define-component'
-export * from './create-component'
+export * from './create-app'

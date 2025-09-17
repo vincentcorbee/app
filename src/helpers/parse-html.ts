@@ -1,4 +1,4 @@
-import { App, VNode } from '../modules'
+import { VNode } from '../modules'
 import bindDirectives from '../directives/bind-directives'
 import { ComponentInstance } from '../types'
 
@@ -17,15 +17,16 @@ export const parseHtml = (
       : node.childNodes
   const directives = isCustomElement ? [] : bindDirectives(vNode, vm)
 
-  // console.log(node, isCustomElement, directives, (node as Element)?.shadowRoot)
-
   if (
     childNodes &&
     nodeType === 1 &&
     (directives.length === 0 ||
       directives.every(({ name }) => name !== 'for' && name !== 'if'))
   ) {
-    for (let i = 0, l = childNodes.length; i < l; i++) {
+    let length = childNodes.length
+    let div = 0
+
+    for (let i = 0; i + div < length; i++) {
       const child = childNodes[i]
 
       if (
@@ -37,7 +38,17 @@ export const parseHtml = (
         continue
       }
 
+      /* Dirty hack */
+      if (child && child.hasAttribute && child.hasAttribute('*skip')) {
+        continue
+      }
+
       VNode.create(child, vm, vNode)
+
+      const currentLength = childNodes.length
+
+      div = currentLength - length
+      length = currentLength
     }
   }
 

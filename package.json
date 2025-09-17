@@ -17,9 +17,11 @@
     "@parcel/packager-ts": "2.15.4",
     "@parcel/transformer-typescript-types": "2.15.4",
     "parcel": "^2.15.4",
+    "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   },
   "dependencies": {
-    "@digitalbranch/earley-parser": "file:../../blogs/earley-parser"
+    "@digitalbranch/earley-parser": "file:../../blogs/earley-parser",
+    "@digitalbranch/javascript-pratt-parser": "file:../../blogs/pratt-parsing/javascript-parser"
   }
 }

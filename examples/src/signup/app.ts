@@ -1,4 +1,4 @@
-import { Router, createComponent, routerLink, routerView } from '@digitalbranch/app'
+import { Router, createApp, routerLink, routerView } from '@digitalbranch/app'
 
 import { signupPage, loginPage, homePage } from './pages'
 import { uiButton, uiModal } from './ui'
@@ -20,7 +20,7 @@ router.set(
   }
 )
 
-createComponent({
+createApp({
   el: '#app',
   router,
   components: {

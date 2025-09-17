@@ -481,7 +481,8 @@ export default class App<
         this as unknown as ComponentInstance,
         null,
         [],
-        this.#node?.isCustomElement ?? false
+        this.#node?.isCustomElement ?? false,
+        this.#template === null
       )
       const { node } = vNode
 

@@ -19,7 +19,10 @@ import { hyphenToPascal } from './hyphen-to-pascal'
 
 type Attribute = { name: string; propertyName: string; value: any }
 
-const DEFAULT_CSS = /* css */ `* { box-sizing: border-box; }`
+const DEFAULT_CSS = /* css */ `
+* {
+  box-sizing: border-box;
+}`
 
 const getValue = (value: any) => {
   try {
@@ -204,7 +207,6 @@ export const createWebComponent = async <
       connectedCallback() {
         if (!this.#isConnected) {
           this.#setRequiredAttributeCount()
-
           this.#attach()
 
           if (
@@ -338,6 +340,8 @@ export const createWebComponent = async <
               } else {
                 if (Reflect.has(definition, 'default')) {
                   data[definition.name] = definition.default
+                } else {
+                  data[definition.name] = undefined
                 }
 
                 if (definition.required) {

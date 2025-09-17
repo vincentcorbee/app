@@ -1,6 +1,7 @@
 import { defineComponent } from '../../../define-component'
+import { AttributeChanged } from '../../../types'
 
-import template from './router-link.template'
+import template from './router-link.html'
 import css from './router-link.css'
 
 export const routerLink = defineComponent({
@@ -21,6 +22,13 @@ export const routerLink = defineComponent({
     },
     beforeDestroy() {
       if (this.$router) this.$router.unRegisterRouterLink(this)
+    },
+    attributeChanged({ name, value }: AttributeChanged) {
+      if (name === 'active') {
+        this.$dispatchCustomEvent('routerlinkactive', {
+          detail: value === 'true' || false,
+        })
+      }
     },
   },
   methods: {

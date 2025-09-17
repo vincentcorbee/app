@@ -12,7 +12,6 @@ import {
   showDirective,
   ifDirective,
   forDirective,
-  computedDirective,
 } from './registry'
 
 const directiveRegistry = {
@@ -27,7 +26,6 @@ const directiveRegistry = {
     showDirective(expressionParser),
     ifDirective(expressionParser),
     forDirective(expressionParser),
-    computedDirective(expressionParser),
   ],
   create(attr: any, vm: ComponentInstance) {
     const config = this.directives.find(directive => directive.reg.test(attr.name))
@@ -48,7 +46,7 @@ const directiveRegistry = {
       return mod.replace('.', '')
     })
 
-    // @ts-expect-error
+    // @ts-ignore
     return createDirective({ ...config, attr }, vm)
   },
 }

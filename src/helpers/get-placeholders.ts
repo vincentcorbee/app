@@ -1,4 +1,4 @@
-export const getPlaceholders = (node: any) => {
+export const getPlaceholders = (node: Text) => {
   const reg = /\{{2}.*?\}{2}/
   const placeholders = []
 
@@ -11,11 +11,9 @@ export const getPlaceholders = (node: any) => {
 
     cur = cur.splitText(index).splitText(value.length)
 
-    reg.exec(cur.data)
-
     placeholders.push({
       value,
-      node: cur.previousSibling,
+      node: cur.previousSibling as Node | null,
     })
   }
 

@@ -7,21 +7,24 @@ export default (expressionParser: ExpressionParser): DirectiveConfig<HTMLElement
   name: 'if',
   reg: /^(a-|\*)if/,
   bind(vNode) {
-    const { attr } = this
+    const {
+      attr: { name, value },
+    } = this
     const { node } = vNode
-    const index = node.parentNode
-      ? Array.prototype.indexOf.call(node.parentNode.childNodes, node)
+    const { parentNode } = node
+    const index = parentNode
+      ? Array.prototype.indexOf.call(parentNode.childNodes, node)
       : 0
 
-    node.removeAttribute(attr.name)
+    node.removeAttribute(name)
 
     this.cases = getCases(
       {
         index,
         vNode: null,
-        parentNode: node.parentNode,
+        parentNode,
         orgNode: node.cloneNode(true),
-        identifier: attr.value,
+        identifier: value,
       },
       node
     )

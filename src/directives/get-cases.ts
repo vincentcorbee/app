@@ -11,7 +11,6 @@ const getCases = (ifCase, node) => {
   }
 
   let nextIf = false
-
   let nextElement = node.nextElementSibling
 
   const config = {
@@ -21,6 +20,8 @@ const getCases = (ifCase, node) => {
     key: null,
     identifier: null,
   }
+
+  const toRemove = []
 
   while (!nextIf && !cases.else && nextElement) {
     for (const attr of nextElement.attributes) {
@@ -36,6 +37,8 @@ const getCases = (ifCase, node) => {
         nextElement.removeAttribute(attr.name)
 
         cases.elseif.push({ ...config, orgNode: nextElement.cloneNode(true), parentNode })
+
+        toRemove.push(nextElement)
 
         parentNode.removeChild(nextElement)
 

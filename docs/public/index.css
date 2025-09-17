@@ -1,0 +1,33 @@
+@import url('./theme/theme.css');
+@import url('./theme/main.css');
+
+:root {
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+router-view {
+  height: 100%;
+}
+
+.ui-page-content {
+  padding-left: 56px;
+  padding-right: 56px;
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+@media screen and (max-width: 600px) {
+  .ui-page-content {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}

@@ -33,7 +33,8 @@ export default class VNode<
     vm: ComponentInstance,
     parent: VNode | null = null,
     directives: Directive[] = [],
-    isCustomElement = false
+    isCustomElement = false,
+    isRoot = false
   ) {
     super()
 
@@ -56,6 +57,10 @@ export default class VNode<
       vm,
       directives,
     })
+
+    if (isRoot && node && node.hasAttribute && node.hasAttribute('*skip')) {
+      node.removeAttribute('*skip')
+    }
 
     if (node && node.nodeType !== 3) {
       this.eventListeners = {}
@@ -99,9 +104,10 @@ export default class VNode<
     vm: ComponentInstance,
     parent: VNode | null = null,
     directives: Directive[] = [],
-    isCustomElement = false
+    isCustomElement = false,
+    isRoot = false
   ): VNode<N> {
-    return new this(el, vm, parent, directives, isCustomElement)
+    return new this(el, vm, parent, directives, isCustomElement, isRoot)
   }
 
   #collectGarbage = (vNode: VNode) => {

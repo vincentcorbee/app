@@ -1,0 +1,25 @@
+{
+  "name": "@digitalbranch/scaffold-docs",
+  "version": "1.0.0",
+  "description": "docs",
+  "source": "src/index.html",
+  "private": true,
+  "scripts": {
+    "start": "parcel -p 4321",
+    "build": "parcel build",
+    "clean:parcel-cache": "rm -rf ./.parcel-cache",
+    "clean:dist": "rm -rf ./dist",
+    "clean": "pnpm clean:parcel-cache ; pnpm clean:dist"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@digitalbranch/app": "file:.."
+  },
+  "devDependencies": {
+    "firebase-tools": "^14.16.0",
+    "parcel": "^2.15.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

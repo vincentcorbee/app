@@ -11,11 +11,11 @@ const bindDirectives = (vNode: VNode, vm: ComponentInstance) => {
   const { nodeType } = node
 
   if (nodeType === 1) {
-    // Make copy of the attributes
-    const attributes = 'attributes' in node ? [...node.attributes] : []
+    const attributes = 'attributes' in node ? Array.from(node.attributes) : []
     const directives = []
 
-    for (const { name, value } of attributes) {
+    for (let i = 0, l = attributes.length; i < l; i++) {
+      const { name, value } = attributes[i]
       const directive = getDirective({ name, value }, vm)
 
       if (directive) {
@@ -27,8 +27,10 @@ const bindDirectives = (vNode: VNode, vm: ComponentInstance) => {
     }
 
     return directives
-  } else if (nodeType === 3) {
-    return getPlaceholders(node).reduce<Directive[]>((acc, placeholder, i) => {
+  }
+
+  if (nodeType === 3) {
+    return getPlaceholders(node as Text).reduce<Directive[]>((acc, placeholder, i) => {
       const directive = getDirective(
         {
           name: '*text',

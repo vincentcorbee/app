@@ -37,7 +37,7 @@ class Directive extends Emitter {
     Directive.__count__++
 
     this.#setExpressionAndVm(
-      attr.value || attr.placeholder.value.replace(/^{{|}}$/g, '').trim()
+      attr.value ?? attr.placeholder.value.replace(/^{{|}}$/g, '').trim()
     )
 
     this.vm.on('destroy', this.$destroy)
@@ -74,7 +74,7 @@ class Directive extends Emitter {
   }
 
   bind(vNode: VNode) {
-    if (this.isDestroyed) return
+    if (this.isDestroyed || vNode.isDetached) return
 
     _private.get(this).bind.call(this, vNode, this.vm)
 
@@ -217,16 +217,16 @@ class Directive extends Emitter {
     _private.get(this).vm = vm
   }
 
-  set vNode(newElement) {
+  set vNode(newVNode) {
     if (this.isDestroyed) return
 
     const { vNode } = this
 
     if (vNode) vNode.off('detached', this.$destroy)
 
-    newElement.on('detached', this.$destroy, this)
+    newVNode.on('detached', this.$destroy, this)
 
-    _private.get(this).vNode = newElement
+    _private.get(this).vNode = newVNode
   }
 
   set orgNode(orgNode) {

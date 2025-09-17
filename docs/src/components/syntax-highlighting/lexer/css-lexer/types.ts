@@ -1,0 +1,38 @@
+import { LexerInterface, Token as BaseToken } from '../types'
+
+export type TokenType =
+  | 'identifier'
+  | 'number'
+  | 'dot'
+  | 'comma'
+  | 'left_paren'
+  | 'right_paren'
+  | 'left_brack'
+  | 'right_brack'
+  | 'left_curl_brace'
+  | 'right_curl_brace'
+  | 'newline'
+  | 'ternary'
+  | 'colon'
+  | 'plus'
+  | 'min'
+  | 'mul'
+  | 'mod'
+  | 'div'
+  | 'bang'
+  | 'semi'
+  | 'gt'
+  | 'lt'
+  | 'bin_and'
+  | 'bin_or'
+  | 'literal'
+  | 'newline'
+  | 'whitespace'
+  | 'error'
+  | 'comment'
+  | 'symbol'
+  | 'eof'
+
+export type Lexer = LexerInterface<TokenType, any>
+
+export type Token = BaseToken<TokenType>

@@ -61,7 +61,7 @@ export class Router extends Emitter implements RouterInterface {
   }
 
   registerRouterLink(routerLink: any) {
-    const { routerLinks, currentRoute } = _private.get(this)
+    const { routerLinks } = _private.get(this)
 
     routerLinks.add(routerLink)
 
@@ -118,8 +118,7 @@ export class Router extends Emitter implements RouterInterface {
   }
 
   async updateRouterViews() {
-    const { routes, currentPathSegments, routerLinks, currentFullPath } =
-      _private.get(this)
+    const { routes, currentPathSegments, currentFullPath } = _private.get(this)
     const { $vm } = this
 
     _private.get(this).error = false
@@ -181,13 +180,15 @@ export class Router extends Emitter implements RouterInterface {
       this.#handleError(Error(`${currentFullPath} not found`))
     }
 
+    const url = currentFullPath
+
     window.history.pushState(
       {
-        url: currentFullPath,
+        url,
         title,
       },
       title,
-      currentFullPath
+      url
     )
   }
 
@@ -200,7 +201,7 @@ export class Router extends Emitter implements RouterInterface {
 
   #init() {
     const state = window.history.state || {
-      url: '/',
+      url: this.baseUrl || '/',
       title: '',
     }
 
@@ -241,18 +242,20 @@ export class Router extends Emitter implements RouterInterface {
 
     const { $node } = routerLink
     const to = $node.getAttribute('to')
+    const active = $node.getAttribute('active') === 'true'
 
-    if (to.replace(/$\//, '') || '/' === currentRoute.fullPath) {
-      if (!$node.active) $node.setAttribute('active', true)
+    if ((to.replace(/$\//, '') || '/') === currentRoute.fullPath) {
+      if (!active) $node.setAttribute('active', true)
 
       title = $node.textContent ?? ''
-    } else if ($node.active) $node.removeAttribute('active')
+    } else if (active) $node.setAttribute('active', false)
 
     return title
   }
 
   #updateRouterLinks(): string {
     const { routerLinks } = _private.get(this)
+
     let title = ''
 
     routerLinks.forEach((routerLink: any) => {
@@ -394,10 +397,11 @@ export class Router extends Emitter implements RouterInterface {
       .split('?')
       .pop()
       ?.split(/&/g)
-      .forEach((param: any) => {
+      .forEach(param => {
         if (param) {
-          param = param.split('=')
-          params[param[0]] = param[1]
+          const parts = param.split('=')
+
+          params[parts[0]] = parts[1]
         }
       })
 

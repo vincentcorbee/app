@@ -1,9 +1,9 @@
-import { createComponent } from '@digitalbranch/app'
+import { createApp } from '@digitalbranch/app'
 
 import main from './main/main'
 import { uiButton } from './ui'
 
-const app = createComponent({
+const app = createApp({
   el: '#app',
   components: {
     main,

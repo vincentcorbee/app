@@ -40,7 +40,6 @@ const addEventListener = (
     if (preventDefault) e.preventDefault()
 
     const target = e.target as HTMLElement
-
     const args = params.map(param =>
       // @ts-expect-error
       param.isString ? param.value : expressionParser(vm, param.value, directive)

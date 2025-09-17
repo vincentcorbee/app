@@ -10,14 +10,14 @@ export default (_expressionParser: ExpressionParser): DirectiveConfig<HTMLElemen
       attr: { name, value, modifiers, rawName },
     } = this
     const event = name.replace(/^((a-|\*)?on:)|@/, '')
-    let [params] = value.match(/\([^)]*\)$/) || ['']
+    const [params] = value.match(/\([^)]*\)$/) || ['']
     const fnName = value.replace(params, '')
 
     this.vNode = vNode
 
     vNode.node.removeAttribute(rawName)
 
-    params = params
+    const mappedParams = params
       .replace(/^\(|\)$/g, '')
       .split(',')
       .flatMap((param: string) => {
@@ -36,6 +36,6 @@ export default (_expressionParser: ExpressionParser): DirectiveConfig<HTMLElemen
       })
 
     //@ts-expect-error
-    addEventListener(vNode, event, fnName, params, vm, this, modifiers)
+    addEventListener(vNode, event, fnName, mappedParams, vm, this, modifiers)
   },
 })
