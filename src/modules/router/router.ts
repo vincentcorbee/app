@@ -5,8 +5,12 @@ import { getRouterView } from './helpers/get-router-view'
 const _private = new WeakMap()
 
 export class Router extends Emitter implements RouterInterface {
+  #activeAnimations: boolean
+
   constructor({ baseUrl = '' } = {}) {
     super()
+
+    this.#activeAnimations = false
 
     const currentFullPath = this.#getFullPath(
       `${window.location.pathname}${window.location.search}`,
@@ -31,6 +35,16 @@ export class Router extends Emitter implements RouterInterface {
           ? currentFullPath
           : baseUrl,
     })
+
+    document.addEventListener(
+      'rippleanimationend',
+      () => (this.#activeAnimations = false)
+    )
+
+    document.addEventListener(
+      'rippleanimationstart',
+      () => (this.#activeAnimations = true)
+    )
   }
 
   get baseUrl() {
@@ -64,6 +78,10 @@ export class Router extends Emitter implements RouterInterface {
     const { routerLinks } = _private.get(this)
 
     routerLinks.add(routerLink)
+
+    routerLink.on('beforeDestroy', () => {
+      this.unRegisterRouterLink(routerLink)
+    })
 
     this.#updateRouterLink(routerLink)
   }
@@ -145,6 +163,8 @@ export class Router extends Emitter implements RouterInterface {
 
       let currentRouterView
 
+      title = this.#updateRouterLinks()
+
       for (let i = 0; i < matched.length; i++) {
         const currentRoute = matched[i]
 
@@ -164,8 +184,6 @@ export class Router extends Emitter implements RouterInterface {
           currentComponent = component
         }
       }
-
-      title = this.#updateRouterLinks()
 
       this.emit('navigate', {
         type: 'navigate',
@@ -207,6 +225,7 @@ export class Router extends Emitter implements RouterInterface {
 
     // @ts-ignore
     window.history.replaceState(state, null, '')
+
     window.addEventListener('popstate', e => this.navigate(e.state.url))
   }
 
@@ -222,14 +241,35 @@ export class Router extends Emitter implements RouterInterface {
   }
 
   async #updateRouterView(routerView: any, node: any) {
+    const self = this
+
     return new Promise<undefined>(resolve => {
-      document.startViewTransition(() => {
-        routerView.innerHTML = ''
+      let pending = false
 
-        routerView.appendChild(node)
+      function startTransition() {
+        if (document.visibilityState === 'visible') {
+          if (!self.#activeAnimations) {
+            /* Disabled it because of issues on mobile */
+            // document.startViewTransition(() => {
+            routerView.innerHTML = ''
 
-        resolve(undefined)
-      })
+            routerView.appendChild(node)
+
+            resolve(undefined)
+            // })
+
+            if (pending) document.removeEventListener('visibilitychange', startTransition)
+          } else {
+            requestIdleCallback(startTransition)
+          }
+        } else {
+          pending = true
+
+          document.addEventListener('visibilitychange', startTransition)
+        }
+      }
+
+      startTransition()
     })
   }
 
@@ -244,7 +284,7 @@ export class Router extends Emitter implements RouterInterface {
     const to = $node.getAttribute('to')
     const active = $node.getAttribute('active') === 'true'
 
-    if ((to.replace(/$\//, '') || '/') === currentRoute.fullPath) {
+    if ((to?.replace(/$\//, '') || '/') === currentRoute.fullPath) {
       if (!active) $node.setAttribute('active', true)
 
       title = $node.textContent ?? ''

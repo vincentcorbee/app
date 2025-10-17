@@ -74,7 +74,6 @@ ui-base-button {
       --ui-navigation-drawer-button-active-indicator-padding
     );
 
-    --ui-button--icon-left-margin: calc(var(--ui-sys-unit) * 16);
     --ui-button-icon-size: var(--ui-navigation-drawer-button-icon-size);
   }
 }

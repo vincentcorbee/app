@@ -54,8 +54,15 @@ body {
   font-weight: var(--ui-body-font-weight);
   overscroll-behavior: var(--ui-body-overscroll-behavior);
   color: var(--ui-body-color);
+  display: flex;
+  flex-direction: column;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body > * {
+  min-height: 0; /* prevents overflow in flex children */
+  flex: 1 1 auto;
 }
 
 h1 {

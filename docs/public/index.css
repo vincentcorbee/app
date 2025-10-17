@@ -2,6 +2,11 @@
 @import url('./theme/main.css');
 
 :root {
+  --ui-page-content-padding-left: calc(var(--ui-sys-unit) * 56);
+  --ui-page-content-padding-right: calc(var(--ui-sys-unit) * 56);
+  --ui-page-content-padding-top: calc(var(--ui-sys-unit) * 32);
+  --ui-page-content-padding-bottom: calc(var(--ui-sys-unit) * 32);
+
   color-scheme: light dark;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -14,20 +19,9 @@
   width: 100%;
 }
 
-router-view {
-  height: 100%;
-}
-
-.ui-page-content {
-  padding-left: 56px;
-  padding-right: 56px;
-  padding-top: 32px;
-  padding-bottom: 32px;
-}
-
 @media screen and (max-width: 600px) {
-  .ui-page-content {
-    padding-left: 32px;
-    padding-right: 32px;
+  :root {
+    --ui-page-content-padding-left: calc(var(--ui-sys-unit) * 32);
+    --ui-page-content-padding-right: calc(var(--ui-sys-unit) * 32);
   }
 }

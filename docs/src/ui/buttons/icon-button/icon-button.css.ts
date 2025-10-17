@@ -2,19 +2,35 @@ export default /* css */ `
 :host {
   --ui-icon-button-icon-size: calc(var(--ui-sys-unit) * 24);
   --ui-icon-button-icon-opacity: 1;
+  --ui-icon-button-icon-color: var(--ui-sys-color-on-surface-variant);
+
   --ui-icon-button-container-opacity: 1;
   --ui-icon-button-container-height: calc(var(--ui-sys-unit) * 40);
   --ui-icon-button-container-width: calc(var(--ui-sys-unit) * 40);
   --ui-icon-button-container-width: var(--ui-icon-button-container-height);
   --ui-icon-button-container-shape: var(--ui-sys-shape-corner-full);
+
   --ui-icon-button-outline-width: calc(var(--ui-sys-unit) * 1);
   --ui-icon-button-outline-color: var(--ui-sys-color-outline);
-  --ui-icon-button-icon-color: var(--ui-sys-color-on-surface-variant);
+
+  --button-focus-ring-indicator-color: var(--ui-button-focus-ring-indicator-color, var(--ui-sys-color-secondary));
+  --button-focus-ring-indicator-thickness: var(--ui-button-focus-ring-indicator-thickness, var(--ui-sys-state-focus-indicator-thickness));
+  --button-focus-ring-outline-offset: var(--ui-button-focus-ring-outline-offset, var(--ui-sys-state-focus-indicator-outer-offset));
 }
 
 ::slotted(ui-icon) {
   --ui-icon-color: var(--ui-icon-button-icon-color);
   --ui-icon-opacity: var(--ui-icon-button-icon-opacity);
+}
+
+ui-base-button {
+  --ui-button-container-shape: var(--ui-icon-button-container-shape);
+  --ui-button-container-width: var(--ui-icon-button-container-width);
+  --ui-button-container-height: var(--ui-icon-button-container-height);
+  --ui-button-container-padding-top: 0;
+  --ui-button-container-padding-right: 0;
+  --ui-button-container-padding-bottom: 0;
+  --ui-button-container-padding-left: 0;
 }
 
 button {
@@ -43,6 +59,10 @@ button {
   &:focus,
   &:hover {
     outline: none;
+  }
+
+  &:focus-visible {
+    outline: var(--button-focus-ring-indicator-thickness) solid hsl(var(--button-focus-ring-indicator-color));
   }
 
   &.ui-sys-state-layer:before {

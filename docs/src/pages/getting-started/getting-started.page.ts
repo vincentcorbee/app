@@ -54,9 +54,9 @@ export const gettingStartedPage = defineComponent({
         template: /* html */ `
         <div id="app">
           <div class="count-container">Count is: <span class="count">{{ count }}</span></div>
-          <ui-button @click="handleClick">
+          <getting-started-button @click="handleClick">
             Click me!
-          </ui-button>
+          </getting-started-button>
         </div>
         `,
         data() {
@@ -72,7 +72,7 @@ export const gettingStartedPage = defineComponent({
       })
 
       const uiButton = defineComponent({
-        name: 'ui-button',
+        name: 'getting-started-button',
         css: `
           :host {
             --ui-button-background-color: 249, 16%, 32%;

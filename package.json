@@ -4,6 +4,7 @@
   "description": "Reactive frontend JavaScript library",
   "author": "V.J.M. Corbee",
   "license": "ISC",
+  "private": true,
   "scripts": {
     "build": "parcel build",
     "watch": "parcel watch"

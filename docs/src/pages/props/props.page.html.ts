@@ -1,53 +1,55 @@
 export default /* html */ `
 <ui-page>
   <ui-page-body>
-    <ui-heading type="h1">Props</ui-heading>
+    <page-header>
+      <ui-heading type="h1" slot="title">Props</ui-heading>
 
-    <ui-paragraph>
-      Of course we also need a way to pass properties to components.
-      Since every component is just a custom element, we can set the attributes of these elements.
-      But we also need a way to control these properties from our components.
-    </ui-paragraph>
+      <ui-paragraph slot="intro">
+        Of course we also need a way to pass properties to components.
+        Since every component is just a custom element, we can set the attributes of these elements.
+        But we also need a way to control these properties from our components.
+      </ui-paragraph>
+    </page-header>
 
-    <ui-divider></ui-divider>
+    <ui-page-content>
 
-    <ui-heading type="h2">Template</ui-heading>
+      <ui-heading type="h2">Template</ui-heading>
 
-    <ui-paragraph>
-      Say we have a custom button that has two properties a user can control, <code>type</code>, <code>variant</code> and <code>disabled</code>.
-      <br/><br/>
-      Our template will look something like the following.
-    </ui-paragraph>
+      <ui-paragraph>
+        Say we have a custom button that has two properties a user can control, <code>type</code>, <code>variant</code> and <code>disabled</code>.
+        <br/><br/>
+        Our template will look something like the following.
+      </ui-paragraph>
 
-    <syntax-highlighting language="html">
-      <textarea>
+      <syntax-highlighting language="html">
+        <textarea>
 <!-- null will remove the prop -->
 <button
   *bind:type="type"
-  *bind:disabled= "disabled ? true : null"
+  *bind:disabled="disabled ? true : null"
   *bind:class="['button-variant--' + variant]"
 >
   <slot></slot>
 </button>
-      </textarea>
-    </syntax-highlighting>
+        </textarea>
+      </syntax-highlighting>
 
-    <ui-divider></ui-divider>
+      <ui-divider></ui-divider>
 
-    <ui-heading type="h2">Styling</ui-heading>
+      <ui-heading type="h2">Styling</ui-heading>
 
-    <ui-paragraph>
-      Let's add some styling to our template.
-      <br/>
-      <br/>
-      The css variables are comming from a material design theme I created.
-      <br/>
-      <br/>
-      <strike>By the way, if you wonder what isn't the syntax highlighting isn't working, it's because I have not completed the tokanization for css. <span class="smiley">🥲</span></strike>
-    </ui-paragraph>
+      <ui-paragraph>
+        Let's add some styling to our template.
+        <br/>
+        <br/>
+        The css variables are comming from a material design theme I created.
+        <br/>
+        <br/>
+        <strike>By the way, if you wonder what isn't the syntax highlighting isn't working, it's because I have not completed the tokanization for css. <span class="smiley">🥲</span></strike>
+      </ui-paragraph>
 
-    <syntax-highlighting language="css">
-      <textarea>
+      <syntax-highlighting language="css">
+        <textarea>
 :host {
   --ui-button-container-color: var(--ui-sys-color-primary);
   --ui-button-container-height: calc(var(--ui-sys-unit) * 40);
@@ -105,19 +107,19 @@ button {
     cursor: unset;
   }
 }
-      </textarea>
-    </syntax-highlighting>
+        </textarea>
+      </syntax-highlighting>
 
-    <ui-divider></ui-divider>
+      <ui-divider></ui-divider>
 
-    <ui-heading type="h2">Component</ui-heading>
+      <ui-heading type="h2">Component</ui-heading>
 
-    <ui-paragraph>
-      Now we need to tell our component what props to accept.
-    </ui-paragraph>
+      <ui-paragraph>
+        Now we need to tell our component what props to accept.
+      </ui-paragraph>
 
-    <syntax-highlighting language="js">
-      <textarea>
+      <syntax-highlighting language="js">
+        <textarea>
 import {
   defineComponent,
 } from '@digitalbranch/app';
@@ -145,43 +147,43 @@ export const uiButton = defineComponent({
   template,
   css,
 });
-      </textarea>
-    </syntax-highlighting>
+        </textarea>
+      </syntax-highlighting>
 
-    <ui-paragraph>
-      For each prop we define the <code>name</code> of the prop, the <code>type</code> of the prop and in our case an optional <code>default</code> value.
-    </ui-paragraph>
+      <ui-paragraph>
+        For each prop we define the <code>name</code> of the prop, the <code>type</code> of the prop and in our case an optional <code>default</code> value.
+      </ui-paragraph>
 
-    <ui-divider></ui-divider>
+      <ui-divider></ui-divider>
 
-    <ui-heading type="h2">Result</ui-heading>
+      <ui-heading type="h2">Result</ui-heading>
 
-    <ui-paragraph>
-      And voila. <span class="smiley">😎</span>
-    </ui-paragraph>
+      <ui-paragraph>
+        And voila. <span class="smiley">😎</span>
+      </ui-paragraph>
 
-    <div id="root" *skip>
-      <div class="select">
-        <select name="buttonVariant" *model="buttonVariant">
-          <option value="filled">Filled</option>
-          <option value="outlined">Outlined</option>
-        </select>
+      <div id="root" *skip>
+        <div class="select">
+          <select name="buttonVariant" *model="buttonVariant">
+            <option value="filled">Filled</option>
+            <option value="outlined">Outlined</option>
+          </select>
+        </div>
+        <div class="select">
+          <select name="buttonDisabled" *model="buttonDisabled">
+            <option value="false">Enabled</option>
+            <option value="true">Disabled</option>
+          </select>
+        </div>
+
+        <ui-button
+          *bind:variant="buttonVariant"
+          *bind:disabled="buttonDisabled === 'true' ? true : null"
+        >
+          My button
+        </ui-button>
       </div>
-      <div class="select">
-        <select name="buttonDisabled" *model="buttonDisabled">
-          <option value="false">Enabled</option>
-          <option value="true">Disabled</option>
-        </select>
-      </div>
-
-      <ui-button
-        *bind:variant="buttonVariant"
-        *bind:disabled="buttonDisabled === 'true' ? true : null"
-      >
-        My button
-      </ui-button>
-    </div>
-
+    </ui-page-content>
   </ui-page-body>
 </ui-page>
 `

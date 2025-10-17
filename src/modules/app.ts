@@ -2,7 +2,7 @@ import Emitter from './emitter'
 import Mask from './mask'
 import ArrayMask from './array-mask'
 import VNode from './v-node'
-import { isType } from '../utils'
+import { addListener, isType, removeListener } from '../utils'
 import Queue from './queue'
 import {
   createWebComponent,
@@ -199,6 +199,14 @@ export default class App<
     createWebComponent(config, this)
 
     return this
+  }
+
+  $addEventListener(target: any, eventType: string, cb: (args: any) => any) {
+    return addListener(target, eventType, cb)
+  }
+
+  $removeEventListener(target: any, eventType: string, cb: (args: any) => any) {
+    return removeListener(target, eventType, cb)
   }
 
   $nextTick() {
@@ -446,6 +454,8 @@ export default class App<
     this.#copyMethodsToInstance()
     this.#compile(this.#root)
 
+    this.emit('compiled')
+
     await this.#createComponents()
 
     if (this.#isDestroyed || this.#toBeDestroyed) return
@@ -525,14 +535,15 @@ export default class App<
       this.#parent = null
     }
 
-    if (node?.on) {
+    if (node?.off) {
       node.off('disconnected', this.#destroy)
       node.off('attributeChanged', this.#handleAttributeChange)
     }
 
     if (vNode) {
-      vNode.$destroy()
       vNode.off('detached', this.#destroy)
+
+      vNode.$destroy()
     }
 
     if (listeners) {
@@ -551,11 +562,24 @@ export default class App<
     this.#handler = {}
     this.#isDestroyed = true
     this.#isMounted = false
+    this.#data = null
+    this.#root = null
+    this.#template = null
+    this.#providers = null
+    this.#refs = {}
+    this.#components = {}
+    this.#dependencies = {}
+    this.#children = []
 
     this.emit('destroy')
   }
 
   #nextTick(): Promise<void> {
-    return new Promise(resolve => this.#queue.on('flushed', resolve))
+    return new Promise(resolve => {
+      this.#queue.once('flushed', () => {
+        // Using queueMicrotask ensures this runs *after* flush but before paint
+        queueMicrotask(resolve)
+      })
+    })
   }
 }

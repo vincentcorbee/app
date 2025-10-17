@@ -8,21 +8,33 @@ export const routerLink = defineComponent({
   name: 'router-link',
   template,
   css,
-  props: ['to', 'className', 'active'],
+  props: ['to', 'active'],
   data() {
     return {
       to: '',
-      className: '',
       active: false,
     }
   },
   listeners: {
     ready() {
       if (this.$router) this.$router.registerRouterLink(this)
+
+      this.boundHandleHostKeydown = this.handleHostKeydown.bind(this)
+      this.boundHandleHostClick = this.handleHostClick.bind(this)
+
+      this.$node.setAttribute('tabindex', '0')
+      this.$node.setAttribute('role', 'link')
+
+      this.$node.addEventListener('keydown', this.boundHandleHostKeydown)
+      this.$node.addEventListener('click', this.boundHandleHostClick)
     },
     beforeDestroy() {
-      if (this.$router) this.$router.unRegisterRouterLink(this)
+      this.$node.removeEventListener('keydown', this.boundHandleHostKeydown)
+      this.$node.removeEventListener('click', this.boundHandleHostClick)
     },
+    // beforeDestroy() {
+    //   if (this.$router) this.$router.unRegisterRouterLink(this)
+    // },
     attributeChanged({ name, value }: AttributeChanged) {
       if (name === 'active') {
         this.$dispatchCustomEvent('routerlinkactive', {
@@ -32,7 +44,15 @@ export const routerLink = defineComponent({
     },
   },
   methods: {
-    handleOnClick(e: any) {
+    handleHostKeydown(e: KeyboardEvent) {
+      const { key } = e
+
+      if (key === 'Enter') this.$refs.link.click()
+    },
+    handleHostClick(_e: MouseEvent) {
+      this.$refs.link.click()
+    },
+    handleOnClick(e: MouseEvent) {
       e.preventDefault()
 
       const ctrlKey = e.ctrlKey

@@ -11,8 +11,6 @@ export default (expressionParser: ExpressionParser): DirectiveConfig => ({
     this.orgNode = vNode.node.cloneNode(true)
     this.placeholder = placeholder
 
-    console.log(placeholder, vNode.node)
-
     this.update()
   },
   update() {

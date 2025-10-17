@@ -1,47 +1,58 @@
 export default /*html*/ `
+<ui-focus-ring *bind:visible="hasFocus ? '' : null"></ui-focus-ring>
+
 <router-link
   class="ui-button"
   *if="to"
   *bind:to="to"
   *bind:type="type"
   *bind:disabled="disabled ? true : null"
-  @click="onClick"
+  *bind:class="buttonClasses"
+  *ref="button"
+  @click="handleClick"
+  @slotchange="handleSlotChange"
 >
-  <ui-ripple></ui-ripple>
+  <slot name="ripple"></slot>
+
   <div class="ui-button-content">
     <span class="ui-button-content__start-icon">
-      <slot name="icon-start" @slotchange="onSlotChange"/>
+      <slot name="icon-start" />
     </span>
 
-    <div class="ui-button-content__body"><slot @slotchange="onSlotChange"/></div>
+    <div class="ui-button-content__body">
+      <slot></slot>
+    </div>
 
     <span class="ui-button-content__end-icon">
-      <slot name="icon-end" @slotchange="onSlotChange"/>
+      <slot name="icon-end"></slot>
     </span>
   </div>
-
-  <slot></slot>
 </router-link>
 <button
   class="ui-button"
   *else
+  *bind:class="buttonClasses"
   *bind:type="type"
   *bind:disabled="disabled ? true : null"
-  @click="onClick"
+  *ref="button"
+  @click="handleClick"
+  @slotchange="handleSlotChange"
+  tabindex="-1"
 >
-  <ui-ripple></ui-ripple>
+  <slot name="ripple"></slot>
+
   <div class="ui-button-content">
     <span class="ui-button-content__start-icon">
-      <slot name="icon-start" @slotchange="onSlotChange"/>
+      <slot name="icon-start"></slot>
     </span>
 
-    <div class="ui-button-content__body"><slot @slotchange="onSlotChange"/></div>
+    <div class="ui-button-content__body">
+      <slot></slot>
+    </div>
 
     <span class="ui-button-content__end-icon">
-      <slot name="icon-end" @slotchange="onSlotChange"/>
+      <slot name="icon-end"></slot>
     </span>
   </div>
-
-  <slot></slot>
 </button>
 `

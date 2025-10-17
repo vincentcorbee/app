@@ -20,7 +20,6 @@ export default /* css */ `
   overflow-x: hidden;
   scrollbar-color: hsl(var(--ui-page-body-scrollbar-color)) transparent;
   scrollbar-width: thin;
-  max-width: 72rem;
 }
 
 .ui-page-body {

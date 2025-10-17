@@ -3,10 +3,11 @@ export default /* html */ `
   <ui-top-app-bar-small slot="top-app-bar">
     <span slot="headline">ScaffoldJS</span>
     <ui-icon-button
+      *if="!isNavigationRailVisible"
       slot="leading-icon"
-      @click="onClick"
+      @click="handleToggleNavigationDrawer"
     >
-      <ui-icon icon="menu"></ui-icon>
+      <ui-icon *bind:icon="menuIcon"></ui-icon>
     </ui-icon-button>
     <ui-icon-button
       slot="trailing-icon"
@@ -16,28 +17,37 @@ export default /* html */ `
     </ui-icon-button>
   </ui-top-app-bar-small>
 
-  <ui-navigation-drawer slot="navigation-drawer" open>
-    <ui-navigation-drawer-button to="/">
-      <ui-icon slot="icon" icon="home_pin"></ui-icon>
-      Home
-    </ui-navigation-drawer-button>
-    <ui-navigation-drawer-button to="/getting-started">
-      <ui-icon slot="icon" icon="tools_power_drill"></ui-icon>
-      Getting started
-    </ui-navigation-drawer-button>
-    <ui-navigation-drawer-button to="/props">
-      <ui-icon slot="icon" icon="code"></ui-icon>
-      Props
-    </ui-navigation-drawer-button>
-    <ui-navigation-drawer-button to="/forms">
-      <ui-icon slot="icon" icon="check_box"></ui-icon>
-      Forms
-    </ui-navigation-drawer-button>
-    <ui-navigation-drawer-button to="/providers">
-      <ui-icon slot="icon" icon="syringe"></ui-icon>
-      Providers
-    </ui-navigation-drawer-button>
+  <ui-navigation-drawer
+    slot="navigation-drawer"
+    @close.custom="handleToggleNavigationDrawer"
+    *bind:open="isNavigationDrawerOpen"
+    *bind:type="navigationDrawerType"
+  >
+    <ui-template *if="isNavigationDrawerOpen || navigationDrawerType === 'modal'">
+      <ui-navigation-drawer-button
+        *for="item of menuItems"
+        *bind:to="item.to"
+      >
+        <ui-icon slot="icon" *bind:icon="item.icon"></ui-icon>
+        {{ item.label }}
+      </ui-navigation-drawer-button>
+    </ui-template>
+
+    <ui-template *else>
+      <ui-navigation-rail-button
+        *for="item of menuItems"
+        *bind:to="item.to"
+      >
+        <ui-icon slot="icon" *bind:icon="item.icon"></ui-icon>
+      </ui-navigation-rail-button>
+    </ui-template>
   </ui-navigation-drawer>
+
+  <ui-navigation-rail slot="navigation-rail" *if="isNavigationRailVisible">
+    <ui-icon-button icon="menu" slot="menu-button" @click="handleToggleNavigationDrawer">
+      <ui-icon icon="menu"></ui-icon>
+    </ui-icon-button>
+  </ui-navigation-rail>
 
   <router-view></router-view>
 </ui-scaffold>

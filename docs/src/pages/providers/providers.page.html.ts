@@ -1,30 +1,33 @@
 export default /* html */ `
 <ui-page>
   <ui-page-body>
-    <ui-heading type="h1">Providers</ui-heading>
+    <page-header>
+      <ui-heading type="h1" slot="title">Providers</ui-heading>
 
-    <ui-paragraph>
-      Sometimes we want to define something and have all of our components have access to it.
+      <ui-paragraph slot="intro">
+        Sometimes we want to define something and have all of our components have access to it.
 
-      <br/><br/>
-      Luckily we can achieve this via providers.
-    </ui-paragraph>
+        <br/><br/>
+        Luckily we can achieve this via providers.
+      </ui-paragraph>
 
-    <ui-divider></ui-divider>
+    </page-header>
 
-    <ui-heading type="h2">Our service</ui-heading>
+    <ui-page-content>
 
-    <ui-paragraph>
-      Say we want to provide an api service to all the components in our application.
+      <ui-heading type="h2">Our service</ui-heading>
 
-      <br/>
-      <br/>
+      <ui-paragraph>
+        Say we want to provide an api service to all the components in our application.
 
-      Lets take the following hyper realistic service as an example.
-    </ui-paragraph>
+        <br/>
+        <br/>
 
-    <syntax-highlighting language="js">
-      <textarea>
+        Lets take the following hyper realistic service as an example.
+      </ui-paragraph>
+
+      <syntax-highlighting language="js">
+        <textarea>
 /* Approximates 95.4% of all api's */
 
 export class MyService {
@@ -32,32 +35,32 @@ export class MyService {
     return Promise.resolve({ data: 'Oh yeah' });
   }
 }
-      </textarea>
-    </syntax-highlighting>
+        </textarea>
+      </syntax-highlighting>
 
-    <ui-divider></ui-divider>
+      <ui-divider></ui-divider>
 
-    <ui-heading type="h2">Child component</ui-heading>
+      <ui-heading type="h2">Child component</ui-heading>
 
 
-    <ui-paragraph>
-      What we need now is a simple child component that consumes it.
-    </ui-paragraph>
+      <ui-paragraph>
+        What we need now is a simple child component that consumes it.
+      </ui-paragraph>
 
-    <ui-heading type="h3">Template</ui-heading>
+      <ui-heading type="h3">Template</ui-heading>
 
-    <syntax-highlighting language="html">
-      <textarea *skip>
+      <syntax-highlighting language="html">
+        <textarea *skip>
 <div>
   <span *if="result">Say what? {{result}}</span>
 </div>
-      </textarea>
-    </syntax-highlighting>
+        </textarea>
+      </syntax-highlighting>
 
-    <ui-heading type="h3">Component</ui-heading>
+      <ui-heading type="h3">Component</ui-heading>
 
-    <syntax-highlighting language="js">
-      <textarea>
+      <syntax-highlighting language="js">
+        <textarea>
 import { defineComponent } from '@digitalbranch/app';
 
 import template from './template.html';
@@ -79,23 +82,23 @@ export const myComponent defineComponent({
     },
   },
 });
-      </textarea>
-    </syntax-highlighting>
+        </textarea>
+      </syntax-highlighting>
 
-    <ui-paragraph>
-      We inject the service by using the name of the key we used for providing the service.
-    </ui-paragraph>
+      <ui-paragraph>
+        We inject the service by using the name of the key we used for providing the service.
+      </ui-paragraph>
 
-    <ui-divider></ui-divider>
+      <ui-divider></ui-divider>
 
-    <ui-heading type="h2">Application</ui-heading>
+      <ui-heading type="h2">Application</ui-heading>
 
-    <ui-paragraph>
-      Now in our application we can provide it as follows.
-    </ui-paragraph>
+      <ui-paragraph>
+        Now in our application we can provide it as follows.
+      </ui-paragraph>
 
-    <syntax-highlighting language="js">
-      <textarea>
+      <syntax-highlighting language="js">
+        <textarea>
 import { createApp } from '@digitalbranch/app';
 
 import { MyService } from './services/my-service';
@@ -112,20 +115,21 @@ createApp({
     myComponent
   }
 });
-      </textarea>
-    </syntax-highlighting>
+        </textarea>
+      </syntax-highlighting>
 
-    <ui-divider></ui-divider>
+      <ui-divider></ui-divider>
 
-    <ui-heading type="h2">Result</ui-heading>
+      <ui-heading type="h2">Result</ui-heading>
 
-    <ui-paragraph>
-      And voila. <span class="smiley">😎</span>
-    </ui-paragraph>
+      <ui-paragraph>
+        And voila. <span class="smiley">😎</span>
+      </ui-paragraph>
 
-    <div id="root" *skip>
-      <my-component></my-component>
-    </div>
+      <div id="root" *skip>
+        <my-component></my-component>
+      </div>
+    </ui-page-content>
 
   </ui-page-body>
 </ui-page>

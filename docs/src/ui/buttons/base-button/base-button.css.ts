@@ -10,6 +10,10 @@ export default /* css */ `
   --ui-button-container-padding-bottom: 0;
   --ui-button-container-opacity: 0;
 
+  --button-focus-ring-indicator-color: var(--ui-button-focus-ring-indicator-color, var(--ui-sys-color-secondary));
+  --button-focus-ring-indicator-thickness: var(--ui-button-focus-ring-indicator-thickness, var(--ui-sys-state-focus-indicator-thickness));
+  --button-focus-ring-outline-offset: var(--ui-button-focus-ring-outline-offset, var(--ui-sys-state-focus-indicator-outer-offset));
+
   --ui-button-outline-color: transparent;
   --ui-button-outline-opacity: 0;
   --ui-button-outline-disabled-color: var(--ui-sys-color-on-surface);
@@ -36,10 +40,15 @@ export default /* css */ `
   min-width: var(--ui-button-container-width);
   height: var(--ui-button-container-height);
   min-height: var(--ui-button-container-height);
+  position: relative;
 }
 
 ::slotted(ui-icon) {
   --ui-icon-color: var(--ui-button-icon-color);
+}
+
+ui-focus-ring {
+  --ui-focus-ring-shape: var(--ui-button-container-shape);
 }
 
 .ui-button {
@@ -66,6 +75,14 @@ export default /* css */ `
   width: 100%;
   height: 100%;
   overflow: hidden;
+
+  /* &:focus-visible {
+    outline: var(--button-focus-ring-indicator-thickness) solid hsl(var(--button-focus-ring-indicator-color));
+    outline-offset: var(--button-focus-ring-outline-offset);
+  } */
+ &:focus-visible {
+  outline: none;
+ }
 }
 
 router-link.ui-button {
@@ -82,11 +99,31 @@ router-link.ui-button {
   display: flex;
   align-items: center;
   width: 100%;
+  justify-content: inherit;
 
-  > *:not(:first-child) {
-    margin-left: var(--ui-button-icon-left-margin);
+  .ui-button-content__body {
+    display: none;
   }
+}
 
+.ui-button--has-icon-start {
+  &.ui-button--has-label {
+    .ui-button-content__body {
+      margin-left: var(--ui-button-icon-left-margin);
+    }
+  }
+}
+
+.ui-button--has-icon-end {
+  &.ui-button--has-label,
+  &.ui-button--has-icon-start, {
+    .ui-button-content__end-icon {
+      margin-left: var(--ui-button-icon-left-margin);
+    }
+  }
+}
+
+.ui-button--has-label {
   .ui-button-content__body {
     display: inherit;
     align-items: inherit;

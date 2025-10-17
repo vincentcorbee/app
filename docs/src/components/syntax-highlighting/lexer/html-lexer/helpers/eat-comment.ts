@@ -5,7 +5,13 @@ import { peekAt } from './peek-at'
 import { peekChar } from './peek-char'
 
 export function eatComment(lexer: Lexer): string {
-  let comment = eatChar(lexer, 4)
+  let comment = ''
+
+  if (lexer.state === 'comment') {
+    lexer.state = 'inComment'
+
+    comment += eatChar(lexer, 4)
+  }
 
   while (hasData(lexer)) {
     const nextChar = peekChar(lexer)

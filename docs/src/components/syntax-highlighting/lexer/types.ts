@@ -11,12 +11,12 @@ export type ErrorToken = {
   token: 'error'
 } & Token
 
-export type LexerInterface<T, S> = {
+export type LexerInterface<T, State extends 'initial' | string = 'initial'> = {
   index: number
   source: string
   col: number
   line: number
-  state: S
+  state: State
   peek(): Token
   lookahead(num: number): Token
   expect(tokenType: TokenType<T>): boolean
@@ -30,4 +30,7 @@ export type LexerOptions = {
   ignoreComments?: boolean
 }
 
-export type Lexer<T, S> = LexerInterface<T, S>
+export type Lexer<T, State extends 'initial' | string = 'initial'> = LexerInterface<
+  T,
+  State
+>

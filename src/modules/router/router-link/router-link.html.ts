@@ -1,8 +1,9 @@
 export default /* html */ `
 <a
   *bind:href="to"
-  *bind:class="className"
+  *ref="link"
   @click="handleOnClick"
+  tabindex="-1"
 >
   <slot></slot>
 </a>

@@ -12,7 +12,7 @@ export const propsPage = defineComponent({
       const template = /* html */ `
         <button
           *bind:type="type"
-          *bind:disabled= "disabled ? true : null"
+          *bind:disabled="disabled ? true : null"
           *bind:class="['button-variant--' + variant]"
         >
           <slot></slot>

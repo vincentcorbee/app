@@ -1,6 +1,6 @@
 export default /* css */ `
 :host {
-  --color-default: 225, 227%, 231%;
+  --color-default: 300, 4%, 89%;
   --color-tag-name: 170, 84%, 94%;
   --color-attribute_value: 212, 100%, 81%;
   --color-literal: 14, 91%, 70%;
@@ -62,6 +62,10 @@ export default /* css */ `
   display: none;
 }
 
+ui-icon {
+  --ui-icon-color: var(--color-default);
+}
+
 .top-bar {
   display: flex;
   background-color: hsl(0, 100%, 100%, 0.03);
@@ -86,7 +90,6 @@ export default /* css */ `
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.6;
 }
 
 .copied {
@@ -100,6 +103,7 @@ export default /* css */ `
 pre {
   counter-reset: line;
   margin: 0;
+  font-family: monospace;
 }
 
 .line {
@@ -110,9 +114,7 @@ pre {
 }
 
 .line:before {
-  // content: counter(line);
   user-select: none;
-  // text-indent: -2em;
   display: inline-block;
 }
 

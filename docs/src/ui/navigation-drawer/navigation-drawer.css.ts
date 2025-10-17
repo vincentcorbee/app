@@ -26,14 +26,16 @@ export default /* css */ `
     --ui-sys-elevation-level0-opacity
   );
 
-  display: block;
-  width: var(--ui-navigation-drawer-container-width);
-  height: var(--ui-navigation-drawer-container-height);
+  view-transition-name: none;
+}
+
+::slotted(*) {
+  max-width: 100%;
 }
 
 .ui-navigation-drawer {
-  width: 100%;
-  height: 100%;
+  width: var(--ui-navigation-drawer-container-width);
+  height: var(--ui-navigation-drawer-container-height);
 }
 
 .ui-divider {
@@ -41,15 +43,6 @@ export default /* css */ `
   --ui-divider-inset-bottom: calc(var(--ui-sys-unit) * 8);
   --ui-divider-inset-left: calc(var(--ui-sys-unit) * 16);
   --ui-divider-inset-right: calc(var(--ui-sys-unit) * 16);
-}
-
-.ui-navigation-drawer__drawer-button {
-  padding: 0;
-  align-items: center;
-  justify-content: center;
-  display: flex;
-  left: calc(var(--safe-area-inset-left) + var(--ui-sys-unit) * 18);
-  top: calc(var(--safe-area-inset-top) + var(--ui-sys-unit) * 20);
 }
 
 .ui-navigation-drawer__container {
@@ -81,6 +74,7 @@ export default /* css */ `
 
   .ui-navigation-drawer__menu {
     --ui-button-label-color: hsl(var(--ui-sys-color-on-surface-variant));
+
     margin-left: var(--offset-3);
     margin-bottom: var(--spacing-3);
     margin-top: var(--spacing-1);
@@ -128,6 +122,7 @@ export default /* css */ `
 
 .ui-navigation-drawer-standard {
   transition: width 0.2s;
+
   .ui-navigation-drawer__container {
     transition: width 0.2s;
   }
@@ -146,21 +141,19 @@ export default /* css */ `
   }
 }
 
-.ui-navigation-drawer--is-open {
-  .ui-navigation-drawer-modal {
-    pointer-events: initial;
+.ui-navigation-drawer-modal--is-open {
+  pointer-events: initial;
 
-    .ui-navigation-drawer__container {
-      transform: translate(0, 0);
-      box-shadow: var(--ui-navigation-drawer-container-elevation);
-    }
+  .ui-navigation-drawer__container {
+    transform: translate(0, 0);
+    box-shadow: var(--ui-navigation-drawer-container-elevation);
+  }
 
-    .ui-navigation-drawer__scrim {
-      pointer-events: auto;
-      opacity: 1;
-      visibility: visible;
-      transition: opacity 0.3s ease;
-    }
+  .ui-navigation-drawer__scrim {
+    pointer-events: auto;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease;
   }
 }
 `

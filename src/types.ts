@@ -5,6 +5,8 @@ import Emitter from './modules/emitter'
 import { MaskInterface } from './modules/mask'
 import { StoreInstance } from './modules/store/types'
 
+export type UnwrapData<D> = D extends () => infer R ? R : D
+
 export type ExtractReturnType<C extends ComputedOptions> = {
   [prop in keyof C]: ReturnType<C[prop]>
 }
@@ -25,14 +27,14 @@ export type ListnersOptions = {
 
 export type ComputedOptions = Record<string, ComputedGetter<any>>
 
-export type ComponentRefs = Record<string, HTMLElement>
+export type ComponentRefs = Record<string, HTMLElement | null>
 
 export type ComponentInstance<
   D = {},
   M extends MethodsOptions = {},
   L extends ListnersOptions = {},
   C extends ComputedOptions = {}
-> = D & M & L & ExtractReturnType<C> & ComponentInterface<D, M, L, C>
+> = UnwrapData<D> & M & L & ExtractReturnType<C> & ComponentInterface<D, M, L, C>
 
 export interface ComponentInterface<
   D = {},
@@ -55,6 +57,8 @@ export interface ComponentInterface<
   $providers: Record<string, any>
   $emit(event: string, ...args: any[]): void
   $dispatchEvent(event: Event): void
+  $addEventListener(target: any, eventType: string, cb: (args: any) => void): void
+  $removeEventListener(target: any, eventType: string, cb: (args: any) => any): void
   $dispatchCustomEvent<T>(event: string, eventInitDict?: CustomEventInit<T>): void
   $mount(el?: string | HTMLElement): Promise<ComponentInstance<D, M, L, C>>
   $nextTick(): Promise<void>
@@ -65,7 +69,7 @@ export interface ComponentInterface<
 
   emit(event: string, ...args: any[]): void
 
-  $$data: D
+  $$data: UnwrapData<D>
 }
 
 export type ComponentConfig<
@@ -88,12 +92,13 @@ export type ComponentConfig<
   listeners?: L
   computed?: C
   formAssociated?: boolean
+  delegatesFocus?: boolean
   inject?: string[]
   provide?: Record<string, any>
   parent?: any
 } & ThisType<ComponentInstance<D, M, L, C>>
 
-export interface RouterInterface {
+export interface RouterInterface extends Emitter {
   get baseUrl(): string
   set baseUrl(path: string)
   get $vm(): any

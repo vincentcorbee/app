@@ -936,9 +936,7 @@ snapshots:
 
   '@digitalbranch/earley-parser@file:../../blogs/earley-parser': {}
 
-  '@digitalbranch/javascript-pratt-parser@file:../../blogs/pratt-parsing/javascript-parser':
-    dependencies:
-      '@digitalbranch/styler': link:../../../npm-packages/styler
+  '@digitalbranch/javascript-pratt-parser@file:../../blogs/pratt-parsing/javascript-parser': {}
 
   '@jridgewell/resolve-uri@3.1.2': {}
 

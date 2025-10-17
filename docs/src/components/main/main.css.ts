@@ -1,8 +1,4 @@
 export default /* css */ `
-:host {
-  display: block;
-}
-
 .ripple-container {
   margin-top: 100px;
   align-items: center;

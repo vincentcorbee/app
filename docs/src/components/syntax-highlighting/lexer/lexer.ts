@@ -1,18 +1,20 @@
 import { LexerInterface, LexerOptions, Token } from './types'
 
-export class Lexer<T, S extends 'initial' = 'initial'> implements LexerInterface<T, S> {
+export class Lexer<T, State extends 'initial' | string = 'initial'>
+  implements LexerInterface<T, State>
+{
   index: number
   line: number
   col: number
 
   source: string
   throws: boolean
-  state: S
+  state: State
 
   constructor(source: string, options: LexerOptions = {}) {
     this.source = source
     this.throws = options.throws ?? true
-    this.state = 'initial'
+    this.state = 'initial' as State
     this.index = 0
     this.line = 1
     this.col = 0

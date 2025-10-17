@@ -27,6 +27,7 @@ type State =
   | 'inTag'
   | 'doctype'
   | 'comment'
+  | 'inComment'
 
 export class HTMLLexer extends Lexer<TokenType, State> {
   constructor(source: string, options: LexerOptions = {}) {
@@ -73,6 +74,9 @@ export class HTMLLexer extends Lexer<TokenType, State> {
         return tokenCreate('text', text)
       }
       case 'comment': {
+        return tokenCreate('comment', eatComment(this))
+      }
+      case 'inComment': {
         if (nextChar === '\n') {
           return tokenCreate('newline', eatNewline(this))
         }
@@ -198,7 +202,6 @@ export class HTMLLexer extends Lexer<TokenType, State> {
 
         return this.next()
       }
-
       case 'doctype': {
         switch (nextChar) {
           case '!': {
@@ -210,7 +213,6 @@ export class HTMLLexer extends Lexer<TokenType, State> {
 
         break
       }
-
       default: {
         switch (nextChar) {
           case '<': {

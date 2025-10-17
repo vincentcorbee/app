@@ -95,9 +95,15 @@ export const uiRipple = defineComponent({
     onAnimationStart(e: AnimationEvent) {
       if (e.animationName === 'ui-ripple-animation') {
         this.animationActiveEnded = false
+
+        this.$dispatchCustomEvent('rippleanimationstart')
       }
     },
     onAnimationEnd(e: AnimationEvent) {
+      if (e.animationName === 'ui-ripple-animation') {
+        this.$dispatchCustomEvent('rippleanimationend')
+      }
+
       if (e.animationName === 'ui-ripple-animation' && this.animationActive) {
         this.animationActiveEnded = true
 

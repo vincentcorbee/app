@@ -4,6 +4,7 @@ import { uiPageHeader } from './page-header/page-header'
 
 import template from './page.html'
 import css from './page.css'
+import { uiPageContent } from './page-content/page-content'
 
 export const uiPage = defineComponent({
   name: 'ui-page',
@@ -12,5 +13,6 @@ export const uiPage = defineComponent({
   components: {
     uiPageBody,
     uiPageHeader,
+    uiPageContent,
   },
 })

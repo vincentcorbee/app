@@ -1,14 +1,14 @@
 export default /* html */ `
-<button
-  class="ui-icon-button ui-sys-state-layer ui-sys-elevation-layer"
+<ui-base-button
+  class="ui-icon-button"
   *bind:type="type"
   *bind:disabled="disabled ? true : null"
-  @click="onClick"
+  *ref="button"
+  @click="handleClick"
 >
-  <ui-ripple></ui-ripple>
+  <ui-ripple slot="ripple"></ui-ripple>
 
-  <div class="ui-icon-button-content">
-    <slot/>
-  </div>
-</button>
+  <slot slot="icon-start"></slot>
+
+</ui-base-button>
 `

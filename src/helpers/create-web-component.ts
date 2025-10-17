@@ -103,6 +103,7 @@ export const createWebComponent = async <
       formAssociated,
       inject,
       provide,
+      delegatesFocus = false,
     } = config
     const __attributes__ = getAttributes(props)
     const $template = createTemplate(
@@ -167,7 +168,7 @@ export const createWebComponent = async <
       attributeChangedCallback(name: string, oldValue: string, value: string) {
         const propertyName = hyphenToCamel(name)
 
-        if (this.hasAttribute(name)) {
+        if (this.hasAttribute(name) || value === null) {
           const vm = this.$vm
 
           if (!this.#instantiated) {
@@ -303,6 +304,7 @@ export const createWebComponent = async <
           if (this.shadowRoot === null) {
             const root = this.attachShadow({
               mode: 'open',
+              delegatesFocus,
             })
 
             if (this.#template) root.appendChild(this.#template.content.cloneNode(true))

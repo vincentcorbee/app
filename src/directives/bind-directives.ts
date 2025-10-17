@@ -43,11 +43,12 @@ const bindDirectives = (vNode: VNode, vm: ComponentInstance) => {
 
       if (i === 0) {
         acc.push(directive)
-
+        //@ts-expect-error
         vNode.node = placeholder.node
 
         directive.bind(vNode)
       } else {
+        // @ts-expect-error
         directive.bind(VNode.create(placeholder.node, vm, vNode.parent, [directive]))
       }
 

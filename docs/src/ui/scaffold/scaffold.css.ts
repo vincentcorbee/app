@@ -1,16 +1,10 @@
 export default /* css */ `
-:host {
-  width: 100vw;
-  height: 100vh;
-  display: block;
-}
-
 .ui-scaffold {
   --ui-scaffold-app-background: hsl(var(--ui-sys-color-surface));
   --ui-scaffold-padding-top: 0;
 
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   display: flex;
   background-color: hsl(var(--ui-scaffold-app-background));
   overflow: hidden;

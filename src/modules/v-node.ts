@@ -58,7 +58,9 @@ export default class VNode<
       directives,
     })
 
+    //@ts-expect-error
     if (isRoot && node && node.hasAttribute && node.hasAttribute('*skip')) {
+      //@ts-expect-error
       node.removeAttribute('*skip')
     }
 
@@ -89,9 +91,9 @@ export default class VNode<
     if (parent) parent.addChild(this)
 
     if (directives.length) {
-      this.#getPrivate().directives = directives
+      this.#setDirectives(directives)
     } else {
-      this.#getPrivate().directives = parseHtml(this, vm, isCustomElement)
+      this.#setDirectives(parseHtml(this, vm, isCustomElement))
     }
 
     if (this.children) {
@@ -99,7 +101,7 @@ export default class VNode<
     }
   }
 
-  static create<N extends Node = Node | Element>(
+  static create<N extends Node = Node | Element | HTMLElement>(
     el: N | string,
     vm: ComponentInstance,
     parent: VNode | null = null,
@@ -119,6 +121,8 @@ export default class VNode<
       vNode.isCollected = true
 
       __collector__.off('collect', this.#collectGarbage)
+
+      vNode.$destroy()
     } else if (vNode && (!vNode.node || (vNode.node && !vNode.node.parentNode))) {
       vNode.$destroy()
     }
@@ -197,6 +201,14 @@ export default class VNode<
     }
 
     return null
+  }
+
+  #setDirectives(directives: Directive[]) {
+    const { isDetached, isCollected } = this
+
+    if (isCollected || isDetached) return
+
+    this.#getPrivate().directives = directives
   }
 
   detach() {

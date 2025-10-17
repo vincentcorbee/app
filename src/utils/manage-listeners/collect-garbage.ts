@@ -49,7 +49,7 @@ export const collectGarbage = (instance, interval = 60000) => {
           return handler()
         }
       },
-      { timeout: 1000 }
+      { timeout: 5000 }
     )
   return handler()
 }

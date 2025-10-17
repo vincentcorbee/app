@@ -2,7 +2,6 @@ import { AttributeChanged, defineComponent } from '@digitalbranch/app'
 
 import template from './navigation-drawer.html'
 import css from './navigation-drawer.css'
-import { getZIndex } from '../utils'
 
 export const uiNavigationDrawer = defineComponent({
   name: 'ui-navigation-drawer',
@@ -23,8 +22,7 @@ export const uiNavigationDrawer = defineComponent({
         if (value !== null) {
           document.body.classList.add('ui-navigation-drawer--is-open')
 
-          this.zIndex =
-            this.type === 'modal' ? getZIndex({ refElement: this.$refs.drawer }) : 3
+          this.zIndex = this.type === 'modal' ? 9999 : 3
         } else {
           document.body.classList.remove('ui-navigation-drawer--is-open')
 
@@ -34,7 +32,7 @@ export const uiNavigationDrawer = defineComponent({
     },
   },
   methods: {
-    handleOnClose() {
+    handleClose() {
       this.$dispatchCustomEvent('close')
     },
   },
@@ -49,6 +47,7 @@ export const uiNavigationDrawer = defineComponent({
             ? 'ui-navigation-drawer-standard--is-expaned'
             : 'ui-navigation-drawer-standard--is-collapsed'
           : null,
+        this.type === 'modal' && this.open && 'ui-navigation-drawer-modal--is-open',
       ]
     },
   },

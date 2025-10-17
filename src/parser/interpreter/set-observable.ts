@@ -61,9 +61,10 @@ const setObservable = (
       ) {
         const childObservable = attachObservable(childValue)
 
-        parentObservable.__observers__.forEach(([d, p]: [d: any, p: any]) =>
-          childObservable.subscribe(d, p)
-        )
+        /* Have to investigate further if this works */
+        parentObservable.__observers__.forEach(([d, p]: [d: any, p: any]) => {
+          if (p === prop) childObservable.subscribe(d, p)
+        })
 
         if (propagate) {
           if (isType('array', childValue)) {

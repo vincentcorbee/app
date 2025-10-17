@@ -6,6 +6,8 @@ export default /* html */ `
   *bind:style="{
     zIndex: zIndex
   }"
+  *bind:aria-hidden="type === 'modal' && !open"
+  *bind:inert="type === 'modal' && !open ? true : null"
 >
   <div
     id="ui-navigation-drawer"
@@ -19,7 +21,7 @@ export default /* html */ `
   <div
     *if="type === 'modal' && open"
     class="ui-navigation-drawer__scrim"
-    @click="onClose"
+    @click="handleClose"
     role="button"
   ></div>
 </nav>

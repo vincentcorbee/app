@@ -1,13 +1,13 @@
-export const getZIndex = ({
-  selector = 'body *',
-  ctx = document.documentElement,
-  refElement,
-}: {
-  selector?: string
-  ctx?: HTMLElement
-  refElement?: HTMLElement | null
-} = {}) =>
-  [...(ctx.querySelectorAll(selector) as unknown as HTMLElement[])].reduce(
+export const getZIndex = (
+  options: {
+    selector?: string
+    ctx?: HTMLElement
+    refElement?: HTMLElement | null
+  } = {}
+) => {
+  const { selector = 'body *', ctx = document.documentElement, refElement } = options
+
+  return [...(ctx.querySelectorAll(selector) as unknown as HTMLElement[])].reduce(
     (acc, element) => {
       const index =
         element !== refElement
@@ -18,3 +18,4 @@ export const getZIndex = ({
     },
     0
   )
+}

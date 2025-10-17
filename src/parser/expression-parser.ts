@@ -1,4 +1,5 @@
 import { Parser, ASI } from '@digitalbranch/earley-parser'
+// import { PrattParser } from '@digitalbranch/javascript-pratt-parser'
 import grammar from './grammar'
 import tokens from './tokens'
 import { Directive } from '../modules'
@@ -6,8 +7,9 @@ import { ComponentInstance } from '../types'
 import { interpret } from './interpreter/interpret'
 import { EnvironmentRecord } from './interpreter/environment-record'
 import { ExpressionParser } from './types/parser.types'
+import { Program } from './types'
 
-const parser = new Parser()
+const parser = new Parser<Program>()
 
 let comments = []
 
@@ -54,21 +56,55 @@ const expressionParser: ExpressionParser = (
   expression: string,
   directive?: Directive
 ) => {
+  // let value: any
+
+  // try {
+  //   const prattParser = new PrattParser(`(${expression});`)
+  //   const program = prattParser.parseProgram()
+
+  //   value = interpret(
+  //     program,
+  //     new EnvironmentRecord(null, {
+  //       this: { value: vm, mutable: false },
+  //       console: { value: console, mutable: false },
+  //     }),
+  //     directive
+  //   )?.value
+
+  //   console.log({ PRATT: value })
+  // } catch (error) {
+  //   console.log(expression)
+  //   console.log(error)
+  //   value = ''
+  // }
+
+  // return value
+
   return parser.parse(`${expression};`, result => {
     let value: any
+
+    // if (expression === 'program.value === programName') {
+    //   console.log(vm.$parent)
+    // }
 
     try {
       const [program] = result
 
       value = interpret(
         program,
-        new EnvironmentRecord(null, {
-          this: { value: vm, mutable: false },
-          console: { value: console, mutable: false },
-        }),
+        new EnvironmentRecord(
+          vm.$parent
+            ? new EnvironmentRecord(null, { this: { value: vm.$parent, mutable: false } })
+            : null,
+          {
+            this: { value: vm, mutable: false },
+            console: { value: console, mutable: false },
+          }
+        ),
         directive
       )?.value
     } catch (error) {
+      console.log(expression)
       console.error(error)
 
       value = ''

@@ -1,9 +1,15 @@
 export default /* css */ `
+:host {
+  --ui-heading-font-size: var(--ui-sys-typescale-display-large-font-size);
+  --ui-heading-line-height: var(--ui-sys-typescale-display-large-line-height);
+  --ui-heading-font-weight: var(--ui-sys-typescale-display-large-font-weight);
+}
+
 h1 {
   color: hsl(var(--ui-sys-color-on-surface));
-  font-size: var(--ui-sys-typescale-display-large-font-size);
-  line-height: var(--ui-sys-typescale-display-large-line-height);
-  font-weight: var(--ui-sys-typescale-display-large-font-weight);
+  font-size: var(--ui-heading-font-size);
+  line-height: var(--ui-heading-line-height);
+  font-weight: var(--ui-heading-font-weight);
   margin-top: 0;
   margin-bottom: calc(var(--ui-sys-unit) * 28);
 }

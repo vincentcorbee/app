@@ -9,6 +9,9 @@
 
   /* Dragged state layer opacity */
   --ui-sys-state-dragged-state-layer-opacity: 0.16;
+
+  --ui-sys-state-focus-indicator-thickness: calc(var(--ui-sys-unit) * 3);
+  --ui-sys-state-focus-indicator-outer-offset: calc(var(--ui-sys-unit) * 2);
 }
 
 .ui-sys-state-layer:before {

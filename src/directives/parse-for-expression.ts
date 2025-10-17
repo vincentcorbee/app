@@ -1,7 +1,38 @@
-//@ts-nocheck
+import { Directive } from '../modules'
 import expressionParser from '../parser/expression-parser'
 
-const tokens = [
+type Token = {
+  type: string
+  reg: RegExp
+  value: any
+  start: number
+  end: number
+}
+
+type GrammarRuleObject = {
+  type: string
+  reg: RegExp
+  value?: (value: string, directive: Directive) => any
+}
+
+type GrammarRuleArray = [string, RegExp]
+
+type GrammarRule = GrammarRuleObject | GrammarRuleArray
+
+type Lhs = {
+  alias?: any
+  index?: any
+  key?: any
+  value?: any
+}
+
+type Result = {
+  lhs: null | Lhs
+  op: null | Token
+  rhs: null | Token
+}
+
+const GRAMMAR: Array<GrammarRule> = [
   ['IGNORE', /^[ \t\v\r]+/],
   ['OP', /^(in|of)/],
   {
@@ -20,7 +51,7 @@ const tokens = [
   {
     type: 'RHS',
     reg: /^([a-zA-Z\-0-9]+(?:\.[a-zA-Z\-0-9]+|\[[a-zA-Z\-0-9]+\])*)|\[.*\]/,
-    value: (value, directive) => {
+    value: (value, directive: Directive) => {
       let result
 
       try {
@@ -37,27 +68,32 @@ const tokens = [
   },
 ]
 
-const parseForExpression = (input, directive) => {
+const parseForExpression = (input: string, directive: Directive) => {
   let end = 0
   let isLhs = false
-  let tok = null
+  let token = null
 
-  const parsedTokens = []
+  const parsedTokens: Array<Token> = []
 
-  const readToken = () => {
+  const readToken = (): Token | null => {
     const curInput = input.substring(end)
 
     if (curInput.length === 0) return null
 
-    for (let token of tokens) {
-      if (Array.isArray(token))
-        token = {
-          type: token[0],
-          reg: token[1],
+    const length = GRAMMAR.length
+
+    for (let i = 0; i < length; i++) {
+      let rule = GRAMMAR[i]
+
+      if (Array.isArray(rule)) {
+        rule = {
+          type: rule[0],
+          reg: rule[1],
         }
+      }
 
       const start = end
-      const { reg, type } = token
+      const { reg, type } = rule as GrammarRuleObject
       const match = curInput.match(reg)
 
       if (reg && type && match) {
@@ -74,7 +110,7 @@ const parseForExpression = (input, directive) => {
 
         if (type === 'IGNORE') return readToken()
 
-        if (typeof token.value === 'function') value = token.value(value, directive)
+        if (typeof rule.value === 'function') value = rule.value(value, directive)
 
         return {
           type,
@@ -85,51 +121,56 @@ const parseForExpression = (input, directive) => {
         }
       }
     }
+
+    return null
   }
 
-  while ((tok = readToken()) !== null) parsedTokens.push(tok)
+  while ((token = readToken()) !== null) parsedTokens.push(token)
 
-  const result = {
+  const result: Result = {
     lhs: null,
     op: null,
     rhs: null,
   }
-  const identifier = parsedTokens.find(token => token.type === 'RHS') || {}
+  const identifier = parsedTokens.find(token => token.type === 'RHS')
 
   if (identifier && identifier.value.result) {
     const { result: value } = identifier.value
-    const lhs = parsedTokens.find(token => token.type === 'LHS')
+    const tokenLhs = parsedTokens.find(token => token.type === 'LHS')
 
-    if (lhs) {
+    if (tokenLhs) {
       result.rhs = identifier
-      result.lhs = {}
+
+      const lhs: Lhs = {}
 
       const type =
         value.constructor.name === 'ArrayMask' || Array.isArray(value)
           ? 'array'
           : 'object'
-      const args = lhs.value
+      const args = tokenLhs.value as Array<any>
 
       args.forEach((arg, i) => {
         if (type === 'array') {
           if (i === 0) {
-            result.lhs.alias = arg
+            lhs.alias = arg
           } else if (i === 1) {
-            result.lhs.index = arg
+            lhs.index = arg
           }
         } else {
           if (i === 0) {
-            result.lhs.value = arg
+            lhs.value = arg
           } else if (i === 1) {
-            result.lhs.key = arg
+            lhs.key = arg
           } else if (i === 2) {
-            result.lhs.index = arg
+            lhs.index = arg
           }
         }
       })
+
+      result.lhs = lhs
     }
 
-    result.op = parsedTokens.find(token => token.type === 'OP') || {}
+    result.op = parsedTokens.find(token => token.type === 'OP') ?? null
   }
 
   return result

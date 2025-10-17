@@ -7,7 +7,8 @@ export const parseHtml = (
   vm: ComponentInstance,
   isCustomElement: boolean
 ) => {
-  if (vNode.toBeRemoved || vNode.isDetached) return []
+  if (vNode.toBeRemoved || vNode.isDetached || vNode.isCollected || vNode.node === null)
+    return []
 
   const { node } = vNode
   const { nodeType } = node
@@ -38,7 +39,8 @@ export const parseHtml = (
         continue
       }
 
-      /* Dirty hack */
+      /* Dirty hack to prevent unwanted traversal */
+      // @ts-expect-error
       if (child && child.hasAttribute && child.hasAttribute('*skip')) {
         continue
       }

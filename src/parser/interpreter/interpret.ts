@@ -13,28 +13,35 @@ export function interpret(
   options: Record<string, any> = {}
 ): CompletionRecord | undefined {
   switch (node.type) {
+    case 'identifier':
     case 'Identifier': {
       const { name } = node
 
-      setObservable(name, env, directive)
+      if (!(env instanceof EnvironmentRecord)) setObservable(name, env, directive)
 
       return {
         type: 'NORMAL',
-        value: env instanceof EnvironmentRecord ? env.get(name) : (env as any)[name],
+        value:
+          env instanceof EnvironmentRecord
+            ? env.get(name, directive)
+            : (env as any)[name],
       }
     }
+    case 'literal':
     case 'Literal': {
       return {
         type: 'NORMAL',
         value: node.value,
       }
     }
+    case 'break_stmt':
     case 'BreakStatement': {
       return {
         type: 'BREAK',
         target: node.label?.name,
       }
     }
+    case 'prog':
     case 'Program': {
       let result
 
@@ -42,6 +49,7 @@ export function interpret(
 
       return result
     }
+    case 'block_stmt':
     case 'BlockStatement': {
       let value: CompletionRecord | undefined
 
@@ -56,6 +64,7 @@ export function interpret(
         value: value?.value,
       }
     }
+    case 'return_stmt':
     case 'ReturnStatement':
       return {
         type: 'RETURN',
@@ -63,11 +72,14 @@ export function interpret(
           ? interpret(node.argument, env, directive, options)?.value
           : undefined,
       }
-    case 'ExpressionStatement':
+    case 'exp_stmt':
+    case 'ExpressionStatement': {
       return {
         type: 'NORMAL',
         value: interpret(node.expression, env, directive, options)?.value,
       }
+    }
+    case 'for_of_stmt':
     case 'ForOfStatement': {
       const scope = new EnvironmentRecord(env as EnvironmentRecord)
 
@@ -114,6 +126,7 @@ export function interpret(
         value: result?.value,
       }
     }
+    case 'for_stmt':
     case 'ForStatement': {
       const scope = new EnvironmentRecord(env as EnvironmentRecord)
 
@@ -133,6 +146,7 @@ export function interpret(
         type: 'NORMAL',
       }
     }
+    case 'while_stmt':
     case 'WhileStatement': {
       const scope = new EnvironmentRecord(env as EnvironmentRecord)
 
@@ -148,7 +162,8 @@ export function interpret(
         type: 'NORMAL',
       }
     }
-    case 'IfStatement':
+    case 'if_stmt':
+    case 'IfStatement': {
       return {
         type: 'NORMAL',
         value: interpret(node.test, env, directive, options)?.value
@@ -157,6 +172,8 @@ export function interpret(
           ? interpret(node.alternate, env, directive, options)?.value
           : undefined,
       }
+    }
+    case 'binary_exp':
     case 'BinaryExpression': {
       const op = BinaryOperations[node.operator]
 
@@ -185,9 +202,10 @@ export function interpret(
         ),
       }
     }
+    case 'update_exp':
     case 'UpdateExpression': {
       switch (node.argument.type) {
-        case 'Identifier':
+        case 'Identifier': {
           return {
             type: 'NORMAL',
             value: env.set(
@@ -195,10 +213,12 @@ export function interpret(
               UnaryOperations[node.operator](env.get(node.argument.name))
             ),
           }
+        }
         default:
           throw SyntaxError('SyntaxError: Invalid left-hand side in assignment')
       }
     }
+    case 'unary_exp':
     case 'UnaryExpression': {
       const op = UnaryOperations[node.operator]
 
@@ -209,6 +229,7 @@ export function interpret(
         value: op(interpret(node.argument, env, directive, options)?.value, env),
       }
     }
+    case 'member_exp':
     case 'MemberExpression': {
       const { computed } = node
 
@@ -233,6 +254,7 @@ export function interpret(
         value,
       }
     }
+    case 'object_exp':
     case 'ObjectExpression': {
       return {
         type: 'NORMAL',
@@ -250,11 +272,13 @@ export function interpret(
         }, {}),
       }
     }
+    case 'array_exp':
     case 'ArrayExpression':
       return {
         type: 'NORMAL',
         value: node.elements.map(el => interpret(el, env, directive, options)?.value),
       }
+    case 'call_exp':
     case 'CallExpression': {
       let name = ''
 
@@ -278,6 +302,7 @@ export function interpret(
         ),
       }
     }
+    case 'conditional_exp':
     case 'ConditionalExpression': {
       return {
         type: 'NORMAL',
@@ -286,6 +311,7 @@ export function interpret(
           : interpret(node.alternate, env, directive, options)?.value,
       }
     }
+    case 'assign_exp':
     case 'AssignmentExpression': {
       switch (node.left.type) {
         case 'Identifier':
@@ -300,6 +326,7 @@ export function interpret(
           throw SyntaxError('SyntaxError: Invalid left-hand side in assignment')
       }
     }
+    case 'func_exp':
     case 'FunctionExpression': {
       const func = createFunction(node, env)
 
@@ -314,6 +341,7 @@ export function interpret(
         value: env.get('this'),
       }
     }
+    case 'func_decl':
     case 'FunctionDeclaration': {
       const func = createFunction(node, env)
 
@@ -322,6 +350,7 @@ export function interpret(
         value: env.createImmutableBinding(node.id?.name, func),
       }
     }
+    case 'var_decl':
     case 'VariableDeclaration': {
       const mutable = node.kind !== 'const'
 
@@ -339,6 +368,7 @@ export function interpret(
         value,
       }
     }
+    case 'var_declr':
     case 'VariableDeclarator': {
       return {
         type: 'NORMAL',

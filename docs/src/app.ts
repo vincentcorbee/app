@@ -1,7 +1,7 @@
 import { createApp, routerLink, routerView } from '@digitalbranch/app'
 
 import {
-  scaffold,
+  uiScaffold,
   uiTopAppBarMedium,
   uiTopAppBarSmall,
   uiIcon,
@@ -15,17 +15,45 @@ import {
   uiDivider,
   uiHeading,
   uiParagraph,
+  SCAFFOLD_SERVICE_TOKEN,
+  ScaffoldService,
+  ViewportService,
+  VIEWPORT_SERVICE_TOKEN,
+  uiNavigationRailButton,
+  uiTemplate,
+  uiNavigationRail,
+  uiCard,
+  uiCardContent,
 } from './ui'
 import { router } from './routes'
-import { main, syntaxHighlighting } from './components'
+import { main, pageHeader, syntaxHighlighting } from './components'
+
+const icons = [
+  'check',
+  'check_box',
+  'code',
+  'content_copy',
+  'dark_mode',
+  'home_pin',
+  'light_mode',
+  'menu',
+  'menu_open',
+  'syringe',
+  'tools_power_drill',
+]
 
 createApp({
   el: '#app',
+  provide: {
+    icons,
+    [SCAFFOLD_SERVICE_TOKEN]: new ScaffoldService(),
+    [VIEWPORT_SERVICE_TOKEN]: new ViewportService(),
+  },
   components: {
     routerLink,
     routerView,
     main,
-    scaffold,
+    scaffold: uiScaffold,
     uiTopAppBarMedium,
     uiTopAppBarSmall,
     uiIcon,
@@ -34,12 +62,18 @@ createApp({
     uiOutlinedButton,
     uiNavigationDrawer,
     uiNavigationDrawerButton,
+    uiNavigationRail,
+    uiNavigationRailButton,
     uiPage,
     uiGrid,
     uiDivider,
     uiHeading,
     uiParagraph,
+    uiTemplate,
+    uiCard,
+    uiCardContent,
     syntaxHighlighting,
+    pageHeader,
   },
   router,
 })

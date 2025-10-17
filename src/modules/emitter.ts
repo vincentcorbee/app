@@ -77,7 +77,15 @@ export default class Emitter {
           if (listener.once) this.off(event, listener)
         } catch (err) {
           if (events.error) {
-            events.error.apply(this, [].slice.call(arguments, 1))
+            if (Array.isArray(events.error)) {
+              events.error.forEach(([listener, args = []]) => {
+                listener.apply(this, [...[].slice.call(arguments, 1), ...args])
+
+                if (listener.once) this.off(event, listener)
+              })
+            } else {
+              events.error.apply(this, [].slice.call(arguments, 1))
+            }
           } else {
             throw err
           }

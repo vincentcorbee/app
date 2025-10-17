@@ -20,12 +20,12 @@ export const uiNavigationDrawerButton = defineComponent({
     }
   },
   methods: {
-    onSlotChange(e: any) {
-      const { target } = e
+    onSlotChange(e: Event) {
+      const target = e.target as HTMLSlotElement
       const { name } = target
       const hasNodes = target.assignedNodes().length > 0
 
-      if (name === undefined) this.hasLabel = hasNodes
+      if (name === '') this.hasLabel = hasNodes
       else if (name === 'icon-start') this.hasIcon = hasNodes
     },
     onRouterLinkActive(e: CustomEvent<boolean>) {

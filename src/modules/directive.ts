@@ -84,7 +84,12 @@ class Directive extends Emitter {
   unbind() {
     if (this.isDestroyed) return false
 
+    const { vm, vNode } = this
+
     if (this.attachedData) this.attachedData.delete(this.node)
+
+    if (vm) vm.off('destroy', this.$destroy)
+    if (vNode) vNode.off('detached', this.$destroy)
 
     _private.get(this).observables = []
     _private.get(this).attr = null

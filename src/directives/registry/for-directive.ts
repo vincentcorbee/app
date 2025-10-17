@@ -30,7 +30,6 @@ export default (_expressionParser: ExpressionParser): DirectiveConfig<HTMLElemen
     const expression = parseForExpression(attr.value, this)
 
     if (expression.lhs !== null && expression.op !== null && expression.rhs !== null) {
-      // @ts-expect-error
       const data = expression.rhs.value.result
 
       this.expression = expression
@@ -56,7 +55,9 @@ export default (_expressionParser: ExpressionParser): DirectiveConfig<HTMLElemen
     if (data.type === 'push' || (data.type === 'set' && data.prop === raw)) {
       const orgNode = this.orgNode.cloneNode(true)
 
-      if (data.type === 'set') while (children.length) vNode.removeLastChild()
+      if (data.type === 'set') {
+        while (children.length) vNode.removeLastChild()
+      }
 
       if (!data.value) return
 
@@ -89,7 +90,7 @@ export default (_expressionParser: ExpressionParser): DirectiveConfig<HTMLElemen
 
         bindDirectives(scope.$el as VNode, scope as unknown as ComponentInstance)
 
-        scope.on('ready', () => {
+        const setup = () => {
           if (!node.hasOwnProperty('$scope')) {
             Reflect.defineProperty(node, '$scope', {
               get() {
@@ -120,7 +121,9 @@ export default (_expressionParser: ExpressionParser): DirectiveConfig<HTMLElemen
               expression.rhs.value.result.__observable__.subscribe(dir, prop)
             }
           }
-        })
+        }
+
+        scope.once('ready', setup)
       }
     } else if (data.type === 'pop' && children.length) {
       vNode.removeLastChild()
