@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@digitalbranch/earley-parser':
-        specifier: file:../../blogs/earley-parser
-        version: file:../../blogs/earley-parser
+        specifier: github:vincentcorbee/earley-parser
+        version: https://codeload.github.com/vincentcorbee/earley-parser/tar.gz/e9022fd554f723b76d7cc7fc9e0d47db4ca95bed
     devDependencies:
       '@parcel/bundler-library':
         specifier: ^2.15.4
@@ -40,8 +40,9 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-  '@digitalbranch/earley-parser@file:../../blogs/earley-parser':
-    resolution: {directory: ../../blogs/earley-parser, type: directory}
+  '@digitalbranch/earley-parser@https://codeload.github.com/vincentcorbee/earley-parser/tar.gz/e9022fd554f723b76d7cc7fc9e0d47db4ca95bed':
+    resolution: {tarball: https://codeload.github.com/vincentcorbee/earley-parser/tar.gz/e9022fd554f723b76d7cc7fc9e0d47db4ca95bed}
+    version: 1.0.0
 
   '@jridgewell/resolve-uri@3.1.2':
     resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
@@ -928,7 +929,7 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@digitalbranch/earley-parser@file:../../blogs/earley-parser': {}
+  '@digitalbranch/earley-parser@https://codeload.github.com/vincentcorbee/earley-parser/tar.gz/e9022fd554f723b76d7cc7fc9e0d47db4ca95bed': {}
 
   '@jridgewell/resolve-uri@3.1.2': {}
 
