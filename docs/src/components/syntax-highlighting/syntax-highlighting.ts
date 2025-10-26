@@ -2,6 +2,7 @@ import { defineComponent } from '@digitalbranch/app'
 
 import template from './syntax-highlighting.html'
 import css from './syntax-highlighting.css'
+
 import { CSSLexer, HTMLLexer, JSLexer } from './lexer'
 import { Token } from './lexer/types'
 

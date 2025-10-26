@@ -48,11 +48,12 @@ const grammar = [
       | LeftSideExpression INCREMENT
       | LeftSideExpression DECREMENT`,
     action: ({ children = [], ...rest }) => {
-      if (children.length === 2)
+      if (children.length === 2) {
         return createUpdateExpressionNode({
           children: [children[0], children[1]],
           ...rest,
         })
+      }
 
       return children
     },
@@ -368,7 +369,8 @@ const grammar = [
   {
     exp: `ObjectLiteral :
         LCBRACE RCBRACE
-      | LCBRACE FieldList RCBRACE`,
+      | LCBRACE FieldList RCBRACE
+      | LCBRACE FieldList COMMA RCBRACE`,
     action: createObjectExpressionNode,
   },
   {

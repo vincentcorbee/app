@@ -24,16 +24,29 @@ import {
   VariableDeclarator,
 } from '../types'
 
+const updateOperators = new Set(['++', '--'])
+
+/*
+
+  export const createLeftsideExpression = ({ children = [], ...rest }) => {
+  if (children.length === 2) {
+    return createUpdateExpressionNode({
+      children: [children[0], children[1]],
+      ...rest,
+    })
+  }
+
+  return children
+}
+*/
+
 export const pickChild =
   (index: number): SemanticAction =>
   ({ children = [] }) =>
     children[index]
 
-export const createProgramNode: SemanticAction<Program> = ({
-  start,
-  end,
-  children = [],
-}) => {
+export const createProgramNode: SemanticAction<Program> = node => {
+  const { start, end, children = [] } = node
   const sourceType = children.find(child => child?.type === 'ImportDeclaration')
     ? 'module'
     : 'script'
@@ -74,7 +87,6 @@ export const createBlockStatementNode: SemanticAction<BlockStatement> = ({
 export const createArrowExpressionNode: SemanticAction<ArrowFunctionExpression> = ({
   children = [],
 }) => {
-  console.log(children)
   return {
     type: 'ArrowFunctionExpression',
     id: children[0],
@@ -112,18 +124,18 @@ export const createUpdateOrUnaryExpressionNode: SemanticAction<
 > = node => {
   const { children = [], ...rest } = node
 
-  if (['++', '--'].includes(children[0].value))
+  if (updateOperators.has(children[0].value)) {
     return createUpdateExpressionNode({
       children: [children[1], children[0]],
       ...rest,
     })
+  }
 
   return createUnaryExpressionNode(node)
 }
 
-export const createUnaryExpressionNode: SemanticAction<UnaryExpression> = ({
-  children = [],
-}) => {
+export const createUnaryExpressionNode: SemanticAction<UnaryExpression> = node => {
+  const { children = [] } = node
   const [operator, argument] = children
 
   return {
@@ -134,9 +146,8 @@ export const createUnaryExpressionNode: SemanticAction<UnaryExpression> = ({
   }
 }
 
-export const createUpdateExpressionNode: SemanticAction<UpdateExpression> = ({
-  children = [],
-}) => {
+export const createUpdateExpressionNode: SemanticAction<UpdateExpression> = node => {
+  const { children = [] } = node
   const [argument, operator] = children
 
   return {
@@ -149,7 +160,8 @@ export const createUpdateExpressionNode: SemanticAction<UpdateExpression> = ({
 
 export const createBinaryOrUpdateExpressionNode: SemanticAction<
   BinaryExpression | UpdateExpression
-> = ({ children = [], ...rest }) => {
+> = node => {
+  const { children = [], ...rest } = node
   const [left, operator, right] = children!
 
   if (children!.length === 1) return left
@@ -164,9 +176,8 @@ export const createBinaryOrUpdateExpressionNode: SemanticAction<
   }
 }
 
-export const createLogicalExpressionNode: SemanticAction<LogicalExpression> = ({
-  children = [],
-}) => {
+export const createLogicalExpressionNode: SemanticAction<LogicalExpression> = node => {
+  const { children = [] } = node
   const [left, operator, right] = children
 
   if (children!.length === 1) return left
@@ -179,9 +190,11 @@ export const createLogicalExpressionNode: SemanticAction<LogicalExpression> = ({
   }
 }
 
-export const createConditionalExpressionNode: SemanticAction<ConditionalExpression> = ({
-  children = [],
-}) => {
+export const createConditionalExpressionNode: SemanticAction<
+  ConditionalExpression
+> = node => {
+  const { children = [] } = node
+
   if (children.length === 1) return children[0]
 
   return {
@@ -192,7 +205,8 @@ export const createConditionalExpressionNode: SemanticAction<ConditionalExpressi
   }
 }
 
-export const createLeafNode: SemanticAction = ({ children = [], type }) => {
+export const createLeafNode: SemanticAction = node => {
+  const { children = [], type } = node
   const { value: name } = children[0]
 
   return {
@@ -201,7 +215,8 @@ export const createLeafNode: SemanticAction = ({ children = [], type }) => {
   }
 }
 
-export const createIdentifierNode: SemanticAction<Identifier> = ({ children = [] }) => {
+export const createIdentifierNode: SemanticAction<Identifier> = node => {
+  const { children = [] } = node
   const { value: name } = children[0]
 
   return {
@@ -210,7 +225,8 @@ export const createIdentifierNode: SemanticAction<Identifier> = ({ children = []
   }
 }
 
-export const createLiteralNode: SemanticAction<Literal> = ({ children = [] }) => {
+export const createLiteralNode: SemanticAction<Literal> = node => {
+  const { children = [] } = node
   const { value } = children[0]
 
   return {
@@ -226,7 +242,8 @@ export const returnChildren: SemanticAction<any[]> = ({ children = [] }) => [chi
 export const returnValueFromNode: SemanticAction<any> = ({ children = [] }) =>
   children[0].value
 
-export const createNodeList: SemanticAction<any[]> = ({ children = [] }) => {
+export const createNodeList: SemanticAction<any[]> = node => {
+  const { children = [] } = node
   const list = []
 
   for (let i = 0; i < children.length; i++) {
@@ -240,9 +257,8 @@ export const createNodeList: SemanticAction<any[]> = ({ children = [] }) => {
   return [list]
 }
 
-export const createObjectExpressionNode: SemanticAction<ObjectExpression> = ({
-  children = [],
-}) => {
+export const createObjectExpressionNode: SemanticAction<ObjectExpression> = node => {
+  const { children = [] } = node
   const properties = children[1] ?? []
 
   return {
@@ -251,14 +267,13 @@ export const createObjectExpressionNode: SemanticAction<ObjectExpression> = ({
   }
 }
 
-export const createThisExpressionNode: SemanticAction<ThisExpression> = () => {
-  return {
-    type: 'ThisExpression',
-  }
-}
-export const createVariableDeclarationNode: SemanticAction<VariableDeclaration> = ({
-  children = [],
-}) => {
+export const createThisExpressionNode: SemanticAction<ThisExpression> = () => ({
+  type: 'ThisExpression',
+})
+export const createVariableDeclarationNode: SemanticAction<
+  VariableDeclaration
+> = node => {
+  const { children = [] } = node
   const [kind, declarations] = children
 
   return {
@@ -268,24 +283,22 @@ export const createVariableDeclarationNode: SemanticAction<VariableDeclaration> 
   }
 }
 
-export const createVariableDeclaratorNode: SemanticAction<VariableDeclarator> = ({
-  children = [],
-}) => {
+export const createVariableDeclaratorNode: SemanticAction<VariableDeclarator> = node => {
+  const { children = [] } = node
   const [id] = children
 
-  const node: VariableDeclarator = {
+  return {
     type: 'VariableDeclarator',
     id,
     init: null,
   }
-
-  return node
 }
 
-export const createFunctionDeclarationNode: SemanticAction<FunctionDeclaration> = ({
-  children = [],
-}) => {
-  console.log(children)
+export const createFunctionDeclarationNode: SemanticAction<
+  FunctionDeclaration
+> = node => {
+  const { children = [] } = node
+
   return {
     type: 'FunctionDeclaration',
     id: children[1] as Identifier,
@@ -297,9 +310,7 @@ export const createFunctionDeclarationNode: SemanticAction<FunctionDeclaration> 
 
 export const createFunctionBodyNode: SemanticAction<FunctionBody> = ({
   children = [],
-}) => {
-  return {
-    type: 'BlockStatement',
-    body: children as Array<Directive | Statements>,
-  }
-}
+}) => ({
+  type: 'BlockStatement',
+  body: children as Array<Directive | Statements>,
+})

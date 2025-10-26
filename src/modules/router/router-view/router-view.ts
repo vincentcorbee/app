@@ -8,7 +8,7 @@ export const routerView = defineComponent({
   props: ['name'],
   encapsulation: Encapsulation.shadowDom,
   template,
-  data() {
+  data(): any {
     return {
       name: 'default',
     }

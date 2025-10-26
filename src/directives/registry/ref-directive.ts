@@ -5,11 +5,12 @@ export default (_expressionParser: ExpressionParser): DirectiveConfig<HTMLElemen
   name: 'ref',
   reg: /^(a-|\*)ref/,
   bind(vNode, vm) {
-    const handleDetached = () => (vm.$refs[this.attr.value] = null)
+    const { value: refName, name } = this.attr
+    const handleDetached = () => (vm.$refs[refName] = null)
 
-    vm.$refs[this.attr.value] = vNode.node
+    vm.$refs[refName] = vNode.node
 
-    vNode.node.removeAttribute(this.attr.name)
+    vNode.node.removeAttribute(name)
 
     vNode.once('detached', handleDetached)
   },

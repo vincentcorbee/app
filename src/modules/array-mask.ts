@@ -97,7 +97,7 @@ class ArrayMask<T> implements ArrayMaskInterface<T> {
   }
 
   toString() {
-    return JSON.stringify(this, null, 2)
+    return JSON.stringify(this.data, null, 2)
   }
 }
 

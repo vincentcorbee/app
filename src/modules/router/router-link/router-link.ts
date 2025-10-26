@@ -9,7 +9,7 @@ export const routerLink = defineComponent({
   template,
   css,
   props: ['to', 'active'],
-  data() {
+  data(): any {
     return {
       to: '',
       active: false,
