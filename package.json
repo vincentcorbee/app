@@ -22,7 +22,6 @@
     "typescript": "^5.6.3"
   },
   "dependencies": {
-    "@digitalbranch/earley-parser": "file:../../blogs/earley-parser",
-    "@digitalbranch/javascript-pratt-parser": "file:../../blogs/pratt-parsing/javascript-parser"
+    "@digitalbranch/earley-parser": "file:../../blogs/earley-parser"
   }
 }

@@ -11,9 +11,6 @@ importers:
       '@digitalbranch/earley-parser':
         specifier: file:../../blogs/earley-parser
         version: file:../../blogs/earley-parser
-      '@digitalbranch/javascript-pratt-parser':
-        specifier: file:../../blogs/pratt-parsing/javascript-parser
-        version: file:../../blogs/pratt-parsing/javascript-parser
     devDependencies:
       '@parcel/bundler-library':
         specifier: ^2.15.4
@@ -45,9 +42,6 @@ packages:
 
   '@digitalbranch/earley-parser@file:../../blogs/earley-parser':
     resolution: {directory: ../../blogs/earley-parser, type: directory}
-
-  '@digitalbranch/javascript-pratt-parser@file:../../blogs/pratt-parsing/javascript-parser':
-    resolution: {directory: ../../blogs/pratt-parsing/javascript-parser, type: directory}
 
   '@jridgewell/resolve-uri@3.1.2':
     resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
@@ -935,8 +929,6 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.9
 
   '@digitalbranch/earley-parser@file:../../blogs/earley-parser': {}
-
-  '@digitalbranch/javascript-pratt-parser@file:../../blogs/pratt-parsing/javascript-parser': {}
 
   '@jridgewell/resolve-uri@3.1.2': {}
 
